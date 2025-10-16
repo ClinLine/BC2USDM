@@ -310,7 +310,7 @@ class UIDisplay():
             self.prop_isEnabled_checkBox.append(Checkbutton(self.properties_frame_inside,variable=self.prop_isEnabled_var[prop_index]))
             self.prop_isEnabled_checkBox[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="W")
             attribute_index+=1
-            
+
             # Datatype
             self.prop_datatype_var.append(StringVar(value=prop["dataType"]))
             self.prop_datatype_label.append(Label(self.properties_frame_inside, text="Property Datatype: "))
@@ -319,25 +319,25 @@ class UIDisplay():
             self.prop_datatype_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE",)
             attribute_index+=1
 
-            
+
             # Notes
             self.prop_notes_label.append(Label(self.properties_frame_inside, text="Property Notes: "))
             self.prop_notes_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="NW",)
             self.prop_notes_var.append([])
             self.prop_notes_Textbox.append([])
-            for noteIndex in range(0, len(prop["notes"])):
-                self.prop_notes_var[prop_index].append(prop["notes"][noteIndex])
+            for note_index, note in enumerate(prop["notes"]):
+                self.prop_notes_var[prop_index].append(note)
                 self.prop_notes_Textbox[prop_index].append(Text(self.properties_frame_inside))
-                self.prop_notes_Textbox[prop_index][noteIndex].insert('end',self.prop_notes_var[prop_index][noteIndex])
+                self.prop_notes_Textbox[prop_index][note_index].insert('end',self.prop_notes_var[prop_index][note_index])
                 # lines = self.prop_notes_Textbox[prop_index][noteIndex].count("1.0", "end","lines")[0]+1
-                self.prop_notes_Textbox[prop_index][noteIndex].configure(height=4,insertwidth=5) # Reduced with, so it isn't massive
+                self.prop_notes_Textbox[prop_index][note_index].configure(height=4,insertwidth=5) # Reduced with, so it isn't massive
 
-                self.prop_notes_Textbox[prop_index][noteIndex].grid(column=1,row=prop_index*attributes+attribute_index+noteIndex,sticky="W",)
-                self.textbox_rows.append(prop_index*attributes+attribute_index+noteIndex)
-            
-            self.prop_notes_var.append(StringVar(value=prop["notes"]))
+                self.prop_notes_Textbox[prop_index][note_index].grid(column=1,row=prop_index*attributes+attribute_index+note_index,sticky="W",)
+                self.textbox_rows.append(prop_index*attributes+attribute_index+note_index)
+
+            # self.prop_notes_var.append(StringVar(value=prop["notes"]))
             # self.prop_notes_Textbox.append(Text(self.propertiesCanvas,textvariable=self.prop_notes_var[prop_index]))
-            
+
             attribute_index+=1
             # Separator
             # ttk.Separator(self.propertiesCanvas,orient="horizontal").grdatatype(column=0, columnspan=2,row=prop_index*attributes+attribute_index,sticky="WE",pady=2)
@@ -347,15 +347,15 @@ class UIDisplay():
         self.properties_frame_inside.columnconfigure(1,weight=1)
         self.properties_frame_inside.columnconfigure(0,weight=1)
 
-         
+
         # self.propertiesCanvas.grid(column=0,row=6)
 
 
 
 
-        
-        
-        
+
+
+
 
         # properties:LabelFrame:    // Treeview?   
         # [
@@ -381,34 +381,34 @@ class UIDisplay():
         else:
             lbHeight = 5
             self.bc_synonyms_yscrollbar.config(width=12)
-        
+
         self.bc_synonyms_listbox.config(height=lbHeight)
         self.bc_synonyms_entry_value.set("")
 
     def set_active_category(self, category_name:str, bc_names:list[str]):
         self.active_category_overview_lframe.configure(text=f"{category_name}")
         self.biomedical_concepts_in_category.set(bc_names)
-    
+
     # Functions:
     def on_category_click(self, *args):
-            try:
-                category_index = args[0]
+        try:
+            category_index = args[0]
 
-                result = self.__app_instance.select_category(category_index)
-                # result = self.__app_instance.select_category("age")
-                print(result["bc_names"])
-                self.set_active_category(result["category_name"],result["bc_names"])
-                
-            except ValueError:
-                print(ValueError)
+            result = self.__app_instance.select_category(category_index)
+            # result = self.__app_instance.select_category("age")
+            print(result["bc_names"])
+            self.set_active_category(result["category_name"],result["bc_names"])
+
+        except ValueError:
+            print(ValueError)
 
     def on_active_bc_click(self, *args):
-         try:
-              bc_selection_index = args[0]
+        try:
+            bc_selection_index = args[0]
 
-              self.__app_instance.select_bc(bc_selection_index)
-         except ValueError:
-              pass
+            self.__app_instance.select_bc(bc_selection_index)
+        except ValueError:
+            pass
     # def on_biomedical_concept_click(self,*args):
     #         try:
     #             value = current_bcs[Listbox.curselection(bcs_in_current_category)[0]]
