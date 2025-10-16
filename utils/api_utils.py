@@ -13,7 +13,7 @@ from dotenv import dotenv_values
 import pandas
 import numpy as np
 
-from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory
+# from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory
 
 
 __secrets = dotenv_values(".env.dev")
@@ -51,11 +51,12 @@ def get_biomedical_concepts_list(category: str=None):
     try:
         req = requests.api.get(url, headers=__headers, timeout=10)
         bcs = req.json()["_links"]["biomedicalConcepts"]
-        result = []
-        for bc in bcs:
-            element = (bc["title"],bc["href"].split("/")[-1], bc["href"],bc )
-            result.append(element)
-        return pandas.DataFrame(result, columns=["title","id","href","json"])
+        # result = []
+        # for bc in bcs:
+        #     element = (bc["title"],bc["href"].split("/")[-1], bc["href"],bc )
+        #     result.append(element)
+        # return pandas.DataFrame(result, columns=["title","id","href","json"])
+        return bcs
     except requests.Timeout as e:
         print(e)
     except requests.HTTPError as httpe:
@@ -72,7 +73,7 @@ def get_biomedical_concept_package_list():
             title = package_data["title"]
             href = package_data["href"]
             id_ = package_data["href"].split(sep="/")[-2] # sub-final substring
-            result.append({"id":id,"title":title,"href":href,"json":package_data})
+            result.append({"id":id_,"title":title,"href":href,"json":package_data})
         return pandas.DataFrame(result)
     except Exception as e:
         print(e)
@@ -94,7 +95,8 @@ def get_biomedical_concept_list_for_package(package_identifier):
         for bc in bcs:
             id_ = bc["href"].split(sep="/")[-1] # final substring
             biomedical_concepts.append({"id":id_,"title":bc["title"], "href":bc["href"],"type":bc["type"],"json":bc})
-        return pandas.DataFrame(biomedical_concepts)
+        # return pandas.DataFrame(biomedical_concepts)
+        return biomedical_concepts
     except Exception as e:
         print(e)
 
@@ -112,8 +114,9 @@ def get_latest_biomedical_concept(biomedical_concept_id):
         if req.status_code == 404:
             raise Exception(req.json()["detail"])
         json_data: str = req.json()
-        print(req)
-        raise NotImplementedError("Implementation of this endpoint will finish after a datatype has been made")
+        # print(req)
+        return json_data
+        # raise NotImplementedError("Implementation of this endpoint will finish after a datatype has been made")
     except Exception as e:
         print(e)
 

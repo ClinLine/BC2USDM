@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import json
 
 from models.CDISC.BiomedicalConceptLink import BiomedicalConceptLink
+from utils.utils import Encoding
 # from BiomedicalConceptLink import BiomedicalConceptLink
 __package__ = "models.CDISC"
 
@@ -15,7 +16,7 @@ class BiomedicalConceptCategory:
         self.links = bcl
 
     def get_label(self):
-        return f"Biomedical Concept Category ({self.name})"
+        return Encoding.decode(self.name)
     
     def get_description(self):
         raise NotImplementedError("No description has been found for this Category")
