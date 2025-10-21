@@ -259,7 +259,7 @@ class PropertyFrame(Frame):
         # prop_window.add(notes_frame)
 
         # Property Response Codes:
-        response_code_frame = ResponseCodeFrame(self, response_codes=property["responseCode"])
+        response_code_frame = ResponseCodesContainerFrame(self, response_codes=property["responseCode"])
         response_code_frame.grid(row=(row_index:=row_index+1)-1, column=0, columnspan=2, sticky=NSEW)
 
 
@@ -351,35 +351,111 @@ class NotesFrame(LabelFrame):
             self.notes_panel.configure(height=self.notes_panel.winfo_height() + new_height)
         
 
-class ResponseCodeFrame(LabelFrame):
+class ResponseCodesContainerFrame(LabelFrame):
     def __init__(self, parent, response_codes=[], *args, **kwargs):
         super().__init__(parent, text="Response Codes:")
-        self.scroll_frame = ScrollFrame(self)
-        self.scroll_frame.view_port.columnconfigure(1, weight=1, uniform=True)
-        self.id_vars:list[StringVar] = []
-        self.enabled_vars:list[BooleanVar] = []
-        for i, response_code in enumerate(response_codes):
-            # Label:
-            Label(self.scroll_frame.view_port, text="Name:").grid(row=i*4+2, column=0, sticky="NSW")
-            label_var=StringVar(value=response_code["label"])
-            Entry(self.scroll_frame.view_port, textvariable=label_var).grid(row=i*4+2, column=1, sticky=NSEW)
-            # Id:
-            Label(self.scroll_frame.view_port,text="Response code id:").grid(row=i*4, column=0, sticky="NSW")
-            self.id_vars.append(StringVar(value=response_code["id"]))
-            Entry(self.scroll_frame.view_port, textvariable=self.id_vars[i], state=DISABLED).grid(row=i*4, column=1, sticky=NSEW)
-            # Code:
-            Label(self.scroll_frame.view_port, text="Code:").grid(row=i*4+1, column=0, sticky="NSW")
-            entry_var = StringVar(value=response_code["code"])
-            Entry(self.scroll_frame.view_port, textvariable=entry_var).grid(row=i*4+1, column=1, sticky=NSEW)
+        self.scroll_frame = self.config_scrollframe()
+        self.response_codes = response_codes
+        self.initialize_response_codes(response_codes, self.scroll_frame)
+        # self.setup_add_button(response_codes)
 
-
-            # Enabled:
-            Label(self.scroll_frame.view_port, text="Enabled:").grid(row=i*4+3, column=0, sticky="NWS")
-            enabled_button = Checkbutton(self.scroll_frame.view_port, name="!response_enabled_btn_"+str(response_code["id"]).replace("-","_"))
-            enabled_var = IntVar(master=enabled_button, value=response_code["isEnabled"])
-            self.enabled_vars.append(enabled_var)
-            enabled_button.configure(variable=self.enabled_vars[i], onvalue=True, offvalue=False)
-            enabled_button.grid(row=i*4+3, column=1, sticky="NSW")
 
         # when packing the scrollframe, we pack scrollFrame itself (NOT the viewPort)
         self.scroll_frame.pack(side=TOP, fill=BOTH, expand=True)
+
+    # def setup_add_button(self, response_codes):
+    #     add_button = Button(self.scroll_frame.view_port, text="New response code")
+    #     add_button.pack(side=BOTTOM, expand=True)
+        
+    def initialize_response_codes(self, response_codes={}, scrollframe:ScrollFrame=None):
+        self.id_vars:list[StringVar] = []
+        self.enabled_vars:list[BooleanVar] = []
+        self.response_code_frames = []
+        for i, response_code in enumerate(response_codes):
+            new_frame = ResponseCodeFrame(scrollframe.view_port, response_code, i, relief="groove", borderwidth=1,)
+            self.response_code_frames.append(new_frame)
+            
+        # Add new rc button:
+        add_button = Button(scrollframe.view_port, text="Add new response code")
+        add_button.pack(side=BOTTOM, fill=X,expand=TRUE)
+        add_button.config(command=lambda i=len(self.scroll_frame.view_port.children):self.on_add_button(i))
+
+    def config_scrollframe(self):
+        scroll_frame = ScrollFrame(self)
+        scroll_frame.view_port.columnconfigure(index=1, weight=1, uniform=True)
+        return scroll_frame
+    
+    def on_add_button(self, response_code_ui_id):
+        new_frame = ResponseCodeFrame(self.scroll_frame.view_port, None, response_code_ui_id, relief="groove", borderwidth=1)
+        self.response_code_frames.append(new_frame)
+        self.response_codes.append(None)
+
+
+class ResponseCodeFrame(Frame):
+    rc_index:int # response code index
+
+    # Attributes:
+    label_var:StringVar
+    id_var:StringVar
+    # name_var:StringVar # hidden & inferred
+    is_enabled_var:IntVar
+    code_var:StringVar
+
+
+    def __init__(self, parent, response_code=None, index:int=0, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.response_code=response_code
+        self.rc_index = index
+        # self.response_code_frame_id = __class__.NOT_SET
+        self.create()
+        self.pack(side=TOP, fill=BOTH, expand=True)
+        self.columnconfigure(index=1, weight=1, uniform=TRUE)
+        self.populate(response_code)
+
+    def create(self):
+        i:int=0
+        self.initialize_vars()
+
+        # Label:
+        l_label = Label(self, text="Label:")
+        l_label.grid(row=i, column=0, sticky="NSW")
+        e_label = Entry(self, textvariable=self.label_var)
+        e_label.grid(row=(i:=i+1)-1, column=1, sticky=NSEW)
+        
+        # Id:
+        l_id = Label(self,text="Response code id:")
+        l_id.grid(row=i, column=0, sticky="NSW")
+
+        e_id = Entry(self, textvariable=self.id_var, state=DISABLED)
+        e_id.grid(row=(i:=i+1)-1, column=1, sticky=NSEW)
+        # Code:
+        l_code = Label(self, text="Code:")
+        l_code.grid(row=i, column=0, sticky="NSW")
+        e_code = Entry(self, textvariable=self.code_var)
+        e_code.grid(row=(i:=i+1)-1, column=1, sticky=NSEW)
+
+        # Enabled:
+        l_enabled = Label(self, text="Enabled:")
+        l_enabled.grid(row=i, column=0, sticky="NWS")
+        enabled_button = Checkbutton(self, variable=self.is_enabled_var)
+        enabled_button.grid(row=(i:=i+1)-1, column=1, sticky="NSW")
+
+    def initialize_vars(self):
+        self.id_var = StringVar(value="", )
+        self.label_var = StringVar(value="",)
+        # self.name_var = StringVar(value="") # inferred
+        self.is_enabled_var = IntVar(value=0, )
+        self.code_var = StringVar(value="", )
+
+    def populate(self, response_code=None):
+        if response_code is not None:
+            # Attributes:
+            self.label_var.set(response_code["label"])
+            print(self.label_var.__dict__)
+            self.id_var.set(response_code["code"])
+            # name_var:StringVar # hidden & inferred
+            self.is_enabled_var.set(response_code["isEnabled"])
+            self.code_var.set(response_code["id"])
+            # TODO Add Code support?
+        else:
+            self.id_var.set(guid())
