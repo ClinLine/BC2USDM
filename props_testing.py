@@ -144,7 +144,7 @@ class ScrollFrame(Frame):
 
         self.v_scrollbar.pack(side=RIGHT, fill=Y)
         self.canvas.pack(side=LEFT, fill=BOTH, expand=True)
-        self.canvas_window = self.canvas.create_window((4,4), 
+        self.canvas_window_id = self.canvas.create_window((4,4), 
                                                        window=self.view_port,
                                                        anchor=NW,
                                                        tags="self.view_port")
@@ -159,14 +159,8 @@ class ScrollFrame(Frame):
         if expandable:
             self.add_element_button = Button(self.view_port, text="button not configured",)
             self.add_element_button.pack(side="bottom", )
-            self.add_element_button.bind("<Button>", self._on_button_click)
+            # self.add_element_button.bind("<Button>", self._on_button_click)
 
-        # print(self.canvas.bbox('all')) // useless
-        # print(self.view_port.bbox('all'))
-        # print(self.bbox('all'))
-
-        
-       
         self._on_frame_configure(None)
 
     def _on_post_init(self):
@@ -174,37 +168,30 @@ class ScrollFrame(Frame):
         self.recalculate_scrollregion(None)
 
     def _on_button_click(self, event, *args):
-        self.recalculate_scrollregion(event)
+        pass
+        # self.recalculate_scrollregion(event)
+
+    def check_resize(self):
+        # TODO: doesn't work correctly
+        # TODO: fix before production
+        children = [child for child in self.view_port.children.values() if not isinstance(child, (Button, PanedWindow))]
+        if len(children) < self.max_visible_chrildren:
+            self.recalculate_scrollregion(None)
 
     def recalculate_scrollregion(self, event):
-        print(self.canvas.bbox('all'))
-        
-        if(event is not None):
-            # print(event.widget)
-            pass
-        
-        self.canvas.config(height=self.canvas.bbox('all')[3])
-        # resize as long as the amount of children is less than max children (+1 for the button)
-        children = [child for child in self.view_port.children.values() if not isinstance(child,Button)]
-        
-        if len(children) < self.max_visible_chrildren:
-            # bbox('all') returns a tuple(x0, y0, x1, y1) enveloping all children
-            bbox = self.canvas.bbox("all")
-            new_height:int = bbox[3] - bbox[1]
-            # calc new height
-
-            self.canvas.config(height=new_height)
-            
-            # 
+        bbox = self.canvas.bbox("all")
+        new_height:int = bbox[3] - bbox[1]
+        self.canvas.config(height=new_height)
 
     def _on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        
 
     def _on_canvas_configure(self, event):
         canvas_width = event.width
         # whenever the size of the canvas changes
         # update the window size
-        self.canvas.itemconfig(self.canvas_window,width=canvas_width)
+        self.canvas.itemconfig(self.canvas_window_id,width=canvas_width)
 
 
 
@@ -238,16 +225,18 @@ class ScrollFrame(Frame):
 class Properties_Container(LabelFrame):
     def __init__(self, parent, frame_title:str="Properties:",properties=[], *args, **kwargs):
         super().__init__(parent, text=frame_title)
-        self.scroll_frame = ScrollFrame(self, True)
-
-        # self.required_properties_vars:list[BooleanVar] = []
-        # self.enabled_properties_vars:list[BooleanVar] = []
+        
+        self.scroll_frame = ScrollFrame(self, False)
+        
         self.property_containers = []
+        self.notebook = ttk.Notebook(self.scroll_frame.view_port)
+        self.notebook.pack(side=TOP, fill=BOTH, expand=True)
 
         for prop in properties:
             main_frame = PropertyFrame(self.scroll_frame.view_port, property=prop, name=f"main_frame_{prop["id_"]}")
             main_frame.columnconfigure(1,weight=1)
-            self.property_containers.append(main_frame)
+            # self.property_containers.append(main_frame)
+            self.notebook.add(main_frame, text=prop["label"])
 
         self.scroll_frame.pack(side=TOP, fill=BOTH, expand=True)
         self.scroll_frame._on_post_init()
@@ -318,65 +307,43 @@ class NotesFrame(LabelFrame):
         super().__init__(parent, text="Notes:")
         self.scroll_frame = ScrollFrame(self, True)
         
-        self.note_boxes:list[Text]=[]
         self.note_vars:list[StringVar]=[]
 
         # create PanedWindow to make the boxes scalable
         self.notes_panel = PanedWindow(self.scroll_frame.view_port, orient=VERTICAL)
         self.notes_panel.pack(side=TOP, fill=BOTH, expand=True)
-        
-        self.notes_count = IntVar(master=self, value=len(notes))
-        _default__textbox_height:int = lines * 17
-        _default_canvas_height = 0
-        
-        _min_height:int = lines * 16 + 4
-        _max_height:int = lines * 16 * 3 + 4
 
 
         # Create a Textbox for each Note
         for note_index, note in enumerate(notes):
+            self._add_text_box(note,4)
 
-            # Create a StringVar to store each note in. note sure if Requried...
-            self.note_vars.append(StringVar(value=note))
-            # Create the Textbox
-            # Default height = 24 := 384 pixels, border=1px, pady = 1px ==> 388 px, 16px / line
-            # Default for 4 lines := 4 * 16 + 2 + 2 = 52 px
-            # text_box = Text(self.notes_panel, name=f"notebox_{note_index}")
-            text_box = Text(self.notes_panel, name=f"notebox_{note_index}",height=lines)
-
-            # Setting initial text:
-            text_box.insert('end', self.note_vars[note_index].get())
-
-            text_box.bind("<FocusOut>", self._on_focus_out)
-            text_box.pack(side=TOP, fill=BOTH, expand=TRUE)
-            self.notes_panel.add(text_box)
-            # self.note_boxes.append(text_box)
-        # Make sure canvas is at least 1 textbox and at most {min_textboxes} textboxes big:
-        # self.recalculate_canvas_height(len(notes))
-        # self.notes_count.trace_variable(mode=W,lambda min_textboxes=min_textboxes, max_textboxes=max_textboxes, current_textboxes=event.value:self.recalculate_canvas_height)
-        # self.notes_count.trace_add("write", callback=self._on_notescount_changed)
-        # self.notes_count.trace_add("read", callback=self.testing)
-        # self.notes_count.bind("<ValueChange>", )
-        self.notes_count.set(10)
-        # Add empty frame to make bottom textbox rescalable
-        self.notes_panel.add(Frame(self.notes_panel, name="empty_-1", height=0))
-        
         # when placing in the scrollframe, we pack scrollFrame itself (NOT the viewPort)
         self.scroll_frame.pack(side=TOP, fill=BOTH, expand=TRUE)
         self.scroll_frame._on_post_init()
+        self._bind_add_button()
+
+    def _bind_add_button(self):
+        button = self.scroll_frame.add_element_button
+        button["text"] = "Add Note"
+        button["command"] = self._on_button_click
+
+    def _on_button_click(self, event=None, *args):
+        self._add_text_box("", 4)
+
+
+    def _add_text_box(self, text="", textbox_height:int=4):
+        self.note_vars.append(StringVar(value=text))
+        new_box = Text(self.scroll_frame.view_port, name=f"notebox_{len(self.note_vars)-1}", height=textbox_height)
+        if text != "":
+            new_box.insert('end', text)
+        new_box.bind("<FocusOut>", self._on_focus_out)
+        new_box.pack(side=TOP, fill=BOTH, expand=True)
+        self.notes_panel.add(new_box)
+        self.update_idletasks()
+        self.scroll_frame.check_resize()
     
-    # def _on_notescount_changed(self, *args):
-    #     self.recalculate_canvas_height(current_textboxes=self.notes_count.get())
-        
-
-    # def recalculate_canvas_height(self, current_textboxes:int=0):
-    #     if current_textboxes >= self.max_textboxes:
-    #         self.scroll_frame.canvas.config(height=self.max_textboxes * self.lines * NotesFrame._line_height)
-    #     elif current_textboxes <= self.min_textboxes:
-    #         self.scroll_frame.canvas.config(height=self.min_textboxes * self.lines * NotesFrame._line_height)
-    #     else:
-    #         self.scroll_frame.canvas.config(height=current_textboxes * self.lines * NotesFrame._line_height)
-
+    
     def _on_focus_out(self, event):
         # widgit name will be in the shape of NAME#, where # is the index of the textbox
         text_index:int = int(event.widget._name.split('_')[-1])
@@ -391,12 +358,6 @@ class NotesFrame(LabelFrame):
         self.note_vars[text_index].set(textbox_contents)
         # self.recalculate_height(event.widget, len(text_dump))
     
-    # def recalculate_height(self, text_box:Text, lines, line_height=12):
-    #     new_height = lines*line_height
-    #     if text_box.winfo_height() < new_height:
-    #         self.notes_panel.paneconfigure(text_box, height=new_height)
-    #         self.notes_panel.configure(height=self.notes_panel.winfo_height() + new_height)
-        
 
 class ResponseCodesContainerFrame(LabelFrame):
     def __init__(self, parent, response_codes=[], *args, **kwargs):
@@ -425,19 +386,29 @@ class ResponseCodesContainerFrame(LabelFrame):
             
         # TODO: Replace with Super's add btn
         # Add new rc button:
-        add_button = Button(scrollframe.view_port, text="Add new response code")
-        add_button.pack(side=BOTTOM, fill=X,expand=TRUE)
-        add_button.config(command=lambda i=len(self.scroll_frame.view_port.children):self.on_add_button(i))
+        self._bind_add_button()
+
+        # add_button = Button(scrollframe.view_port, text="Add new response code")
+        
+        
 
     def config_scrollframe(self):
         scroll_frame = ScrollFrame(self, True)
         scroll_frame.view_port.columnconfigure(index=1, weight=1, uniform=True)
         return scroll_frame
     
-    def on_add_button(self, response_code_ui_id):
+    def _bind_add_button(self):
+        button = self.scroll_frame.add_element_button
+        button["text"] = "Add new response code"
+        button["command"] =lambda i=len(self.scroll_frame.view_port.children):self._on_add_button(i)
+
+
+    def _on_add_button(self, response_code_ui_id):
         new_frame = ResponseCodeFrame(self.scroll_frame.view_port, None, response_code_ui_id, relief="groove", borderwidth=1)
         self.response_code_frames.append(new_frame)
         self.response_codes.append(None)
+        self.update_idletasks()
+        self.scroll_frame.check_resize()
 
 
 class ResponseCodeFrame(Frame):

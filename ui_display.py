@@ -64,6 +64,10 @@ class UIDisplay():
         self.root.geometry(f"{UIDisplay.__default_width}x{UIDisplay.__default_height}")
         
         testWindow = Toplevel(self.root)
+        
+        # Move the window to the screen left from the primary monitor
+        self.root.update_idletasks() # force geometry calc, otherwise all values will be 0
+        testWindow.geometry(f"+{testWindow.winfo_rootx()-testWindow.winfo_screenwidth()}+{testWindow.winfo_rooty()}")
         PropertyDisplay(testWindow, "PropertyTesting!!")
         # self.root["bg"]="red"
         # self.root.minsize(UIDisplay.__default_width,UIDisplay.__default_height)
