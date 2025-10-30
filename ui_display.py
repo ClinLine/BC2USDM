@@ -1,7 +1,12 @@
 from tkinter import *
 from tkinter import ttk
 
-from props_testing import PropertyDisplay
+# from props_testing import PropertyDisplay
+
+# from props_testing import Properties_Container
+from uuid import uuid4 as guid
+
+from views.property_ui import Properties_Container
 
 
 
@@ -63,12 +68,12 @@ class UIDisplay():
         self.root.config(height=UIDisplay.__default_height,width=UIDisplay.__default_width)
         self.root.geometry(f"{UIDisplay.__default_width}x{UIDisplay.__default_height}")
         
-        testWindow = Toplevel(self.root)
+        # testWindow = Toplevel(self.root)
         
         # Move the window to the screen left from the primary monitor
         self.root.update_idletasks() # force geometry calc, otherwise all values will be 0
-        testWindow.geometry(f"+{testWindow.winfo_rootx()-testWindow.winfo_screenwidth()}+{testWindow.winfo_rooty()}")
-        PropertyDisplay(testWindow, "PropertyTesting!!")
+        # testWindow.geometry(f"+{testWindow.winfo_rootx()-testWindow.winfo_screenwidth()}+{testWindow.winfo_rooty()}")
+        # PropertyDisplay(testWindow, "PropertyTesting!!")
         # self.root["bg"]="red"
         # self.root.minsize(UIDisplay.__default_width,UIDisplay.__default_height)
 
@@ -192,27 +197,57 @@ class UIDisplay():
         self.bc_synonyms_entry.bind("<Return>", lambda event: self.synonym_add_cmd(self.bc_synonyms_entry.get()))
 
         dummyProperties = [{
-            "id_":"C2389",
+            "id_":str(guid()).upper(),
             "label":"Testing Prop",
             "isRequired":1,
             "isEnabled":0,
             "dataType":"Blood sample",
-            "notes":[f"Bla bla\n bla", "This is a crutial note", "this is super important too"]
-        # },
-        # {
-        #     "id_":"C2349",
-        #     "label":"Testing Prop 2",
-        #     "isRequired":1,
-        #     "isEnabled":0,
-        #     "dataType":"Bs",
-        #     "notes":["Bla bla bla", "This is a crutial note", "this is super important too"]
-        # },{
-        #     "id_":"C2239",
-        #     "label":"Testing Prop",
-        #     "isRequired":0,
-        #     "isEnabled":1,
-        #     "dataType":"Blood sample",
-        #     "notes":["Bla bla bla", "This is a crutial note", "this is super important too"]
+            "code":"C2389",
+            "notes":[f"beep boop",f"Bla bla\n bla", f"Bla bla \n akj;sdf a;klsdjf ;akdjfa;leksjfa;kldjf;a kljsef;alksejf;aklsjef;aksjfj a;ske;fjkasd;fjk asej;fkasjf;lkasej;fkl asjef;k lasefj a;kslefj asklef ja;skejfa;klsfj a;selkj ;fjkasd;fjk asej;fkasjf;lkasej;fkl asjef;k lasefj a;kslefj asklef ja;skejfa;klsfj a;selkj f", "this is super important too"],
+            "responseCode":[{
+                "id":str(guid()).upper(),
+                "name":"Blood letting",
+                "label":"Blood letting2",
+                "isEnabled":1,
+                "code":"C651654",
+            },{
+                "id":str(guid()).upper(),
+                "name":"Blood letting",
+                "label":"Blood letting2",
+                "isEnabled":0,
+                "code":"C651654",
+            },],
+        },
+        {
+            "id_":str(guid()).upper(),
+            "label":"Testing Prop 2",
+            "isRequired":1,
+            "isEnabled":0,
+            "dataType":"Bs",
+            "code":"C651549",
+            "notes":["Bla bla bla", "This is a crutial note", "this is super important too"],
+            "responseCode":[{
+                "id":str(guid()).upper(),
+                "name":"Blood letting",
+                "label":"Blood letting2",
+                "isEnabled":1,
+                "code":"C65154",
+            }],
+        },{
+            "id_":str(guid()).upper(),
+            "label":"Testing Prop",
+            "isRequired":0,
+            "isEnabled":1,
+            "dataType":"Blood sample",
+            "code":"C64165",
+            "notes":["Bla bla bla", ],
+            "responseCode":[{
+                "id":str(guid()).upper(),
+                "name":"Blood letting",
+                "label":"Blood letting2",
+                "isEnabled":1,
+                "code":"C65416541",
+            }],
         }]
         # h_bar = ttk.Separator(masterFrame,orient="horizontal")
         # h_bar.grid(column=0,columnspan=2,row=6,sticky="WE",pady=5)
@@ -220,137 +255,139 @@ class UIDisplay():
         # testLabel = Label(self.active_biomedical_concept_overview_lframe,text="Properties:")
         # testLabel.grid(column=0,row=7)
         # testLabel.pack(anchor="n",after=self.active_biomedical_concept_overview_mainframe,expand=True,side="left", fill="x")
-        self.propertiesFrame = LabelFrame(self.active_biomedical_concept_overview_lframe,text="Properties:",)
-        self.propertiesFrame.pack(anchor="nw", after=self.active_biomedical_concept_overview_mainframe,side=TOP,fill="both",expand=True,in_=self.active_biomedical_concept_overview_lframe)
-        # self.propertiesFrame.grid(column=0,columnspan=2,row=8,sticky="WSE",padx=3,pady=3)
+        self.properties_frame = Properties_Container(self.active_biomedical_concept_overview_lframe,frame_title="Properties:", properties=dummyProperties)
+        self.properties_frame.pack(side=TOP, fill=BOTH, expand=True)
+        # self.propertiesFrame = LabelFrame(self.active_biomedical_concept_overview_lframe,text="Properties:",)
+        # self.propertiesFrame.pack(anchor="nw", after=self.active_biomedical_concept_overview_mainframe,side=TOP,fill="both",expand=True,in_=self.active_biomedical_concept_overview_lframe)
+        # # self.propertiesFrame.grid(column=0,columnspan=2,row=8,sticky="WSE",padx=3,pady=3)
         
-        self.properties_scrollbar_x = Scrollbar(self.propertiesFrame, orient=HORIZONTAL)
-        self.properties_scrollbar_y = Scrollbar(self.propertiesFrame, orient=VERTICAL)
-        self.propertiesCanvas = Canvas(self.propertiesFrame, yscrollcommand=self.properties_scrollbar_y.set, xscrollcommand=self.properties_scrollbar_x.set)
-        self.properties_frame_inside=Frame(self.propertiesCanvas)
-        self.propertiesCanvas.create_window((0,0),anchor="nw",window=self.properties_frame_inside)
-        self.propertiesCanvas.config(bg="red")
-        self.properties_frame_inside.config(background="green")
-        # self.properties_frame_inside.pack(anchor="nw",fill=BOTH, expand=True,side=TOP)
-        # self.active_biomedical_concept_overview_lframe = ttk.LabelFrame(self.mainframe,text=f"Active BC:\n")
-        # self.propertiesCanvas.pack(anchor="nw", width=UIDisplay.__data_column_width[2],x=UIDisplay.__data_column_width[0]+UIDisplay.__data_column_width[1], in_=self.mainframe)
-        self.propertiesCanvas.grid(column=0, row=0, sticky="NWES")
-        self.properties_scrollbar_x.grid(column=0, row=1, sticky="WE")
-        self.properties_scrollbar_y.grid(column=1, row=0, sticky="NS")
-        self.propertiesFrame.rowconfigure(0,weight=1)
-        self.propertiesFrame.columnconfigure(0,weight=1)
+        # self.properties_scrollbar_x = Scrollbar(self.propertiesFrame, orient=HORIZONTAL)
+        # self.properties_scrollbar_y = Scrollbar(self.propertiesFrame, orient=VERTICAL)
+        # self.propertiesCanvas = Canvas(self.propertiesFrame, yscrollcommand=self.properties_scrollbar_y.set, xscrollcommand=self.properties_scrollbar_x.set)
+        # self.properties_frame_inside=Frame(self.propertiesCanvas)
+        # self.propertiesCanvas.create_window((0,0),anchor="nw",window=self.properties_frame_inside)
+        # self.propertiesCanvas.config(bg="red")
+        # self.properties_frame_inside.config(background="green")
+        # # self.properties_frame_inside.pack(anchor="nw",fill=BOTH, expand=True,side=TOP)
+        # # self.active_biomedical_concept_overview_lframe = ttk.LabelFrame(self.mainframe,text=f"Active BC:\n")
+        # # self.propertiesCanvas.pack(anchor="nw", width=UIDisplay.__data_column_width[2],x=UIDisplay.__data_column_width[0]+UIDisplay.__data_column_width[1], in_=self.mainframe)
+        # self.propertiesCanvas.grid(column=0, row=0, sticky="NWES")
+        # self.properties_scrollbar_x.grid(column=0, row=1, sticky="WE")
+        # self.properties_scrollbar_y.grid(column=1, row=0, sticky="NS")
+        # self.propertiesFrame.rowconfigure(0,weight=1)
+        # self.propertiesFrame.columnconfigure(0,weight=1)
 
         
         
-        self.properties_frame_inside.bind("<Configure>",lambda event: self.propertiesCanvas.configure(scrollregion=self.propertiesCanvas.bbox("all")))
-        # self.properties_scrollbar_y.pack(anchor="se",expand=False, fill="y",side="right")
-        # self.propertiesCanvas.pack(anchor="sw",expand=True,fill="both",side="left",after=self.properties_scrollbar_y)
-        # self.propertiesCanvas.grid(column=0,columnspan=2,row=8,sticky="NESW")
-        # print(self.propertiesCanvas.winfo_y()) # 0
+        # self.properties_frame_inside.bind("<Configure>",lambda event: self.propertiesCanvas.configure(scrollregion=self.propertiesCanvas.bbox("all")))
+        # # self.properties_scrollbar_y.pack(anchor="se",expand=False, fill="y",side="right")
+        # # self.propertiesCanvas.pack(anchor="sw",expand=True,fill="both",side="left",after=self.properties_scrollbar_y)
+        # # self.propertiesCanvas.grid(column=0,columnspan=2,row=8,sticky="NESW")
+        # # print(self.propertiesCanvas.winfo_y()) # 0
 
-        self.properties_scrollbar_y["command"] = self.propertiesCanvas.yview
-        self.properties_scrollbar_x["command"] = self.propertiesCanvas.xview
-        # self.propertiesCanvas.config(yscrollcommand=self.properties_scrollbar_y.set)
-        # self.properties_scrollbar_y.pack(column=1,row=8,sticky="NSE")
+        # self.properties_scrollbar_y["command"] = self.propertiesCanvas.yview
+        # self.properties_scrollbar_x["command"] = self.propertiesCanvas.xview
+        # # self.propertiesCanvas.config(yscrollcommand=self.properties_scrollbar_y.set)
+        # # self.properties_scrollbar_y.pack(column=1,row=8,sticky="NSE")
         
-        prop_index = 0
-        attributes = 5
-        attribute_index=0
+        # prop_index = 0
+        # attributes = 5
+        # attribute_index=0
 
-        self.prop_name_label:list[Label] = []
-        self.prop_name_var:list[StringVar] = []
-        self.prop_name_entry:list[Entry] = []
+        # self.prop_name_label:list[Label] = []
+        # self.prop_name_var:list[StringVar] = []
+        # self.prop_name_entry:list[Entry] = []
 
-        self.prop_id_var:list[StringVar] = []
-        self.prop_id_label:list[Label] = []
-        self.prop_id_entry:list[Entry] = []
+        # self.prop_id_var:list[StringVar] = []
+        # self.prop_id_label:list[Label] = []
+        # self.prop_id_entry:list[Entry] = []
 
-        self.prop_isRequired_var:list[IntVar] = []
-        self.prop_isRequired_label:list[Label] = []
-        self.prop_isRequired_checkBox:list[Checkbutton] = []
+        # self.prop_isRequired_var:list[IntVar] = []
+        # self.prop_isRequired_label:list[Label] = []
+        # self.prop_isRequired_checkBox:list[Checkbutton] = []
 
-        self.prop_isEnabled_var:list[IntVar] = []
-        self.prop_isEnabled_label:list[Label] = []
-        self.prop_isEnabled_checkBox:list[Checkbutton] = []
+        # self.prop_isEnabled_var:list[IntVar] = []
+        # self.prop_isEnabled_label:list[Label] = []
+        # self.prop_isEnabled_checkBox:list[Checkbutton] = []
 
-        self.prop_datatype_var:list[StringVar] = []
-        self.prop_datatype_label:list[Label] = []
-        self.prop_datatype_entry:list[Entry] = []
+        # self.prop_datatype_var:list[StringVar] = []
+        # self.prop_datatype_label:list[Label] = []
+        # self.prop_datatype_entry:list[Entry] = []
 
-        self.prop_notes_var:list[list[StringVar]] = [[]]
-        self.prop_notes_label:list[Label] = []
-        # self.prop_notes_frames:list[Frame] = []
-        self.prop_notes_Textbox:list[list[Text]] = [[]]
-        self.textbox_rows:list[int] = []
-
-
-        for prop in dummyProperties:
-            # Label
-            self.prop_name_label.append(Label(self.properties_frame_inside,text="Property:"))
-            self.prop_name_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W")
-            self.prop_name_var.append(StringVar(value=prop["label"]))
-            self.prop_name_entry.append(Entry(self.properties_frame_inside,textvariable=self.prop_name_var[prop_index]))
-            self.prop_name_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE")
-            attribute_index+=1
-            # ID
-            self.prop_id_var.append(StringVar(value=prop["id_"]))
-            self.prop_id_label.append(Label(self.properties_frame_inside, text="Property Id: "))
-            self.prop_id_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W",)
-            self.prop_id_entry.append(Entry(self.properties_frame_inside,textvariable=self.prop_id_var[prop_index]))
-            self.prop_id_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE",)
-            self.prop_id_entry[prop_index].configure(state="disabled")
-            attribute_index+=1
-            # Is Required
-            self.prop_isRequired_var.append(IntVar(value=prop["isRequired"]))           # print(prop["isRequired"])
-            self.prop_isRequired_label.append(Label(self.properties_frame_inside,text="Required:"))
-            self.prop_isRequired_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W")
-            self.prop_isRequired_checkBox.append(Checkbutton(self.properties_frame_inside,variable=self.prop_isRequired_var[prop_index]))
-            self.prop_isRequired_checkBox[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="W")
-            attribute_index+=1
-            # Is Enabled
-            self.prop_isEnabled_var.append(IntVar(value=prop["isEnabled"]))           # print(prop["isEnabled"])
-            self.prop_isEnabled_label.append(Label(self.properties_frame_inside,text="Enabled:"))
-            self.prop_isEnabled_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W")
-            self.prop_isEnabled_checkBox.append(Checkbutton(self.properties_frame_inside,variable=self.prop_isEnabled_var[prop_index]))
-            self.prop_isEnabled_checkBox[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="W")
-            attribute_index+=1
-
-            # Datatype
-            self.prop_datatype_var.append(StringVar(value=prop["dataType"]))
-            self.prop_datatype_label.append(Label(self.properties_frame_inside, text="Property Datatype: "))
-            self.prop_datatype_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W",)
-            self.prop_datatype_entry.append(Entry(self.properties_frame_inside,textvariable=self.prop_datatype_var[prop_index]))
-            self.prop_datatype_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE",)
-            attribute_index+=1
+        # self.prop_notes_var:list[list[StringVar]] = [[]]
+        # self.prop_notes_label:list[Label] = []
+        # # self.prop_notes_frames:list[Frame] = []
+        # self.prop_notes_Textbox:list[list[Text]] = [[]]
+        # self.textbox_rows:list[int] = []
 
 
-            # Notes
-            self.prop_notes_label.append(Label(self.properties_frame_inside, text="Property Notes: "))
-            self.prop_notes_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="NW",)
-            self.prop_notes_var.append([])
-            self.prop_notes_Textbox.append([])
-            for note_index, note in enumerate(prop["notes"]):
-                self.prop_notes_var[prop_index].append(note)
-                self.prop_notes_Textbox[prop_index].append(Text(self.properties_frame_inside))
-                self.prop_notes_Textbox[prop_index][note_index].insert('end',self.prop_notes_var[prop_index][note_index])
-                # lines = self.prop_notes_Textbox[prop_index][noteIndex].count("1.0", "end","lines")[0]+1
-                self.prop_notes_Textbox[prop_index][note_index].configure(height=4,insertwidth=5) # Reduced with, so it isn't massive
+        # for prop in dummyProperties:
+        #     # Label
+        #     self.prop_name_label.append(Label(self.properties_frame_inside,text="Property:"))
+        #     self.prop_name_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W")
+        #     self.prop_name_var.append(StringVar(value=prop["label"]))
+        #     self.prop_name_entry.append(Entry(self.properties_frame_inside,textvariable=self.prop_name_var[prop_index]))
+        #     self.prop_name_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE")
+        #     attribute_index+=1
+        #     # ID
+        #     self.prop_id_var.append(StringVar(value=prop["id_"]))
+        #     self.prop_id_label.append(Label(self.properties_frame_inside, text="Property Id: "))
+        #     self.prop_id_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W",)
+        #     self.prop_id_entry.append(Entry(self.properties_frame_inside,textvariable=self.prop_id_var[prop_index]))
+        #     self.prop_id_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE",)
+        #     self.prop_id_entry[prop_index].configure(state="disabled")
+        #     attribute_index+=1
+        #     # Is Required
+        #     self.prop_isRequired_var.append(IntVar(value=prop["isRequired"]))           # print(prop["isRequired"])
+        #     self.prop_isRequired_label.append(Label(self.properties_frame_inside,text="Required:"))
+        #     self.prop_isRequired_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W")
+        #     self.prop_isRequired_checkBox.append(Checkbutton(self.properties_frame_inside,variable=self.prop_isRequired_var[prop_index]))
+        #     self.prop_isRequired_checkBox[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="W")
+        #     attribute_index+=1
+        #     # Is Enabled
+        #     self.prop_isEnabled_var.append(IntVar(value=prop["isEnabled"]))           # print(prop["isEnabled"])
+        #     self.prop_isEnabled_label.append(Label(self.properties_frame_inside,text="Enabled:"))
+        #     self.prop_isEnabled_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W")
+        #     self.prop_isEnabled_checkBox.append(Checkbutton(self.properties_frame_inside,variable=self.prop_isEnabled_var[prop_index]))
+        #     self.prop_isEnabled_checkBox[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="W")
+        #     attribute_index+=1
 
-                self.prop_notes_Textbox[prop_index][note_index].grid(column=1,row=prop_index*attributes+attribute_index+note_index,sticky="W",)
-                self.textbox_rows.append(prop_index*attributes+attribute_index+note_index)
+        #     # Datatype
+        #     self.prop_datatype_var.append(StringVar(value=prop["dataType"]))
+        #     self.prop_datatype_label.append(Label(self.properties_frame_inside, text="Property Datatype: "))
+        #     self.prop_datatype_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W",)
+        #     self.prop_datatype_entry.append(Entry(self.properties_frame_inside,textvariable=self.prop_datatype_var[prop_index]))
+        #     self.prop_datatype_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE",)
+        #     attribute_index+=1
 
-            # self.prop_notes_var.append(StringVar(value=prop["notes"]))
-            # self.prop_notes_Textbox.append(Text(self.propertiesCanvas,textvariable=self.prop_notes_var[prop_index]))
 
-            attribute_index+=1
-            # Separator
-            # ttk.Separator(self.propertiesCanvas,orient="horizontal").grdatatype(column=0, columnspan=2,row=prop_index*attributes+attribute_index,sticky="WE",pady=2)
-            prop_index+=1
-            attribute_index=0
-        # self.properties_frame_inside.rowconfigure(self.textbox_rows,weight=1,uniform=1)
-        self.properties_frame_inside.columnconfigure(1,weight=1)
-        self.properties_frame_inside.columnconfigure(0,weight=1)
+        #     # Notes
+        #     self.prop_notes_label.append(Label(self.properties_frame_inside, text="Property Notes: "))
+        #     self.prop_notes_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="NW",)
+        #     self.prop_notes_var.append([])
+        #     self.prop_notes_Textbox.append([])
+        #     for note_index, note in enumerate(prop["notes"]):
+        #         self.prop_notes_var[prop_index].append(note)
+        #         self.prop_notes_Textbox[prop_index].append(Text(self.properties_frame_inside))
+        #         self.prop_notes_Textbox[prop_index][note_index].insert('end',self.prop_notes_var[prop_index][note_index])
+        #         # lines = self.prop_notes_Textbox[prop_index][noteIndex].count("1.0", "end","lines")[0]+1
+        #         self.prop_notes_Textbox[prop_index][note_index].configure(height=4,insertwidth=5) # Reduced with, so it isn't massive
 
+        #         self.prop_notes_Textbox[prop_index][note_index].grid(column=1,row=prop_index*attributes+attribute_index+note_index,sticky="W",)
+        #         self.textbox_rows.append(prop_index*attributes+attribute_index+note_index)
+
+        #     # self.prop_notes_var.append(StringVar(value=prop["notes"]))
+        #     # self.prop_notes_Textbox.append(Text(self.propertiesCanvas,textvariable=self.prop_notes_var[prop_index]))
+
+        #     attribute_index+=1
+        #     # Separator
+        #     # ttk.Separator(self.propertiesCanvas,orient="horizontal").grdatatype(column=0, columnspan=2,row=prop_index*attributes+attribute_index,sticky="WE",pady=2)
+        #     prop_index+=1
+        #     attribute_index=0
+        # # self.properties_frame_inside.rowconfigure(self.textbox_rows,weight=1,uniform=1)
+        # self.properties_frame_inside.columnconfigure(1,weight=1)
+        # self.properties_frame_inside.columnconfigure(0,weight=1)
+        
 
         # self.propertiesCanvas.grid(column=0,row=6)
 

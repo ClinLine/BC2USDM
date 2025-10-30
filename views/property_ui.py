@@ -1,130 +1,34 @@
 from tkinter import *
 from uuid import uuid4 as guid
 from tkinter import ttk
-from typing import overload
 
-
-
-# from main import App as instance
-
-# from functools import lru_cache
-
-dummyProperties = [{
-            "id_":str(guid()).upper(),
-            "label":"Testing Prop",
-            "isRequired":1,
-            "isEnabled":0,
-            "dataType":"Blood sample",
-            "code":"C2389",
-            "notes":[f"beep boop",f"Bla bla\n bla", f"Bla bla \n akj;sdf a;klsdjf ;akdjfa;leksjfa;kldjf;a kljsef;alksejf;aklsjef;aksjfj a;ske;fjkasd;fjk asej;fkasjf;lkasej;fkl asjef;k lasefj a;kslefj asklef ja;skejfa;klsfj a;selkj ;fjkasd;fjk asej;fkasjf;lkasej;fkl asjef;k lasefj a;kslefj asklef ja;skejfa;klsfj a;selkj f", "this is super important too"],
-            "responseCode":[{
-                "id":str(guid()).upper(),
-                "name":"Blood letting",
-                "label":"Blood letting2",
-                "isEnabled":1,
-                "code":"C651654",
-            },{
-                "id":str(guid()).upper(),
-                "name":"Blood letting",
-                "label":"Blood letting2",
-                "isEnabled":0,
-                "code":"C651654",
-            },],
-        },
-        {
-            "id_":str(guid()).upper(),
-            "label":"Testing Prop 2",
-            "isRequired":1,
-            "isEnabled":0,
-            "dataType":"Bs",
-            "code":"C651549",
-            "notes":["Bla bla bla", "This is a crutial note", "this is super important too"],
-            "responseCode":[{
-                "id":str(guid()).upper(),
-                "name":"Blood letting",
-                "label":"Blood letting2",
-                "isEnabled":1,
-                "code":"C65154",
-            }],
-        },{
-            "id_":str(guid()).upper(),
-            "label":"Testing Prop",
-            "isRequired":0,
-            "isEnabled":1,
-            "dataType":"Blood sample",
-            "code":"C64165",
-            "notes":["Bla bla bla", ],
-            "responseCode":[{
-                "id":str(guid()).upper(),
-                "name":"Blood letting",
-                "label":"Blood letting2",
-                "isEnabled":1,
-                "code":"C65416541",
-            }],
-        }]
-
-# @lru_cache(maxsize=1)
-class PropertyDisplay():
-
-    __default_height: int = 600
-    __data_columns: int = 4
-    __data_column_width = [200,300,300,200]
-    __default_width: int = sum(__data_column_width)
-    __data_column_height = __default_height
-    # __instance: type["PropertyDisplay"]
-    root:Tk
-
-    __app_instance:"App"
-
-    mainframe:ttk.Frame
-
-    def __init__(self, master, title):
-        self.setup_ui(master, title)
-        # self.root.mainloop()
-
-    def setup_ui(self,master, title):
-        self.root = master
-        self.root.title(title)
-        # self.root.title("Property Testing")
-        self.root.config(height=PropertyDisplay.__default_height,width=PropertyDisplay.__default_width)
-        self.root.geometry(f"{PropertyDisplay.__default_width}x{PropertyDisplay.__default_height}")
-
-        # self.root.config(bg="red")
-
-        # prop_frame = PropertiesFrame(self.root, properties=dummyProperties)
-
-        master.wm_title(master.wm_title()+ ": " + str(len(dummyProperties)))
-        properties_frame = Properties_Container(self.root,frame_title="Properties:", properties=dummyProperties)
-        properties_frame.pack(side=TOP,fill=BOTH, expand=True)
-        # properties = LabelFrame(self.root, text="test frame")
-        # testingFrame.place(anchor="nw",relheight=1,relwidth=1)
         
-        ## Properties: ################################
-        # Property:             [NAME           ] #[^]#
-        # Property Id:          [ID             ] #[|]#
-        # Code:                 [Code.code      ] #[|]#
-        # Required:             [?] isRequired    #[ ]#
-        # Enabled:              [x] isEnabled     #[ ]#
-        # Property Datatype:    [dataType       ] #[ ]#
-        ## Property Notes #########################[ ]#
-        # ____________________________________    #[ ]#
-        # |Property Notes:     [notes[0]     ][^]|#[ ]#
-        # |                    [             ][|]|#[ ]#
-        # |                    [notes[i]     ][ ]|#[ ]#
-        # |____________________[_____________][v]|#[ ]#
-        ###########################################[ ]#
-        ## Response Codes:#########################[ ]#
-        # ____________________________________    #[ ]#
-        # |Label:               [label       ]|[^]#[ ]#
-        # |Id:                  [ID          ]|[|]#[ ]#
-        # |Name:----------------HIDDEN--------|[ ]#[ ]#
-        # |Enabled:             [?] isEnabled |[ ]#[ ]#
-        # |code:                [Code        ]|[ ]#[ ]#
-        # |___________________________________|[ ]#[ ]#
-        # |Label:               [label       ]|[ ]#[ ]#
-        # |Id:                  [ID          ]|[ ]#[ ]#
-        # |Name:----------------HIDDEN--------|[v]#[v]#
-        ###############################################
+## Properties: ################################
+# Property:             [NAME           ] #[^]#
+# Property Id:          [ID             ] #[|]#
+# Code:                 [Code.code      ] #[|]#
+# Required:             [?] isRequired    #[ ]#
+# Enabled:              [x] isEnabled     #[ ]#
+# Property Datatype:    [dataType       ] #[ ]#
+## Property Notes #########################[ ]#
+# ____________________________________    #[ ]#
+# |Property Notes:     [notes[0]     ][^]|#[ ]#
+# |                    [             ][|]|#[ ]#
+# |                    [notes[i]     ][ ]|#[ ]#
+# |____________________[_____________][v]|#[ ]#
+###########################################[ ]#
+## Response Codes:#########################[ ]#
+# ____________________________________    #[ ]#
+# |Label:               [label       ]|[^]#[ ]#
+# |Id:                  [ID          ]|[|]#[ ]#
+# |Name:----------------HIDDEN--------|[ ]#[ ]#
+# |Enabled:             [?] isEnabled |[ ]#[ ]#
+# |code:                [Code        ]|[ ]#[ ]#
+# |___________________________________|[ ]#[ ]#
+# |Label:               [label       ]|[ ]#[ ]#
+# |Id:                  [ID          ]|[ ]#[ ]#
+# |Name:----------------HIDDEN--------|[v]#[v]#
+###############################################
 
 class ScrollFrame(Frame):
     # max amount of visible children
@@ -138,9 +42,6 @@ class ScrollFrame(Frame):
         self.v_scrollbar = Scrollbar(self, orient=VERTICAL, command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.v_scrollbar.set)
 
-        self.canvas.config(bg="yellow")
-        self.view_port.config(bg="green")
-        self.config(bg="pink")
 
         self.v_scrollbar.pack(side=RIGHT, fill=Y)
         self.canvas.pack(side=LEFT, fill=BOTH, expand=True)
@@ -159,7 +60,6 @@ class ScrollFrame(Frame):
         if expandable:
             self.add_element_button = Button(self.view_port, text="button not configured",)
             self.add_element_button.pack(side="bottom", )
-            # self.add_element_button.bind("<Button>", self._on_button_click)
 
         self._on_frame_configure(None)
 
@@ -169,7 +69,6 @@ class ScrollFrame(Frame):
 
     def _on_button_click(self, event, *args):
         pass
-        # self.recalculate_scrollregion(event)
 
     def check_resize(self):
         # TODO: doesn't work correctly
@@ -192,8 +91,6 @@ class ScrollFrame(Frame):
         # whenever the size of the canvas changes
         # update the window size
         self.canvas.itemconfig(self.canvas_window_id,width=canvas_width)
-
-
 
     def _bind_enter(self, event):
         # Linux:
@@ -234,14 +131,21 @@ class Properties_Container(LabelFrame):
 
         for prop in properties:
             main_frame = PropertyFrame(self.scroll_frame.view_port, property=prop, name=f"main_frame_{prop["id_"]}")
-            main_frame.columnconfigure(1,weight=1)
-            # self.property_containers.append(main_frame)
+            
             self.notebook.add(main_frame, text=prop["label"])
-
+        self.notebook.add(new_prop:= Frame(self.scroll_frame.view_port),text="+")
+        new_prop.bind("<Expose>", self.create_new_property_frame)
+        Label(new_prop, text=f"Adding new properties has \n not been implemented yet").pack(side=BOTTOM,fill=BOTH,expand=TRUE)
+        
         self.scroll_frame.pack(side=TOP, fill=BOTH, expand=True)
         self.scroll_frame._on_post_init()
+
+    def create_new_property_frame(self,event,*args):
+        print("Attempting to add new property")
+        ...
         
-        
+        # new_main_frame = PropertyFrame(self.scroll_frame.view_port, property="""USDM.Property""", name=f"main_frame_new_#")
+        # self.notebook.insert(-1,new_main_frame)
 
 class PropertyFrame(Frame):
     def __init__(self, parent, property = {}, *args, **kwargs):
@@ -297,6 +201,8 @@ class PropertyFrame(Frame):
         response_code_frame = ResponseCodesContainerFrame(self, response_codes=property["responseCode"])
         response_code_frame.grid(row=(row_index:=row_index+1)-1, column=0, columnspan=2, sticky=NSEW)
 
+        self.columnconfigure(1,weight=1)
+
 
 class NotesFrame(LabelFrame):
     _line_height = 16 #pixels
@@ -325,7 +231,7 @@ class NotesFrame(LabelFrame):
 
     def _bind_add_button(self):
         button = self.scroll_frame.add_element_button
-        button["text"] = "Add Note"
+        button["text"] = "Add new Note"
         button["command"] = self._on_button_click
 
     def _on_button_click(self, event=None, *args):
@@ -471,10 +377,10 @@ class ResponseCodeFrame(Frame):
         if response_code is not None:
             # Attributes:
             self.label_var.set(response_code["label"])
-            self.id_var.set(response_code["code"])
+            self.id_var.set(response_code["id"])
             # name_var:StringVar # hidden & inferred
             self.is_enabled_var.set(response_code["isEnabled"])
-            self.code_var.set(response_code["id"])
+            self.code_var.set(response_code["code"])
             # TODO Add Code support?
         else:
             self.id_var.set(guid())
