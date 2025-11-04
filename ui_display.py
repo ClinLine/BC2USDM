@@ -27,7 +27,7 @@ class UIDisplay():
     # __instance: type["UIDisplay"]
     root:Tk
 
-    __app_instance:"App"
+    __app_instance:type["App"]
 
     mainframe:ttk.Frame
 
@@ -50,7 +50,7 @@ class UIDisplay():
 
 
 
-    def __init__(self, app_instance: "App", title, category_names:list[str],bc_names=None):
+    def __init__(self, app_instance: type["App"], title, category_names:list[str],bc_names=None):
         # super().__init__(master)
         # self.app_instance = app
         self.__app_instance = app_instance
@@ -96,8 +96,8 @@ class UIDisplay():
         self.categories_overview_scrollbarY = Scrollbar(self.categories_overview_frame, orient=VERTICAL)
         self.categories_overview_listbox.configure(yscrollcommand=self.categories_overview_scrollbarY.set)
         self.categories_overview_listbox.configure(xscrollcommand=self.categories_overview_scrollbarX.set)
-        self.categories_overview_listbox.bind("<<ListboxSelect>>",lambda onClick: self.on_category_click(self.categories_overview_listbox.curselection()[0]))
-        
+        self.categories_overview_listbox.bind("<<ListboxSelect>>", self._on_category_select)
+       
         self.categories_overview_scrollbarX.config(command=self.categories_overview_listbox.xview)
         self.categories_overview_scrollbarX.pack(side=BOTTOM, fill=X, in_=self.categories_overview_frame)
         self.categories_overview_scrollbarY.config(command=self.categories_overview_listbox.yview)
@@ -120,6 +120,7 @@ class UIDisplay():
         self.active_category_overview_listbox.configure(yscrollcommand=self.active_category_overview_scrollbarY.set)
         self.active_category_overview_listbox.bind("<<ListboxSelect>>", lambda onClick: self.on_active_bc_click(self.active_category_overview_listbox.curselection()[0]))
         
+
         self.active_category_overview_scrollbarX.pack(side=BOTTOM,fill=X,in_=self.active_category_overview_lframe)
         self.active_category_overview_scrollbarY.pack(side=RIGHT,fill=Y,in_=self.active_category_overview_lframe)
         self.active_category_overview_listbox.pack(anchor="nw",expand=True,side="left",fill="both")
@@ -249,167 +250,18 @@ class UIDisplay():
                 "code":"C65416541",
             }],
         }]
-        # h_bar = ttk.Separator(masterFrame,orient="horizontal")
-        # h_bar.grid(column=0,columnspan=2,row=6,sticky="WE",pady=5)
 
-        # testLabel = Label(self.active_biomedical_concept_overview_lframe,text="Properties:")
-        # testLabel.grid(column=0,row=7)
-        # testLabel.pack(anchor="n",after=self.active_biomedical_concept_overview_mainframe,expand=True,side="left", fill="x")
         self.properties_frame = Properties_Container(self.active_biomedical_concept_overview_lframe,frame_title="Properties:", properties=dummyProperties)
         self.properties_frame.pack(side=TOP, fill=BOTH, expand=True)
-        # self.propertiesFrame = LabelFrame(self.active_biomedical_concept_overview_lframe,text="Properties:",)
-        # self.propertiesFrame.pack(anchor="nw", after=self.active_biomedical_concept_overview_mainframe,side=TOP,fill="both",expand=True,in_=self.active_biomedical_concept_overview_lframe)
-        # # self.propertiesFrame.grid(column=0,columnspan=2,row=8,sticky="WSE",padx=3,pady=3)
+
+
+    def _on_category_select(self, event, *args, **kwargs):
+        # lambda onClick: self.on_category_click(self.categories_overview_listbox.curselection()[0])
         
-        # self.properties_scrollbar_x = Scrollbar(self.propertiesFrame, orient=HORIZONTAL)
-        # self.properties_scrollbar_y = Scrollbar(self.propertiesFrame, orient=VERTICAL)
-        # self.propertiesCanvas = Canvas(self.propertiesFrame, yscrollcommand=self.properties_scrollbar_y.set, xscrollcommand=self.properties_scrollbar_x.set)
-        # self.properties_frame_inside=Frame(self.propertiesCanvas)
-        # self.propertiesCanvas.create_window((0,0),anchor="nw",window=self.properties_frame_inside)
-        # self.propertiesCanvas.config(bg="red")
-        # self.properties_frame_inside.config(background="green")
-        # # self.properties_frame_inside.pack(anchor="nw",fill=BOTH, expand=True,side=TOP)
-        # # self.active_biomedical_concept_overview_lframe = ttk.LabelFrame(self.mainframe,text=f"Active BC:\n")
-        # # self.propertiesCanvas.pack(anchor="nw", width=UIDisplay.__data_column_width[2],x=UIDisplay.__data_column_width[0]+UIDisplay.__data_column_width[1], in_=self.mainframe)
-        # self.propertiesCanvas.grid(column=0, row=0, sticky="NWES")
-        # self.properties_scrollbar_x.grid(column=0, row=1, sticky="WE")
-        # self.properties_scrollbar_y.grid(column=1, row=0, sticky="NS")
-        # self.propertiesFrame.rowconfigure(0,weight=1)
-        # self.propertiesFrame.columnconfigure(0,weight=1)
-
+        # print(event.__dict__)
         
+        self.on_category_click(event.widget.curselection()[0])
         
-        # self.properties_frame_inside.bind("<Configure>",lambda event: self.propertiesCanvas.configure(scrollregion=self.propertiesCanvas.bbox("all")))
-        # # self.properties_scrollbar_y.pack(anchor="se",expand=False, fill="y",side="right")
-        # # self.propertiesCanvas.pack(anchor="sw",expand=True,fill="both",side="left",after=self.properties_scrollbar_y)
-        # # self.propertiesCanvas.grid(column=0,columnspan=2,row=8,sticky="NESW")
-        # # print(self.propertiesCanvas.winfo_y()) # 0
-
-        # self.properties_scrollbar_y["command"] = self.propertiesCanvas.yview
-        # self.properties_scrollbar_x["command"] = self.propertiesCanvas.xview
-        # # self.propertiesCanvas.config(yscrollcommand=self.properties_scrollbar_y.set)
-        # # self.properties_scrollbar_y.pack(column=1,row=8,sticky="NSE")
-        
-        # prop_index = 0
-        # attributes = 5
-        # attribute_index=0
-
-        # self.prop_name_label:list[Label] = []
-        # self.prop_name_var:list[StringVar] = []
-        # self.prop_name_entry:list[Entry] = []
-
-        # self.prop_id_var:list[StringVar] = []
-        # self.prop_id_label:list[Label] = []
-        # self.prop_id_entry:list[Entry] = []
-
-        # self.prop_isRequired_var:list[IntVar] = []
-        # self.prop_isRequired_label:list[Label] = []
-        # self.prop_isRequired_checkBox:list[Checkbutton] = []
-
-        # self.prop_isEnabled_var:list[IntVar] = []
-        # self.prop_isEnabled_label:list[Label] = []
-        # self.prop_isEnabled_checkBox:list[Checkbutton] = []
-
-        # self.prop_datatype_var:list[StringVar] = []
-        # self.prop_datatype_label:list[Label] = []
-        # self.prop_datatype_entry:list[Entry] = []
-
-        # self.prop_notes_var:list[list[StringVar]] = [[]]
-        # self.prop_notes_label:list[Label] = []
-        # # self.prop_notes_frames:list[Frame] = []
-        # self.prop_notes_Textbox:list[list[Text]] = [[]]
-        # self.textbox_rows:list[int] = []
-
-
-        # for prop in dummyProperties:
-        #     # Label
-        #     self.prop_name_label.append(Label(self.properties_frame_inside,text="Property:"))
-        #     self.prop_name_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W")
-        #     self.prop_name_var.append(StringVar(value=prop["label"]))
-        #     self.prop_name_entry.append(Entry(self.properties_frame_inside,textvariable=self.prop_name_var[prop_index]))
-        #     self.prop_name_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE")
-        #     attribute_index+=1
-        #     # ID
-        #     self.prop_id_var.append(StringVar(value=prop["id_"]))
-        #     self.prop_id_label.append(Label(self.properties_frame_inside, text="Property Id: "))
-        #     self.prop_id_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W",)
-        #     self.prop_id_entry.append(Entry(self.properties_frame_inside,textvariable=self.prop_id_var[prop_index]))
-        #     self.prop_id_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE",)
-        #     self.prop_id_entry[prop_index].configure(state="disabled")
-        #     attribute_index+=1
-        #     # Is Required
-        #     self.prop_isRequired_var.append(IntVar(value=prop["isRequired"]))           # print(prop["isRequired"])
-        #     self.prop_isRequired_label.append(Label(self.properties_frame_inside,text="Required:"))
-        #     self.prop_isRequired_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W")
-        #     self.prop_isRequired_checkBox.append(Checkbutton(self.properties_frame_inside,variable=self.prop_isRequired_var[prop_index]))
-        #     self.prop_isRequired_checkBox[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="W")
-        #     attribute_index+=1
-        #     # Is Enabled
-        #     self.prop_isEnabled_var.append(IntVar(value=prop["isEnabled"]))           # print(prop["isEnabled"])
-        #     self.prop_isEnabled_label.append(Label(self.properties_frame_inside,text="Enabled:"))
-        #     self.prop_isEnabled_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W")
-        #     self.prop_isEnabled_checkBox.append(Checkbutton(self.properties_frame_inside,variable=self.prop_isEnabled_var[prop_index]))
-        #     self.prop_isEnabled_checkBox[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="W")
-        #     attribute_index+=1
-
-        #     # Datatype
-        #     self.prop_datatype_var.append(StringVar(value=prop["dataType"]))
-        #     self.prop_datatype_label.append(Label(self.properties_frame_inside, text="Property Datatype: "))
-        #     self.prop_datatype_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="W",)
-        #     self.prop_datatype_entry.append(Entry(self.properties_frame_inside,textvariable=self.prop_datatype_var[prop_index]))
-        #     self.prop_datatype_entry[prop_index].grid(column=1,row=prop_index*attributes+attribute_index,sticky="WE",)
-        #     attribute_index+=1
-
-
-        #     # Notes
-        #     self.prop_notes_label.append(Label(self.properties_frame_inside, text="Property Notes: "))
-        #     self.prop_notes_label[prop_index].grid(column=0,row=prop_index*attributes+attribute_index,sticky="NW",)
-        #     self.prop_notes_var.append([])
-        #     self.prop_notes_Textbox.append([])
-        #     for note_index, note in enumerate(prop["notes"]):
-        #         self.prop_notes_var[prop_index].append(note)
-        #         self.prop_notes_Textbox[prop_index].append(Text(self.properties_frame_inside))
-        #         self.prop_notes_Textbox[prop_index][note_index].insert('end',self.prop_notes_var[prop_index][note_index])
-        #         # lines = self.prop_notes_Textbox[prop_index][noteIndex].count("1.0", "end","lines")[0]+1
-        #         self.prop_notes_Textbox[prop_index][note_index].configure(height=4,insertwidth=5) # Reduced with, so it isn't massive
-
-        #         self.prop_notes_Textbox[prop_index][note_index].grid(column=1,row=prop_index*attributes+attribute_index+note_index,sticky="W",)
-        #         self.textbox_rows.append(prop_index*attributes+attribute_index+note_index)
-
-        #     # self.prop_notes_var.append(StringVar(value=prop["notes"]))
-        #     # self.prop_notes_Textbox.append(Text(self.propertiesCanvas,textvariable=self.prop_notes_var[prop_index]))
-
-        #     attribute_index+=1
-        #     # Separator
-        #     # ttk.Separator(self.propertiesCanvas,orient="horizontal").grdatatype(column=0, columnspan=2,row=prop_index*attributes+attribute_index,sticky="WE",pady=2)
-        #     prop_index+=1
-        #     attribute_index=0
-        # # self.properties_frame_inside.rowconfigure(self.textbox_rows,weight=1,uniform=1)
-        # self.properties_frame_inside.columnconfigure(1,weight=1)
-        # self.properties_frame_inside.columnconfigure(0,weight=1)
-        
-
-        # self.propertiesCanvas.grid(column=0,row=6)
-
-
-
-
-
-
-
-
-        # properties:LabelFrame:    // Treeview?   
-        # [
-        # property_label:TextField  property_enabled:CheckButton(prop.enabled)
-        # required_label:Label      property_required:CheckButton(prop.required)
-        
-        # code_label:Label          code_field:Entry
-        # type_label:Label          type_value:Entry
-        # Notes_list:Listbox        Notes_field:TextBox
-        # ]
-
-
-
 
 
     def synonym_add_cmd(self, *args):
@@ -431,13 +283,12 @@ class UIDisplay():
         self.biomedical_concepts_in_category.set(bc_names)
 
     # Functions:
-    def on_category_click(self, *args):
+    def on_category_click(self, category_index):
         try:
-            category_index = args[0]
+            index = category_index
 
-            result = self.__app_instance.select_category(category_index)
+            result = self.__app_instance.select_category(index)
             # result = self.__app_instance.select_category("age")
-            print(result["bc_names"])
             self.set_active_category(result["category_name"],result["bc_names"])
 
         except ValueError:

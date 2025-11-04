@@ -42,12 +42,19 @@ def get_latest_biomedical_concept_categories():
 
 # print(get_latest_biomedical_concept_categories())
 
-def get_biomedical_concepts_list(category: str=None):
+def get_biomedical_concepts_list(category: str=None, categories: list[str]=None):
     endpoint: str = "https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/biomedicalconcepts"
     url = endpoint
-    if(category is not None and category != ""):
-        if category in get_latest_biomedical_concept_categories():
-            url = f"{endpoint}?category="
+    if(category is not None and category != ""): # TODO add else state
+        if categories is None:
+            print("No categories provided, aquiring them from api")
+            categories = get_latest_biomedical_concept_categories()
+        if category in categories:
+            url = f"{endpoint}?category={category}"
+        else:
+            print("category not found!")
+    else:
+        print("Category can't be None or \"\"")
     try:
         req = requests.api.get(url, headers=__headers, timeout=10)
         bcs = req.json()["_links"]["biomedicalConcepts"]

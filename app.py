@@ -4,7 +4,8 @@ from ui_display import UIDisplay
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
 from models.USDM.BiomedicalConcept import BiomedicalConcept as USDM_BC
-from utils.api_utils import get_biomedical_concepts_list, get_latest_biomedical_concept_categories
+# from utils.api_utils import get_biomedical_concepts_list, get_latest_biomedical_concept_categories
+from utils import api_utils as API
 # from utils.json_encoder import CustomEncoder
 
 
@@ -37,7 +38,7 @@ class App(object):
         # TODO: Get All known bcs in category from disc
         # TODO: Create From Dict for list of usdm bcs
         # available_bcs:list[USDM_BC] = USDM_BC.from_dict(get_biomedical_concepts_list(selected_category.id_))
-        temp = get_biomedical_concepts_list(selected_category.id_)
+        temp = API.get_biomedical_concepts_list(selected_category.id_, categories=[cat.id_ for cat in self.categories])
         available_bcs:list[USDM_BC] = [USDM_BC(row) for row in temp]
         
         self.biomedical_concepts_in_category = available_bcs
@@ -54,7 +55,7 @@ class App(object):
         # TODO: Update UI with new list
 
     def get_bcs_in_category(self, category:str):
-        self.biomedical_concepts_in_category = get_biomedical_concepts_list(category)
+        self.biomedical_concepts_in_category = API.get_biomedical_concepts_list(category)
         return self.biomedical_concepts_in_category
     
 
@@ -66,7 +67,7 @@ class App(object):
 
     def __init__(self):
         
-        json_categories = get_latest_biomedical_concept_categories()
+        json_categories = API.get_latest_biomedical_concept_categories()
 
         # cdisc_categories:list[CDISC_Category] = CDISC_Category.categories_from_json(json_categories)
         usdm_categories:list[USDM_Category] = list(map(USDM_Category.from_json, json_categories))
