@@ -1,6 +1,6 @@
 
 # from props_testing import PropertyDisplay
-from ui_display import UIDisplay
+from views.ui_display import UIDisplay
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
 from models.USDM.BiomedicalConcept import BiomedicalConcept as USDM_BC

@@ -1,3 +1,4 @@
+from datetime import datetime
 import requests
 # try:
 #     from html import unescape # python 3.4+
@@ -57,6 +58,12 @@ def get_biomedical_concepts_list(category: str=None, categories: list[str]=None)
         print("Category can't be None or \"\"")
     try:
         req = requests.api.get(url, headers=__headers, timeout=10)
+        if req.json()["_links"] is None:
+
+            # print(f"No key _links found for category: {category}")
+            print(req.json())
+            # log = open(f"log-{now}.txt", "x")
+            
         bcs = req.json()["_links"]["biomedicalConcepts"]
         # result = []
         # for bc in bcs:
@@ -68,6 +75,19 @@ def get_biomedical_concepts_list(category: str=None, categories: list[str]=None)
         print(e)
     except requests.HTTPError as httpe:
         print(httpe)
+    except Exception as e:
+        now = datetime.now()
+        file = open(f"ErrorLog_{now}.txt", "x+t",encoding="utf-8")
+        file.write(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
+        print(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
+        file.write(f"File {__file__} in {__name__}")
+        print(f"File {__file__} in {__name__}")
+        for arg in e.args:
+            print(f"\t{arg}")
+            file.write(f"\t{arg}")
+        print(e.__context__)
+        file.write(e.__context__)
+        file.close()
 
 def get_biomedical_concept_package_list():
     endpoint = "https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/packages"

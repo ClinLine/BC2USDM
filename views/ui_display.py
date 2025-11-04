@@ -7,6 +7,7 @@ from tkinter import ttk
 from uuid import uuid4 as guid
 
 from views.property_ui import Properties_Container
+from views.menu import MenuBar
 
 
 
@@ -27,7 +28,7 @@ class UIDisplay():
     # __instance: type["UIDisplay"]
     root:Tk
 
-    __app_instance:type["App"]
+    __main_app:type["App"]
 
     mainframe:ttk.Frame
 
@@ -53,7 +54,7 @@ class UIDisplay():
     def __init__(self, app_instance: type["App"], title, category_names:list[str],bc_names=None):
         # super().__init__(master)
         # self.app_instance = app
-        self.__app_instance = app_instance
+        self.__main_app = app_instance
         if bc_names is None:
             bc_names = ["testName"]
         self.setup_ui(title)
@@ -68,6 +69,9 @@ class UIDisplay():
         self.root.config(height=UIDisplay.__default_height,width=UIDisplay.__default_width)
         self.root.geometry(f"{UIDisplay.__default_width}x{UIDisplay.__default_height}")
         
+        self.root.option_add("*tearOff", FALSE)
+        self.menubar = MenuBar(self.root)
+        self.root["menu"] = self.menubar
         # testWindow = Toplevel(self.root)
         
         # Move the window to the screen left from the primary monitor
@@ -287,7 +291,7 @@ class UIDisplay():
         try:
             index = category_index
 
-            result = self.__app_instance.select_category(index)
+            result = self.__main_app.select_category(index)
             # result = self.__app_instance.select_category("age")
             self.set_active_category(result["category_name"],result["bc_names"])
 
@@ -298,7 +302,7 @@ class UIDisplay():
         try:
             bc_selection_index = args[0]
 
-            self.__app_instance.select_bc(bc_selection_index)
+            self.__main_app.select_bc(bc_selection_index)
         except ValueError:
             pass
     # def on_biomedical_concept_click(self,*args):
