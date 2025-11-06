@@ -26,12 +26,12 @@ class App(object):
 
     # __app:"App"
 
-    @staticmethod
-    def get_instance():
-        '''return a unique static instance of the App class'''
-        if App.__app is None:
-            App.__app = App()
-        return App.__app
+    # @staticmethod
+    # def get_instance():
+    #     '''return a unique static instance of the App class'''
+    #     if App.__app is None:
+    #         App.__app = App()
+    #     return App.__app
 
     def select_category(self, category_list_index:int):
         
@@ -105,14 +105,12 @@ class App(object):
     def __call__(self, *args, **kwds):
         app:App = App()
 
-    @staticmethod
-    def get_repository():
+    def get_repository(self):
         '''return selected USDM BCs'''
-        app = App.get_instance()
-        if app.current_repository is None:
-            print(f"{(app.current_repository)} isn't implemented yet, using demo values instead")
-            app.current_repository = [USDM_BC(app.biomedical_concepts_in_category('AIMS'))]
-        return app.current_repository
+        if self.current_repository is None:
+            print(f"app.current_repository isn't implemented yet, using demo values instead")
+            self.current_repository = [USDM_BC(self.biomedical_concepts_in_category('AIMS'))]
+        return self.current_repository
 
 
     def get_biomedical_concept_names_in_category(self, index:int = None, id_:str = None, name:str = None):

@@ -57,20 +57,20 @@ class UIDisplay():
         self.__main_app = app_instance
         if bc_names is None:
             bc_names = ["testName"]
-        self.setup_ui(title)
+        self.setup_ui(title, app_instance)
         self.category_names.set(category_names)
         # self.root.pack()
 
         self.root.mainloop()
        
-    def setup_ui(self, app_title:str):
+    def setup_ui(self, app_title:str, app_instance):
         self.root = Tk()
         self.root.title(app_title)
         self.root.config(height=UIDisplay.__default_height,width=UIDisplay.__default_width)
         self.root.geometry(f"{UIDisplay.__default_width}x{UIDisplay.__default_height}")
         
         self.root.option_add("*tearOff", FALSE)
-        self.menubar = MenuBar(self.root)
+        self.menubar = MenuBar(self.root, app_instance)
         self.root["menu"] = self.menubar
         # testWindow = Toplevel(self.root)
         
