@@ -22,14 +22,16 @@ class App(object):
     selected_biomedical_concept:USDM_BC
     biomedical_concepts_in_selection:list[USDM_BC]
 
+    current_repository = list[USDM_BC]
+
     # __app:"App"
 
-    # @staticmethod
-    # def get_instance():
-    #     '''return a unique static instance of the App class'''
-    #     if App.__app is None:
-    #         App.__app = App()
-    #     return App.__app
+    @staticmethod
+    def get_instance():
+        '''return a unique static instance of the App class'''
+        if App.__app is None:
+            App.__app = App()
+        return App.__app
 
     def select_category(self, category_list_index:int):
         
@@ -103,7 +105,15 @@ class App(object):
     def __call__(self, *args, **kwds):
         app:App = App()
 
-    
+    @staticmethod
+    def get_repository():
+        '''return selected USDM BCs'''
+        app = App.get_instance()
+        if app.current_repository is None:
+            print(f"{(app.current_repository)} isn't implemented yet, using demo values instead")
+            app.current_repository = [USDM_BC(app.biomedical_concepts_in_category('AIMS'))]
+        return app.current_repository
+
 
     def get_biomedical_concept_names_in_category(self, index:int = None, id_:str = None, name:str = None):
         ''' Set bc_selection to all biomedical concepts in provided category and returns a list of the related names

@@ -1,7 +1,12 @@
+from json import JSONEncoder
+import json
 from tkinter import Menu, filedialog
 from tkinter import DISABLED
+import tkinter
 
+# from app import App
 from utils.io.FileWriter import FileWriter
+from utils.json.json_encoder import CustomEncoder
 
 
 
@@ -39,30 +44,25 @@ class ExportMenu(Menu):
         self.add_command(label="JSON", command=self.on_json_click)
 
     def on_json_click(self):
-        testString:str = f"this is a test string"
-        print(f"converting data to json")
-        print(f"picking file location")
-        print(f"saving file to disk")
+        selection = App.get_repository()
+        if selection is None:
+            selection = f"this is a test string"
         
         file_location = filedialog.asksaveasfilename(
             confirmoverwrite=True,
-            defaultextension=".json",
-            filetypes=("text {.txt}", "JSON {.json}", "csv {.csv}"),
+            defaultextension="json",
+            filetypes=("all {.*}", "json {.json}","text {.txt}"),
+            initialfile="New file",
             parent=self,
-            title="Export to JSON",
-            typevariable=testString
+            title="Export - Choose file location",
+            typevariable=(file_type:="json")
         )
+        
         if file_location is None:
             pass
+        elif file_location == "":
+            print("Export canceled by user")
         else:
-            json_string = testString
-            FileWriter.write(file_location, json_string)
-
-
-        # if (fname:= dialog.selection["text"]) is None: pass
-        # else:
-            # print(fname)
-            # FileWriter.write(dialog.directory,fname, json_string)
-        # dirname = dialog.directory
-        # json_string=testString
-        print(f"Done!")
+            print(f"saving file to disk")
+            FileWriter.writeJSON(selection, file_location)
+            print(f"Done!")
