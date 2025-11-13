@@ -1,5 +1,6 @@
 
 # from props_testing import PropertyDisplay
+from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
 from views.ui_display import UIDisplay
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
@@ -40,7 +41,7 @@ class App(object):
         # TODO: Get All known bcs in category from disc
         # TODO: Create From Dict for list of usdm bcs
         # available_bcs:list[USDM_BC] = USDM_BC.from_dict(get_biomedical_concepts_list(selected_category.id_))
-        temp = API.get_biomedical_concepts_list(selected_category.id_, categories=[cat.id_ for cat in self.categories])
+        temp = API.get_biomedical_concepts_list(selected_category.code.standard_code.code, categories=[cat.code.standard_code.code for cat in self.categories])
         available_bcs:list[USDM_BC] = [USDM_BC(row) for row in temp]
         
         self.biomedical_concepts_in_category = available_bcs
@@ -61,11 +62,11 @@ class App(object):
         return self.biomedical_concepts_in_category
     
 
-    def __new__(cls):
-        # Ensure singleton
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(App, cls).__new__(cls)
-        return cls.instance
+    # def __new__(cls): # Doesn't work
+    #     # Ensure singleton
+    #     if not hasattr(cls, 'instance'):
+    #         cls.instance = super(App, cls).__new__(cls)
+    #     return cls.instance
 
     def __init__(self):
         
@@ -86,21 +87,13 @@ class App(object):
         self.display = user_ui
         # TODO load from disk
 
+        # TODO: register shutdown event
         # user_ui.set_categories([category.name for category in usdm_categories])
 
         # selection:list[USDM_Category] = []
         
         # user_ui.create_selection_list("Selected Biomedical Concepts:")
 
-        # Biomedical Concepts List
-        # TODO: Function > bc category on select
-        # TODO: Add label displaying currently selected category name
-        # TODO: Add listbox with all BCs in current category
-        #   - Check if the BCs are already available
-        #       True => Display BC list
-        #       False => Fetch, store & display BC list
-        # TODO: Add category to listbox when BC is selected
-        # TODO: Add bc to listbox when BC is selected
 
     def __call__(self, *args, **kwds):
         app:App = App()
@@ -108,7 +101,7 @@ class App(object):
     def get_repository(self):
         '''return selected USDM BCs'''
         if self.current_repository is None:
-            print(f"app.current_repository isn't implemented yet, using demo values instead")
+            print("app.current_repository isn't implemented yet, using demo values instead")
             self.current_repository = [USDM_BC(self.biomedical_concepts_in_category('AIMS'))]
         return self.current_repository
 
@@ -140,8 +133,11 @@ class App(object):
 
 
 def main(*args):
+    print("/mdr/bc/packages/2022-10-26/biomedicalconcepts/C49676".split('/')[4])
+    BiomedicalConceptPackage.test()
     app:App = App()
     # app.start()
+
 
 if __name__ == "__main__":
     main()

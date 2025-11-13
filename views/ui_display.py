@@ -131,84 +131,84 @@ class UIDisplay():
        
         # Frame for active biomedical Concept
         # Dummy active biomedical Concept Frame
-        self.active_biomedical_concept_overview_lframe = ttk.LabelFrame(self.mainframe,text=f"Active BC:")
+        self.active_biomedical_concept_overview_lframe = ttk.LabelFrame(self.mainframe,text="Active BC:")
         self.active_biomedical_concept_overview_lframe.place(anchor="nw", relheight=1, width=UIDisplay.__data_column_width[2],x=UIDisplay.__data_column_width[0]+UIDisplay.__data_column_width[1], in_=self.mainframe)
         self.active_biomedical_concept_overview_mainframe = ttk.Frame(self.active_biomedical_concept_overview_lframe)
         self.active_biomedical_concept_overview_mainframe.pack(anchor="nw",fill="x",expand=False)
         
         
-        masterFrame = self.active_biomedical_concept_overview_mainframe
+        master_frame = self.active_biomedical_concept_overview_mainframe
         
-        self.bc_name_label = Label(masterFrame, text="Name: ")
-        self.bc_name_label.grid(row=0,column=0,sticky="W",in_=masterFrame)
+        self.bc_name_label = Label(master_frame, text="Name: ")
+        self.bc_name_label.grid(row=0,column=0,sticky="W",in_=master_frame)
         self.bc_name_value = StringVar(value="Dummy BC")
-        self.bc_name_entry = Entry(masterFrame, textvariable=self.bc_name_value)
-        self.bc_name_entry.grid(row=0,column=1,sticky="WE",in_=masterFrame,padx=1)
-        masterFrame.columnconfigure(1,weight=1)
+        self.bc_name_entry = Entry(master_frame, textvariable=self.bc_name_value)
+        self.bc_name_entry.grid(row=0,column=1,sticky="WE",in_=master_frame,padx=1)
+        master_frame.columnconfigure(1,weight=1)
         
 
         # label_label:Label         label:Textbox
         # ID_Label:Label            ID:Disabled_Text
-        self.bc_id_label = Label(masterFrame,text="Id: ")
+        self.bc_id_label = Label(master_frame,text="Id: ")
         self.bc_id_value = StringVar(value="C60354")
-        self.bc_id_label.grid(row=1,column=0,sticky="W", in_=masterFrame)
-        self.bc_id_entry = Entry(masterFrame,textvariable=self.bc_id_value)
+        self.bc_id_label.grid(row=1,column=0,sticky="W", in_=master_frame)
+        self.bc_id_entry = Entry(master_frame,textvariable=self.bc_id_value)
         self.bc_id_entry.configure(state=DISABLED)
-        self.bc_id_entry.grid(row=1,column=1, sticky="WE", in_=masterFrame,padx=1)
+        self.bc_id_entry.grid(row=1,column=1, sticky="WE", in_=master_frame,padx=1)
         
         # reference_label:Label     url:Disabled_Text
         self.bc_reference_value = StringVar(value="/mdr/bc/biomedicalconcepts/C445997")
-        self.bc_reference_label = Label(masterFrame, text="Reference: ")
-        self.bc_reference_label.grid(row=2,column=0,sticky="W", in_=masterFrame)
-        self.bc_reference_entry = Entry(masterFrame,textvariable=self.bc_reference_value)
+        self.bc_reference_label = Label(master_frame, text="Reference: ")
+        self.bc_reference_label.grid(row=2,column=0,sticky="W", in_=master_frame)
+        self.bc_reference_entry = Entry(master_frame,textvariable=self.bc_reference_value)
         self.bc_reference_entry.configure(state=DISABLED)
-        self.bc_reference_entry.grid(row=2,column=1, sticky="WE", in_=masterFrame,padx=1)
+        self.bc_reference_entry.grid(row=2,column=1, sticky="WE", in_=master_frame,padx=1)
 
         # code_label:Label          code:Disabled_Text
-        self.bc_aliasCode_value = StringVar(value="C445997")
-        self.bc_aliasCode_label = Label(masterFrame, text="AliasCode: ")
-        self.bc_aliasCode_label.grid(row=3,column=0,sticky="W", in_=masterFrame)
-        self.bc_aliasCode_entry = Entry(masterFrame,textvariable=self.bc_aliasCode_value)
-        self.bc_aliasCode_entry.configure(state=DISABLED)
-        self.bc_aliasCode_entry.grid(row=3,column=1, sticky="WE", in_=masterFrame,padx=1)
+        self.bc_alias_code_value = StringVar(value="C445997")
+        self.bc_alias_code_label = Label(master_frame, text="AliasCode: ")
+        self.bc_alias_code_label.grid(row=3,column=0,sticky="W", in_=master_frame)
+        self.bc_alias_code_entry = Entry(master_frame,textvariable=self.bc_alias_code_value)
+        self.bc_alias_code_entry.configure(state=DISABLED)
+        self.bc_alias_code_entry.grid(row=3,column=1, sticky="WE", in_=master_frame,padx=1)
         # synonyms:Label            synonyms:Lisbox
-        self.bc_synonyms_frame = Frame(masterFrame)
+        self.bc_synonyms_frame = Frame(master_frame)
         self.bc_synonyms_frame.grid(row=3, column=1,sticky="WE",padx=1)
-        self.dummySynonyms = ["David","Goliath","Synonym 3",]
-        self.bc_synonyms_value = StringVar(value=self.dummySynonyms)
-        self.bc_synonyms_label = Label(masterFrame, text="Synonyms: ")
-        self.bc_synonyms_label.grid(row=3,column=0,sticky="W", in_=masterFrame)
+        self.dummy_synonyms = ["David","Goliath","Synonym 3",]
+        self.bc_synonyms_value = StringVar(value=self.dummy_synonyms)
+        self.bc_synonyms_label = Label(master_frame, text="Synonyms: ")
+        self.bc_synonyms_label.grid(row=3,column=0,sticky="W", in_=master_frame)
         self.bc_synonyms_listbox = Listbox(self.bc_synonyms_frame,listvariable=self.bc_synonyms_value)
         self.bc_synonyms_yscrollbar = Scrollbar(self.bc_synonyms_frame,orient=VERTICAL,command=self.bc_synonyms_listbox.yview)
         self.bc_synonyms_yscrollbar.pack(anchor="ne",fill="y",side="right")
         self.bc_synonyms_listbox.configure(yscrollcommand=self.bc_synonyms_yscrollbar.set)
-        if len(self.dummySynonyms) < 6:
-            lbHeight = len(self.dummySynonyms)
+        if len(self.dummy_synonyms) < 6:
+            lbl_height = len(self.dummy_synonyms)
             self.bc_synonyms_yscrollbar.config(width=-1)
         else:
-            lbHeight = 5
+            lbl_height = 5
             self.bc_synonyms_yscrollbar.config(width=12)
-        self.bc_synonyms_listbox.config(height=lbHeight)
+        self.bc_synonyms_listbox.config(height=lbl_height)
         self.bc_synonyms_listbox.pack(anchor="nw",fill="both", expand=True, side="left")
         #                           new_synonym:Entry   add_Button:Button
-        self.bc_synonyms_entry_frame = Frame(masterFrame)
+        self.bc_synonyms_entry_frame = Frame(master_frame)
         self.bc_synonyms_entry_frame.grid(row=5,column=1,sticky="EW")
         self.bc_synonyms_entry_value = StringVar()
         self.bc_synonyms_entry = Entry(self.bc_synonyms_entry_frame,textvariable=self.bc_synonyms_entry_value)
         self.bc_synonyms_entry.pack(anchor="w",side="left",fill="x",expand=True)
         self.bc_synonyms_entry_button = Button(self.bc_synonyms_entry_frame,text="add", command=lambda:self.synonym_add_cmd(self.bc_synonyms_entry.get()))
         self.bc_synonyms_entry_button.pack(anchor="w", fill="none",side="right",before=self.bc_synonyms_entry)
-        
+
         self.bc_synonyms_entry.bind("<Return>", lambda event: self.synonym_add_cmd(self.bc_synonyms_entry.get()))
 
-        dummyProperties = [{
+        dummy_properties = [{
             "id_":str(guid()).upper(),
             "label":"Testing Prop",
             "isRequired":1,
             "isEnabled":0,
             "dataType":"Blood sample",
             "code":"C2389",
-            "notes":[f"beep boop",f"Bla bla\n bla", f"Bla bla \n akj;sdf a;klsdjf ;akdjfa;leksjfa;kldjf;a kljsef;alksejf;aklsjef;aksjfj a;ske;fjkasd;fjk asej;fkasjf;lkasej;fkl asjef;k lasefj a;kslefj asklef ja;skejfa;klsfj a;selkj ;fjkasd;fjk asej;fkasjf;lkasej;fkl asjef;k lasefj a;kslefj asklef ja;skejfa;klsfj a;selkj f", "this is super important too"],
+            "notes":["beep boop","Bla bla\n bla", "Bla bla \n akj;sdf a;klsdjf ;akdjfa;leksjfa;kldjf;a kljsef;alksejf;aklsjef;aksjfj a;ske;fjkasd;fjk asej;fkasjf;lkasej;fkl asjef;k lasefj a;kslefj asklef ja;skejfa;klsfj a;selkj ;fjkasd;fjk asej;fkasjf;lkasej;fkl asjef;k lasefj a;kslefj asklef ja;skejfa;klsfj a;selkj f", "this is super important too"],
             "responseCode":[{
                 "id":str(guid()).upper(),
                 "name":"Blood letting",
@@ -254,32 +254,25 @@ class UIDisplay():
                 "code":"C65416541",
             }],
         }]
-
-        self.properties_frame = Properties_Container(self.active_biomedical_concept_overview_lframe,frame_title="Properties:", properties=dummyProperties)
+        self.properties_frame = Properties_Container(self.active_biomedical_concept_overview_lframe,frame_title="Properties:", properties=dummy_properties)
         self.properties_frame.pack(side=TOP, fill=BOTH, expand=True)
 
 
     def _on_category_select(self, event, *args, **kwargs):
-        # lambda onClick: self.on_category_click(self.categories_overview_listbox.curselection()[0])
-        
-        # print(event.__dict__)
-        
         self.on_category_click(event.widget.curselection()[0])
-        
-
 
     def synonym_add_cmd(self, *args):
-        self.dummySynonyms.append(args[0])
-        self.bc_synonyms_value.set(self.dummySynonyms)
-        lbHeight = 0
-        if len(self.dummySynonyms) < 6:
-            lbHeight = len(self.dummySynonyms)
+        self.dummy_synonyms.append(args[0])
+        self.bc_synonyms_value.set(self.dummy_synonyms)
+        label_height = 0
+        if len(self.dummy_synonyms) < 6:
+            label_height = len(self.dummy_synonyms)
             self.bc_synonyms_yscrollbar.config(width=-1)
         else:
-            lbHeight = 5
+            label_height = 5
             self.bc_synonyms_yscrollbar.config(width=12)
 
-        self.bc_synonyms_listbox.config(height=lbHeight)
+        self.bc_synonyms_listbox.config(height=label_height)
         self.bc_synonyms_entry_value.set("")
 
     def set_active_category(self, category_name:str, bc_names:list[str]):
@@ -310,4 +303,3 @@ class UIDisplay():
     #             value = current_bcs[Listbox.curselection(bcs_in_current_category)[0]]
     #         except ValueError:
     #             pass
-
