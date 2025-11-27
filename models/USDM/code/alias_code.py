@@ -19,7 +19,7 @@ class AliasCode():
     standard_code_aliases: list[Code] = field(default_factory=list[Code])
 
     def __init__(self, standard_code, id_=None, aliases: list[Code] = None):
-        if(isinstance(id, str)):
+        if(isinstance(id_, str)):
             print(id_)
         if id_ is None or id_ == "":
             self.id = guid()

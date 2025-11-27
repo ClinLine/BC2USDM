@@ -5,7 +5,7 @@ from tkinter import DISABLED
 import tkinter
 
 from utils.io.FileWriter import FileWriter
-from utils.json.json_encoder import CustomEncoder
+from utils.json.json_encoder import USDMEncoder
 
 
 
@@ -48,6 +48,7 @@ class ExportMenu(Menu):
 
     def on_json_click(self):
         selection = self.app.get_repository()
+        print(f"[on_json_click]:{type(selection)}")
         if selection is None:
             selection = f"this is a test string"
         
@@ -66,6 +67,6 @@ class ExportMenu(Menu):
         elif file_location == "":
             print("Export canceled by user")
         else:
-            print(f"saving file to disk")
+            print(f"Starting to write file to disc")
             FileWriter.writeJSON(selection, file_location)
             print(f"Done!")

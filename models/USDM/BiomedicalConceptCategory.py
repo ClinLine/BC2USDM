@@ -48,6 +48,7 @@ class BiomedicalConceptCategory():
         '''Function returning a USDM Biomedical Concept category,
         based on a provided CDISC Biomedical Concept category.
         '''
+        # TODO: Line below needs refactoring
         id__=cdisc_cat.links.self_.href.split("=")[-1]
         return BiomedicalConceptCategory(
             id_=id__, # id

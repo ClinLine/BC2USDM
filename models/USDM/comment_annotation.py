@@ -10,7 +10,7 @@ class CommentAnnotation:
     text:str
     codes: list[Code] = field(default_factory=list['Code'])
 
-    def __init__(self, id_:str, text:str, codes:list[Code]):
+    def __init__(self, text:str, id_:str = None, codes:list[Code] = None):
         '''CommentAnnotation constructor'''
         if id_ is None or id_ == "":
             self.id_ = guid()

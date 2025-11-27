@@ -2443,6 +2443,5 @@ class BiomedicalConceptPackage:
             "effectiveDate": "2025-07-01",
             "version": "2025-07-01"
         }"""
-        
         j = json.loads(jsonstr)
         print(BiomedicalConceptPackage(j))

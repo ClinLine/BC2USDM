@@ -31,12 +31,19 @@ class Code():
 
         if code is None or code=="":
             # self.code = uuid()
-            raise ValueError()
+            raise ValueError("No value for Code was provided")
         else:
             self.code = code
 
         if code_system is None or code_system == "":
-            self.code_system = "USDM"
+            if isinstance(code, str):
+                if code[:0] == 'C':
+                    code_system = "ncit"
+            elif isinstance(code, Code):
+                if code.code[:0] == 'C':
+                    code_system = "ncit"
+            else:
+                self.code_system = "USDM"
         else:
             self.code_system = code_system
 
@@ -47,4 +54,6 @@ class Code():
     def __decode(self):
         '''Not supported in USDM.BiomedicalConcept'''
         raise NotImplementedError("Decode currently not avialbe in Biomedical Concept outputs.")
-    
+
+DEFINITION:Code = Code("C43680", code_system="ncit", code_system_version=None)
+RESULT_SCALE:Code = Code("C221799", code_system="ncit", code_system_version=None)

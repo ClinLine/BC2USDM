@@ -5,8 +5,9 @@ from views.ui_display import UIDisplay
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
 from models.USDM.BiomedicalConcept import BiomedicalConcept as USDM_BC
-# from utils.api_utils import get_biomedical_concepts_list, get_latest_biomedical_concept_categories
+from utils.api_utils import get_biomedical_concepts_list, get_latest_biomedical_concept_categories
 from utils import api_utils as API
+from utils.io.FileWriter import FileWriter as fr
 # from utils.json_encoder import CustomEncoder
 
 
@@ -23,7 +24,7 @@ class App(object):
     selected_biomedical_concept:USDM_BC
     biomedical_concepts_in_selection:list[USDM_BC]
 
-    current_repository = list[USDM_BC]
+    current_repository:list[USDM_BC] = None
 
     # __app:"App"
 
@@ -58,7 +59,7 @@ class App(object):
         # TODO: Update UI with new list
 
     def get_bcs_in_category(self, category:str):
-        self.biomedical_concepts_in_category = API.get_biomedical_concepts_list(category)
+        self.biomedical_concepts_in_category = [USDM_BC(bc) for bc in API.get_biomedical_concepts_list(category)]
         return self.biomedical_concepts_in_category
     
 
@@ -69,9 +70,12 @@ class App(object):
     #     return cls.instance
 
     def __init__(self):
-        
-        json_categories = API.get_latest_biomedical_concept_categories()
+        # TODO: remove this line, it's for testing json export
+        testObject = self.get_repository()
+        fr.writeJSON(testObject, "C:\\users\\Jeffrey\\Desktop\\newFile.json")
 
+        json_categories = API.get_latest_biomedical_concept_categories()
+        
         # cdisc_categories:list[CDISC_Category] = CDISC_Category.categories_from_json(json_categories)
         usdm_categories:list[USDM_Category] = list(map(USDM_Category.from_json, json_categories))
 
@@ -95,6 +99,7 @@ class App(object):
         # user_ui.create_selection_list("Selected Biomedical Concepts:")
 
 
+
     def __call__(self, *args, **kwds):
         app:App = App()
 
@@ -102,7 +107,16 @@ class App(object):
         '''return selected USDM BCs'''
         if self.current_repository is None:
             print("app.current_repository isn't implemented yet, using demo values instead")
-            self.current_repository = [USDM_BC(self.biomedical_concepts_in_category('AIMS'))]
+            self.current_repository = []
+            print(type(f"[App.get_repository]: type(self.current_repo) = {self.current_repository} (before assignment)"))
+            
+            self.current_repository.append(self.get_bcs_in_category("AIMS"))
+            # map(lambda bc: USDM_BC(API.get_latest_biomedical_concept(bc.id_)), self.current_repository[0])
+            for bc in self.current_repository[0]:
+                bc.populate()
+            # for bc in current_repository[0]:
+            #     bc = 
+            print(type(f"[App.get_repository]: type(self.current_repo) = {self.current_repository} (after assignment)"))
         return self.current_repository
 
 
@@ -133,9 +147,9 @@ class App(object):
 
 
 def main(*args):
-    print("/mdr/bc/packages/2022-10-26/biomedicalconcepts/C49676".split('/')[4])
-    BiomedicalConceptPackage.test()
+    
     app:App = App()
+    
     # app.start()
 
 

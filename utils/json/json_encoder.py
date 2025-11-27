@@ -1,22 +1,14 @@
 import json
+import types
 from models.CDISC.BiomedicalConceptLink import BiomedicalConceptLink
 from models.USDM.BiomedicalConcept import BiomedicalConcept, BiomedicalConceptProperty, ResponseCode
 from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 
-class CustomEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, USDM_Category):
-            return {"id":o.id_, "name":o.name, "label":o.label, "description":o.description}
-        if isinstance(o, CDISC_Category):
-            return {"name":o.name, "_links": o.links}
-        if isinstance(o, BiomedicalConceptLink):
-            raise NotImplementedError("Converting BiomedicalConceptLinks to json isn't implemented yet")
-        # Let the base class default method raise the typeError
-        return super().default(o)
-    
 class BiomedicalConceptEncoder(json.JSONEncoder):
     def default(self, o):
+        print("BC encoder has been called")
+        print(o)
         if isinstance(o, BiomedicalConcept):
             bc_dict = {}
             # Dictionaries are technically ordered in python 3.7,
@@ -40,6 +32,10 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
             return bc_dict
         # Let the base class default method raise the typeError
         return super().default(o)
+
+class AliasCodeEncoder(json.JSONEncoder):
+    def default(self, o):
+        raise NotImplementedError("Alias Code Encoder is not yet implemeted yet")
 
 class BiomedicalConceptPropertyEncoder(json.JSONEncoder):
     def default(self, o):
@@ -76,32 +72,64 @@ class ResponseCodeEncoder(json.JSONEncoder):
             return rc
         return super().default(o)
 
-class IterableEncoder(json.JSONEncoder):
-    def default(self, o):
-        try:
-            iterable = iter(o)
-        except TypeError:
-            pass
-        else:
-            return list(iterable)
-        super().default(o)
-
-class GenericAliasEncoder(json.JSONEncoder):
-    def default(self, o):
-        print(o.__dict__)
-        if isinstance(o, type["GenericAlias"]):
-            print("HALP!!!!")
-
-
-# class CodeEncoder(json.JSONEncoder):
-#     def default (self, o):
-#         # if isinstance(o, (Code, AliasCode)):
+# class IterableEncoder(json.JSONEncoder):
+#     def default(self, o):
 #         try:
-#             code = {}
-
-                
+#             iterable = iter(o)
 #         except TypeError:
 #             pass
 #         else:
-#             return code
-#         return super().default(o)
+#             return list(iterable)
+#         super().default(o)
+
+# class GenericAliasEncoder(json.JSONEncoder):
+#     def default(self, o):
+#         print(o.__dict__)
+#         if isinstance(o, type["GenericAlias"]):
+#             print("HALP!!!!")
+
+
+class CodeEncoder(json.JSONEncoder):
+    def default (self, o):
+        # if isinstance(o, (Code, AliasCode)):
+        try:
+            code = {}            
+        except TypeError:
+            pass
+        else:
+            return code
+        return super().default(o)
+
+# class USDM_GenericAliasEncoder(json.JSONEncoder):
+    
+#     def default(self, o):        
+#         print(o.__dict__)
+#         # o.append(o[0])
+#         if isinstance(o, types.GenericAlias):
+#             try:
+#                 c = 0
+#                 for i in iter(o):
+#                     print(f"[{c}]{i}")
+#                     c+=1
+                    
+#             except Exception as e:
+#                 print(e)
+#             # try:
+            
+
+class USDMEncoder(
+    BiomedicalConceptEncoder,
+    ResponseCodeEncoder,
+    BiomedicalConceptPropertyEncoder,
+    CodeEncoder,
+    AliasCodeEncoder):
+    def default(self, o):
+        
+        # if isinstance(o, USDM_Category):
+        #     return {"id":o.id_, "name":o.name, "label":o.label, "description":o.description}
+        # if isinstance(o, CDISC_Category):
+        #     return {"name":o.name, "_links": o.links}
+        # if isinstance(o, BiomedicalConceptLink):
+        #     raise NotImplementedError("Converting BiomedicalConceptLinks to json isn't implemented yet")
+        # # Let the base class default method raise the typeError
+        return super().default(o)

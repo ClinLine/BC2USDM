@@ -1,5 +1,7 @@
 import json
 
+from utils.json.json_encoder import USDMEncoder
+
 
 class FileWriter():
     """Utility class to write contents to file"""
@@ -18,12 +20,12 @@ class FileWriter():
         file.close()
 
     @staticmethod
-    def writeJSON(o:object, path:str):
+    def writeJSON(o, path:str):
         try:
             with open(file=f"{path}", mode="x+t", encoding="UTF-8") as file:
                 json.dump(o, file)
         except FileExistsError:
             # File already exists, overwriting
             with open(file=f"{path}", mode="w+t", encoding="UTF-8") as file:
-                json.dump(o, file)
+                json.dump(o, file, cls=USDMEncoder)
         
