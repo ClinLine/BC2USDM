@@ -106,17 +106,17 @@ class App(object):
     def get_repository(self):
         '''return selected USDM BCs'''
         if self.current_repository is None:
-            print("app.current_repository isn't implemented yet, using demo values instead")
+            # print("app.current_repository isn't implemented yet, using demo values instead")
             self.current_repository = []
-            print(type(f"[App.get_repository]: type(self.current_repo) = {self.current_repository} (before assignment)"))
+            # print(type(f"[App.get_repository]: type(self.current_repo) = {self.current_repository} (before assignment)"))
             
             self.current_repository.append(self.get_bcs_in_category("AIMS"))
             # map(lambda bc: USDM_BC(API.get_latest_biomedical_concept(bc.id_)), self.current_repository[0])
             for bc in self.current_repository[0]:
-                bc.populate()
+                bc._populate()
             # for bc in current_repository[0]:
             #     bc = 
-            print(type(f"[App.get_repository]: type(self.current_repo) = {self.current_repository} (after assignment)"))
+            # print(type(f"[App.get_repository]: type(self.current_repo) = {self.current_repository} (after assignment)"))
         return self.current_repository
 
 
@@ -147,7 +147,8 @@ class App(object):
 
 
 def main(*args):
-    
+
+
     app:App = App()
     
     # app.start()

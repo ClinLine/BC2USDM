@@ -48,7 +48,7 @@ def get_biomedical_concepts_list(category: str=None, categories: list[str]=None)
     url = endpoint
     if(category is not None and category != ""): # TODO add else state
         if categories is None:
-            print("No categories provided, aquiring them from api")
+            # print("No categories provided, aquiring them from api")
             categories = [c["name"] for c in get_latest_biomedical_concept_categories()]
         if category in categories:
             url = f"{endpoint}?category={category}"

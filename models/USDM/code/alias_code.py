@@ -20,9 +20,9 @@ class AliasCode():
 
     def __init__(self, standard_code, id_=None, aliases: list[Code] = None):
         if(isinstance(id_, str)):
-            print(id_)
+            print(f"[AliasCode.init]String id_ found: {id_}")
         if id_ is None or id_ == "":
-            self.id = guid()
+            self.id_ = guid()
         else: self.id_ = id_
         if isinstance(standard_code, str):
             self.standard_code = Code(code=standard_code, code_system="ncit")
@@ -32,3 +32,19 @@ class AliasCode():
     def add_alias(self, alias:Code):
         '''Append provided alias to alias codes list'''
         self.standard_code_aliases.append(alias)
+
+    # def __str__(self):
+    #     result = "{"
+    #     if self.id_ is not None:
+    #         result += f"\n\r\t\"id:\":\"{self.id_}\","
+    #     if self.standard_code is not None:
+    #         result += f"\n\r\t\"standardCode:\":\"{self.standard_code}\","
+    #     if self.standard_code_aliases is not None and len(self.standard_code_aliases) > 0:
+    #         result += "\n\r\t\"standardCodeAliases:\":["
+    #         for code in self.standard_code_aliases:
+    #             result += f"{str(code)},"
+    #         result = result[:-2] # Drop last ','
+    #         result += "],"
+    #     result = result[:-2] # drop last character, which should be a ','
+    #     result +="\n\r}"
+    #     return result

@@ -17,6 +17,7 @@ class BiomedicalConceptBase:
     code:AliasCode
     # type_:str
     _populated:bool = False
+    category=None
     # parent:type["BiomedicalConceptBase"]
 
 
@@ -47,8 +48,6 @@ class BiomedicalConceptBase:
         #"name": "AspartateAminotransferaseMeasurement"+id_
 
 
-    
-
 class BiomedicalConcept(BiomedicalConceptBase):
     __name__ = "BiomedicalConcept"
     properties: list[BiomedicalConceptProperty]
@@ -66,68 +65,68 @@ class BiomedicalConcept(BiomedicalConceptBase):
     
 
     # C49676
-    '''properties you get from category (CDISC):
-    href: i.e. /mdr/bc/biomedicalconcepts/C49676
-    title: pH
-    type: Biomedical Concept
+    # '''properties you get from category (CDISC):
+    # href: i.e. /mdr/bc/biomedicalconcepts/C49676
+    # title: pH
+    # type: Biomedical Concept
 
-    properties yo uget from GetLatestBiomedicalConcept (CDISC):
-    href: i.e. /mdr/bc/packages/2025-07-01/biomecialconcepts/C45997
-    title: ph
-    type: Biomedical Concept
+    # properties yo uget from GetLatestBiomedicalConcept (CDISC):
+    # href: i.e. /mdr/bc/packages/2025-07-01/biomecialconcepts/C45997
+    # title: ph
+    # type: Biomedical Concept
 
-    properties you get from getLatestBiomedicalConcept (CDISC):
-    "_links": {
-        "parentBiomedicalConcept": {
-            "href": "/mdr/bc/biomedicalconcepts/C158424",
-            "title": "Physical Property",
-            "type": "Biomedical Concept"
-        },
-        "parentPackage": {
-            "href": "/mdr/bc/packages/2025-07-01/biomedicalconcepts",
-            "title": "Biomedical Concept Package Effective 2025-07-01",
-            "type": "Biomedical Concept Package"
-        },
-        "self": {
-            "href": "/mdr/bc/biomedicalconcepts/C45997",
-            "title": "pH",
-            "type": "Biomedical Concept"
-        }
-    },
-    "conceptId": "C45997",
-    "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C45997",
-    "categories": ["Laboratory Tests", "Urinalysis"],
-    "shortName": "pH",
-    "synonyms": ["PH", "potential of Hydrogen"],
-    "resultScales": ["Quantitative", "Ordinal"],
-    "definition": "Quantity of dimension one used to express on a scale from 0 to 14 the amount-of-substance concentration of hydrogen ion of dilute aqueous solution, calculated as the logarithm of the reciprocal of hydrogen-ion concentration in gram atoms per liter.",
-    "dataElementConcepts": [{
-        "conceptId": "C70856",
-        "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C70856",
-        "shortName": "Observation Result",
-        "dataType": "decimal",
-        "ncitCode": "C70856"
-    }, {
-        "conceptId": "C93566",
-        "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C93566",
-        "shortName": "Fasting Status Indicator",
-        "dataType": "boolean",
-        "ncitCode": "C93566"
-    }, {
-        "conceptId": "C70713",
-        "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C70713",
-        "shortName": "Biospecimen Type",
-        "dataType": "string",
-        "exampleSet": ["Urine", "Blood", "Saliva", "Bronchial Fluid", "Body Fluid", "Eyes", "Skin"],
-        "ncitCode": "C70713"
-    }, {
-        "conceptId": "C82515",
-        "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C82515",
-        "shortName": "Collection Date Time",
-        "dataType": "datetime",
-        "ncitCode": "C82515"
-    }],
-    "ncitCode": "C45997"'''
+    # properties you get from getLatestBiomedicalConcept (CDISC):
+    # "_links": {
+    #     "parentBiomedicalConcept": {
+    #         "href": "/mdr/bc/biomedicalconcepts/C158424",
+    #         "title": "Physical Property",
+    #         "type": "Biomedical Concept"
+    #     },
+    #     "parentPackage": {
+    #         "href": "/mdr/bc/packages/2025-07-01/biomedicalconcepts",
+    #         "title": "Biomedical Concept Package Effective 2025-07-01",
+    #         "type": "Biomedical Concept Package"
+    #     },
+    #     "self": {
+    #         "href": "/mdr/bc/biomedicalconcepts/C45997",
+    #         "title": "pH",
+    #         "type": "Biomedical Concept"
+    #     }
+    # },
+    # "conceptId": "C45997",
+    # "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C45997",
+    # "categories": ["Laboratory Tests", "Urinalysis"],
+    # "shortName": "pH",
+    # "synonyms": ["PH", "potential of Hydrogen"],
+    # "resultScales": ["Quantitative", "Ordinal"],
+    # "definition": "Quantity of dimension one used to express on a scale from 0 to 14 the amount-of-substance concentration of hydrogen ion of dilute aqueous solution, calculated as the logarithm of the reciprocal of hydrogen-ion concentration in gram atoms per liter.",
+    # "dataElementConcepts": [{
+    #     "conceptId": "C70856",
+    #     "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C70856",
+    #     "shortName": "Observation Result",
+    #     "dataType": "decimal",
+    #     "ncitCode": "C70856"
+    # }, {
+    #     "conceptId": "C93566",
+    #     "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C93566",
+    #     "shortName": "Fasting Status Indicator",
+    #     "dataType": "boolean",
+    #     "ncitCode": "C93566"
+    # }, {
+    #     "conceptId": "C70713",
+    #     "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C70713",
+    #     "shortName": "Biospecimen Type",
+    #     "dataType": "string",
+    #     "exampleSet": ["Urine", "Blood", "Saliva", "Bronchial Fluid", "Body Fluid", "Eyes", "Skin"],
+    #     "ncitCode": "C70713"
+    # }, {
+    #     "conceptId": "C82515",
+    #     "href": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C82515",
+    #     "shortName": "Collection Date Time",
+    #     "dataType": "datetime",
+    #     "ncitCode": "C82515"
+    # }],
+    # "ncitCode": "C45997"'''
 
     # def __init__(self, id_, name:str, label:str, description:str=None, code=None, notes=None, children=None, *args):
     def __init__(self, *args, **kws):
@@ -136,26 +135,19 @@ class BiomedicalConcept(BiomedicalConceptBase):
             BiomedicalConceptBase.__init__(self,args[0])
         else:
             BiomedicalConceptBase.__init__(self, kws)
-        print(**kws)
+        # print(**kws)
         
-        self.populate(**kws)
-            
-        
-       
-            # propertes: list[BiomedicalConceptProperty]
-            # response_codes:list[ResponseCode]
-            # code:AliasCode
-            # label:str = ""
-            # synonyms:list[str] = None
+        self._populate(**kws)
 
 
-    def populate(self, **kwargs):
+
+    def _populate(self, **kwargs):
         # Populate fields if they were provided as kwargs
         if len(kwargs) > 0:
             if "ncitCode" in kwargs:
-                    if kwargs["ncitCode"] is not None and kwargs["conceptId"] != kwargs["ncitCode"]:
-                        self.code = AliasCode(kwargs["ncitCode"])
-                        self.code.add_alias(Code(kwargs["conceptId"]))
+                if kwargs["ncitCode"] is not None and kwargs["conceptId"] != kwargs["ncitCode"]:
+                    self.code = AliasCode(kwargs["ncitCode"])
+                    self.code.add_alias(Code(kwargs["conceptId"]))
             if "dataElementConcepts" in kwargs and len(kwargs["dataElementConcepts"]) > 0:
                 if self.properties is None:
                     self.properties = []
@@ -175,7 +167,7 @@ class BiomedicalConcept(BiomedicalConceptBase):
         # if no kwargs were provided, fetch them using the API
         elif not self._populated:
             data = get_latest_biomedical_concept(self.code.standard_code.code)
-            print(data)
+            # print(data)
             """
             {
                 "conceptId": "C93566",
@@ -187,7 +179,7 @@ class BiomedicalConcept(BiomedicalConceptBase):
             """
             # properties: list[BiomedicalConceptProperty]
             for key,value in data.items():
-                print(f"{key}:{value}")
+                # print(f"{key}:{value}")
 
                 match key:
                     case "conceptId":
@@ -197,13 +189,14 @@ class BiomedicalConcept(BiomedicalConceptBase):
                             self.code = AliasCode(value)
                     case "_links":
                         #TODO: Process links
-                        print("LINKS FOUND, but not processed")
-                        pass
+                        # print("LINKS FOUND, but not processed")
+                        ...
                     case "href":
                         self.reference = value
                     case "categories":
                         #TODO Add processing of categories
-                        print("Categories found but not processed")
+                        # print("Categories found but not processed")
+                        ...
                     case "shortName":
                         if value != self.label and self.label is not None:
                             print("Encountered label and shortName missmatch, resetting label")
@@ -226,10 +219,11 @@ class BiomedicalConcept(BiomedicalConceptBase):
                     # case "synonyms": should be caught by default case
                     #     self.synonyms = value
                     case _:
-                        print("Attempting matching key to value")
-                        print(f"{key}:{value}")
+                        # print("Attempting matching key to value")
+                        # print(f"{key}:{value}")
                         
                         self.key = value
+        self._populated = True
             # self.response_codes = [ResponseCode(**rc) for rc in data["responseCode"]]
             # response_codes:list[ResponseCode]
             # code:AliasCode

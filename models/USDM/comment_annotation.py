@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
-from uuid import uuid4 as guid
+from uuid import UUID, uuid4 as guid
 from models.USDM.code.code import Code
 
 
 @dataclass
 class CommentAnnotation:
     '''Comment annotations for Biological Concepts or Biological Concept Properties'''
-    id_:str
+    id_:UUID
     text:str
     codes: list[Code] = field(default_factory=list['Code'])
 
@@ -17,4 +17,8 @@ class CommentAnnotation:
         else:
             self.id_ = id_
         self.text = text
-        self.codes = [Code(code) for code in codes]
+        if codes is not None and len(codes)>0:
+            if isinstance(codes[0],str):
+                self.codes = [Code(code) for code in codes]
+            elif isinstance(codes[0], Code):
+                self.codes = list(codes)

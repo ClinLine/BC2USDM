@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from uuid import uuid4 as guid
+# from dataclasses import dataclass, field
+from uuid import UUID, uuid4 as guid
 
 # from logic.local_storage import LocalStorage
 # from models.USDM.BiomedicalConcept import BiomedicalConcept
@@ -9,20 +9,21 @@ from models.USDM.comment_annotation import CommentAnnotation
 from models.USDM.response_code import ResponseCode
 
 
-@dataclass
+# @dataclass
 class BiomedicalConceptProperty:
-    id_: guid
+    id_: UUID
     name: str
-    is_required: bool
-    is_enabled: bool
+    is_required: bool = False
+    is_enabled: bool = False
     # TODO: check if datatype can be an enum or hash for optimizing
     datatype: str
     code:AliasCode
     label: str = None
-    notes: list[CommentAnnotation] = field(default_factory=list[CommentAnnotation],)
-    response_codes: list[ResponseCode] = field(default_factory=list[ResponseCode])
+    notes: list[CommentAnnotation] = None
+    response_codes: list[ResponseCode] = None
 
     def __init__(self, *args, **kws):
+        self.id_ = guid()
         if isinstance(args[0], dict):
             self.__init_x(**args[0], **kws)
             # self.__init_from_parameters(**args[0])
@@ -49,8 +50,8 @@ class BiomedicalConceptProperty:
             self.response_codes = ResponseCode.from_example_set(dictionary["exampleSet"])
 
     # def __init_from_parameters(self, id_:str, name:str, required:bool, enabled:bool, datatype:str, code:Code, notes:CommentAnnotation, response_codes:ResponseCode, label:str=None):
-    def __init_from_parameters(self, name:str, required:bool, enabled:bool, datatype:str, code:Code, notes:CommentAnnotation, response_codes:ResponseCode, label:str=None, conceptId:str=None):
-        
+    def __init_from_parameters(self, name:str, datatype:str, code:Code, notes:CommentAnnotation = None, response_codes:ResponseCode = None, label:str=None, conceptId:str=None, required:bool=False, enabled:bool=False):
+        print("init from parameters got used")
         self.id_ = guid()
         self.name = name
         self.label = label
@@ -70,7 +71,7 @@ class BiomedicalConceptProperty:
             print("args is not 0")
             raise NotImplementedError()
         for key, value in kwargs.items():
-            print(f"{key}:{kwargs[key]}")
+            # print(f"{key}:{kwargs[key]}")
             match key:
 
                 case "conceptId":
@@ -84,6 +85,7 @@ class BiomedicalConceptProperty:
                     self.code = AliasCode(value)
                 case "shortName":
                     self.label = value
+                    self.name = f"{value}_{self.id_}"
                 case "href":
                     self.reference = value
                 case "dataType":
@@ -92,6 +94,11 @@ class BiomedicalConceptProperty:
                     # map exampleSet to response codes
                     # TODO implement actual ResonseCode support
                     self.response_codes = [ResponseCode(label=rcName) for rcName in value ]
+                case "isRequired":
+                    self.is_required = bool(value)
+                case "isEnabled":
+                    self.is_enabled = bool(value)
+                
                 case _: # One to one mappings
                     try:
                         self.key = value
