@@ -10,7 +10,6 @@ class Link():
 
     def __init__(self, *args):
         if isinstance(args, tuple):
-            # print(args)
             self.href = args[0]["href"]
             self.title = args[0]["title"]
             self.type = args[0]["type"]

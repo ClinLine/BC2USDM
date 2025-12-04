@@ -137,7 +137,7 @@ class ResponseCode():
             self.label = name
         if name is not None and label is not None:
             print(f"[ResponseCode.init]: Expected name or label to be {None}")
-
+            raise ValueError(f"[ResponseCode.init]: Expected name or label to be {None}")
         self.name = f"{self.label}_{self.id_}"
         self.is_enabled = enabled
         if isinstance(code,str):
@@ -148,9 +148,4 @@ class ResponseCode():
 
     @staticmethod
     def from_example_set(json_str:list[str]):
-        # result:ResponseCode = []
-        # for name in jsonStr:
-        #     result.append( ResponseCode(name=name))
-        # return result
-        # print(json_str)
         return [ResponseCode(name=string,code=ExampleCode) for string in json_str]

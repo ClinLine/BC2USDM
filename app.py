@@ -85,6 +85,7 @@ class App(object):
         
         user_ui = UIDisplay(self, App.__APPLICATION_TITLE__, category_names=[cat.label for cat in self.categories])
         
+        self.biomedical_concepts_in_selection = []
         # user_ui = PropertyDisplay(self, App.__APPLICATION_TITLE__)
         # user_ui.set_cagetories(self.categories)
 
@@ -106,17 +107,11 @@ class App(object):
     def get_repository(self):
         '''return selected USDM BCs'''
         if self.current_repository is None:
-            # print("app.current_repository isn't implemented yet, using demo values instead")
             self.current_repository = []
-            # print(type(f"[App.get_repository]: type(self.current_repo) = {self.current_repository} (before assignment)"))
-            
+            # Appending a list of bcs, since the repo might have multiple lists of bcs
             self.current_repository.append(self.get_bcs_in_category("AIMS"))
-            # map(lambda bc: USDM_BC(API.get_latest_biomedical_concept(bc.id_)), self.current_repository[0])
             for bc in self.current_repository[0]:
-                bc._populate()
-            # for bc in current_repository[0]:
-            #     bc = 
-            # print(type(f"[App.get_repository]: type(self.current_repo) = {self.current_repository} (after assignment)"))
+                bc.populate()
         return self.current_repository
 
 
@@ -141,6 +136,8 @@ class App(object):
     
     def select_bc(self, index:int):
         selected_bc = self.biomedical_concepts_in_category[index]
+        if self.biomedical_concepts_in_selection is None:
+            self.biomedical_concepts_in_selection:list[USDM_BC] = []
         self.biomedical_concepts_in_selection.append(selected_bc)
         return selected_bc.name
 

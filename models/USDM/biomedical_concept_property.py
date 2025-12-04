@@ -22,36 +22,15 @@ class BiomedicalConceptProperty:
     notes: list[CommentAnnotation] = None
     response_codes: list[ResponseCode] = None
 
-    def __init__(self, *args, **kws):
+    def __init__(self, *args, **kwargs):
         self.id_ = guid()
         if isinstance(args[0], dict):
-            self.__init_x(**args[0], **kws)
-            # self.__init_from_parameters(**args[0])
+            self.__init_from_dict(**args[0], **kwargs)
         else:
-            self.__init_from_parameters(**kws)
+            self.__init_from_parameters(**kwargs)
 
-    def __init_from_dictionary(self, dictionary:dict):
-        self.id_ = guid()
-        if "ncitCode" in dictionary:
-            self.code = AliasCode(dictionary["ncitCode"])
-            if dictionary["ncitCode"] != dictionary["coneptId"]:
-                self.code.add_alias(Code(dictionary["coneptId"]))
-        self.name = f"{dictionary["shortName"]}_{self.id_}"
-        if dictionary["shortName"] is not None and dictionary["label"] != "":
-            self.label = dictionary["label"]
-        else: self.label = None
-        self.is_required = dictionary["isRequired"]
-        self.is_enabled = dictionary["isEnabled"]
-        self.datatype = dictionary["dataType"]
-        # self.code = AliasCode(dictionary["code"])
-        # self.notes = CommentAnnotation(dictionary["notes"])
-        if "exampleSet" in dictionary:
-            # Actual importing those is currently not implenented yet
-            self.response_codes = ResponseCode.from_example_set(dictionary["exampleSet"])
-
-    # def __init_from_parameters(self, id_:str, name:str, required:bool, enabled:bool, datatype:str, code:Code, notes:CommentAnnotation, response_codes:ResponseCode, label:str=None):
     def __init_from_parameters(self, name:str, datatype:str, code:Code, notes:CommentAnnotation = None, response_codes:ResponseCode = None, label:str=None, conceptId:str=None, required:bool=False, enabled:bool=False):
-        print("init from parameters got used")
+        print("init from parameters got used") # Remove after testing is done
         self.id_ = guid()
         self.name = name
         self.label = label
@@ -65,15 +44,12 @@ class BiomedicalConceptProperty:
         self.notes = notes
         self.response_codes = response_codes
 
-    def __init_x(self, *args, **kwargs):
-        
+    def __init_from_dict(self, *args, **kwargs):
         if len(args) > 0:
-            print("args is not 0")
+            print("args should never have a len > 0 at this point")
             raise NotImplementedError()
         for key, value in kwargs.items():
-            # print(f"{key}:{kwargs[key]}")
             match key:
-
                 case "conceptId":
                     if kwargs["ncitCode"] is not None:
                         if value != kwargs["ncitCode"]:
@@ -81,8 +57,8 @@ class BiomedicalConceptProperty:
                             self.code = AliasCode(standard_code=Code(kwargs["ncitCode"], code_system="ncit"),aliases=[Code(value)])
                         else:
                             self.code = AliasCode(value)
-
                     self.code = AliasCode(value)
+                case "ncitCode": pass # already handled by conceptId
                 case "shortName":
                     self.label = value
                     self.name = f"{value}_{self.id_}"
@@ -92,17 +68,16 @@ class BiomedicalConceptProperty:
                     self.datatype = value
                 case "exampleSet":
                     # map exampleSet to response codes
-                    # TODO implement actual ResonseCode support
                     self.response_codes = [ResponseCode(label=rcName) for rcName in value ]
                 case "isRequired":
                     self.is_required = bool(value)
                 case "isEnabled":
                     self.is_enabled = bool(value)
-                
-                case _: # One to one mappings
+                case _: # Default case
+                    print(f"using default case to map for key: {key}")
                     try:
                         self.key = value
-                    except Exception as e:
+                    except Exception as e: # TODO replace with more specific exception.
                         raise NotImplementedError(f"No exact match found for key:{key}")
                     
             

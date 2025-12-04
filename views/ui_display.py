@@ -285,9 +285,7 @@ class UIDisplay():
             index = category_index
 
             result = self.__main_app.select_category(index)
-            # result = self.__app_instance.select_category("age")
             self.set_active_category(result["category_name"],result["bc_names"])
-
         except ValueError:
             print(ValueError)
 

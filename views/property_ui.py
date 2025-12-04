@@ -143,6 +143,7 @@ class Properties_Container(LabelFrame):
     def create_new_property_frame(self,event,*args):
         print("Attempting to add new property")
         ...
+        raise NotImplementedError("Adding new properties is not yet implemented")
         
         # new_main_frame = PropertyFrame(self.scroll_frame.view_port, property="""USDM.Property""", name=f"main_frame_new_#")
         # self.notebook.insert(-1,new_main_frame)

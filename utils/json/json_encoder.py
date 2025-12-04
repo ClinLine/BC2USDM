@@ -65,7 +65,7 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
         return super().default(o)
 
 class BiomedicalConceptPropertyEncoder(json.JSONEncoder):
-    def default(self, o):
+    def default(self, o:BiomedicalConceptProperty):
         if isinstance(o, BiomedicalConceptProperty):
             # print(f"properties dict: {o.__dict__}")
             property_ = {}
@@ -146,12 +146,4 @@ class USDMEncoder(
     UUIDEncoder,
     IterEncoder):
     def default(self, o):
-        print(o)
-        # if isinstance(o, USDM_Category):
-        #     return {"id":o.id_, "name":o.name, "label":o.label, "description":o.description}
-        # if isinstance(o, CDISC_Category):
-        #     return {"name":o.name, "_links": o.links}
-        # if isinstance(o, BiomedicalConceptLink):
-        #     raise NotImplementedError("Converting BiomedicalConceptLinks to json isn't implemented yet")
-        # # Let the base class default method raise the typeError
         return super().default(o)
