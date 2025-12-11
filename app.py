@@ -61,18 +61,11 @@ class App(object):
     def get_bcs_in_category(self, category:str):
         self.biomedical_concepts_in_category = [USDM_BC(bc) for bc in API.get_biomedical_concepts_list(category)]
         return self.biomedical_concepts_in_category
-    
-
-    # def __new__(cls): # Doesn't work
-    #     # Ensure singleton
-    #     if not hasattr(cls, 'instance'):
-    #         cls.instance = super(App, cls).__new__(cls)
-    #     return cls.instance
 
     def __init__(self):
         # TODO: remove this line, it's for testing json export
-        testObject = self.get_repository()
-        fr.writeJSON(testObject, "C:\\users\\Jeffrey\\Desktop\\newFile.json")
+        # testObject = self.get_repository()
+        # fr.writeJSON(testObject, "C:\\users\\Jeffrey\\Desktop\\newFile.json")
 
         json_categories = API.get_latest_biomedical_concept_categories()
         
@@ -83,21 +76,13 @@ class App(object):
         usdm_categories.sort(key=lambda usdm_category: usdm_category.name)
         self.categories = usdm_categories
         
+        self.biomedical_concepts_in_selection = None
+        
+        # last call during runtime
         user_ui = UIDisplay(self, App.__APPLICATION_TITLE__, category_names=[cat.label for cat in self.categories])
-        
-        self.biomedical_concepts_in_selection = []
-        # user_ui = PropertyDisplay(self, App.__APPLICATION_TITLE__)
-        # user_ui.set_cagetories(self.categories)
-
         self.display = user_ui
-        # TODO load from disk
-
-        # TODO: register shutdown event
-        # user_ui.set_categories([category.name for category in usdm_categories])
-
-        # selection:list[USDM_Category] = []
+        # calls in init after this line are probably ran after closing the UI
         
-        # user_ui.create_selection_list("Selected Biomedical Concepts:")
 
 
 
