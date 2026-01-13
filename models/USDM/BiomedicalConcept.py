@@ -53,13 +53,19 @@ class BiomedicalConcept(BiomedicalConceptBase):
     synonyms:list[str] = None
     reference:str = "" # Not nullable
     notes:list[CommentAnnotation] = None
+    _links:str = None
 
     def __init__(self, *args, **kws):
+        # for arg in args:
+        #     print(arg)
+        # for kw, val in kws:
+        #     print(f"{kw}: {val}")
+        
         if isinstance(args[0], dict) and args[0] is not None:
             # initiated from a json string
-            BiomedicalConceptBase.__init__(self,args[0])
+            super().__init__(args[0])
         else:
-            BiomedicalConceptBase.__init__(self, kws)
+            super().__init__(kws)
         self.populate(**kws)
         if self.reference == "" or self.reference is None:
             raise ValueError("Reference can't be None or empty")
@@ -68,7 +74,6 @@ class BiomedicalConcept(BiomedicalConceptBase):
         """ Populates BiomedicalConcept's satelite data based on provided kwargs
         Requests data from API if no keyword-args were provided
         """
-        print(self.label)
         # Populate fields if they were provided as kwargs
         if len(kwargs) > 0:
             if "ncitCode" in kwargs:
@@ -93,19 +98,21 @@ class BiomedicalConcept(BiomedicalConceptBase):
         
         # if no kwargs were provided, fetch them using the API
         elif not self._populated:
-            data = get_latest_biomedical_concept(self.code.standard_code.code)
-            for key,value in data.items():
+            json_data = get_latest_biomedical_concept(self.code.standard_code.code)
+            
+            for key,value in json_data.items():
                 match key:
                     case "conceptId":
-                        if not "ncitCode" in data.keys():
+                        if not "ncitCode" in json_data.keys():
                             pass
-                        elif data["ncitCode"] is not None and data["ncitCode"] != value:
-                            self.code = AliasCode(standard_code=(Code(data["ncitCode"],code_system="ncit")),aliases=[Code(value)])
+                        elif json_data["ncitCode"] is not None and json_data["ncitCode"] != value:
+                            self.code = AliasCode(standard_code=(Code(json_data["ncitCode"],code_system="ncit")),aliases=[Code(value)])
                         else:
                             self.code = AliasCode(value)
                     # already handling ncitCode in conceptId case
                     case "ncitCode": pass # already handling ncitCode in conceptId case
                     case "_links":
+                        self._links = value
                         #TODO: Process links
                         # print("LINKS FOUND, but not processed")
                         ...
@@ -114,7 +121,7 @@ class BiomedicalConcept(BiomedicalConceptBase):
                     case "categories":
                         #TODO Add processing of categories
                         # print("Categories found but not processed")
-                        ...
+                        pass # not allowed to have empty case
                     case "shortName":
                         if value != self.label and self.label is not None:
                             print("Encountered label and shortName missmatch, resetting label")
@@ -123,21 +130,19 @@ class BiomedicalConcept(BiomedicalConceptBase):
                         if self.notes is None: self.notes = [CommentAnnotation(value,codes=[code.DEFINITION])] 
                         else: self.notes.append(CommentAnnotation(value,codes=[code.DEFINITION]))
                     case "definition":
-                            self.notes.append(CommentAnnotation(data["definition"],codes=[code.DEFINITION]))
-                            self.notes:CommentAnnotation = [CommentAnnotation(data["definition"],codes=[code.DEFINITION])]
+                            self.notes.append(CommentAnnotation(json_data["definition"],codes=[code.DEFINITION]))
+                            self.notes:CommentAnnotation = [CommentAnnotation(json_data["definition"],codes=[code.DEFINITION])]
                     case "resultScales":
-                        if self.notes is None: self.notes = [CommentAnnotation(rc,codes=[code.RESULT_SCALE]) for rc in data["resultScales"]]
+                        if self.notes is None: self.notes = [CommentAnnotation(rc,codes=[code.RESULT_SCALE]) for rc in json_data["resultScales"]]
                         else:
-                            self.notes.append(CommentAnnotation(rc,codes=[code.RESULT_SCALE]) for rc in data["resultScales"])
+                            self.notes.append(CommentAnnotation(rc,codes=[code.RESULT_SCALE]) for rc in json_data["resultScales"])
                     case "dataElementConcepts":
-                        self.properties = [BiomedicalConceptProperty(prop) for prop in data["dataElementConcepts"]]
+                        self.properties = [BiomedicalConceptProperty(prop) for prop in json_data["dataElementConcepts"]]
 
                     # case "synonyms": should be caught by default case
                     #     self.synonyms = value
                     case _:
                         # print("Attempting matching key to value")
-                        # print(f"{key}:{value}")
-                        
                         self.key = value
         self._populated = True
 

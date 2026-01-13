@@ -129,9 +129,6 @@ class ResponseCode():
             # print("Grabbing exampleset details is not yet supported, only setting label, name and id")
             self.label = name
         self.id_ = guid()
-            
-        # if id_ is None or id_ == "":
-        #     self.code = Code(id_)
         self.label = label
         if name is not None and self.label is None:
             self.label = name
@@ -145,7 +142,6 @@ class ResponseCode():
         elif isinstance(code, Code):
             self.code = Code
         else: self.code = None
-
     @staticmethod
     def from_example_set(json_str:list[str]):
         return [ResponseCode(name=string,code=ExampleCode) for string in json_str]

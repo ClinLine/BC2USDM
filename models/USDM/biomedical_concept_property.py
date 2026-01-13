@@ -30,7 +30,7 @@ class BiomedicalConceptProperty:
             self.__init_from_parameters(**kwargs)
 
     def __init_from_parameters(self, name:str, datatype:str, code:Code, notes:CommentAnnotation = None, response_codes:ResponseCode = None, label:str=None, conceptId:str=None, required:bool=False, enabled:bool=False):
-        print("init from parameters got used") # Remove after testing is done
+        print("init from parameters got used") # TODO: Remove after testing is done
         self.id_ = guid()
         self.name = name
         self.label = label
@@ -46,7 +46,6 @@ class BiomedicalConceptProperty:
 
     def __init_from_dict(self, *args, **kwargs):
         if len(args) > 0:
-            print("args should never have a len > 0 at this point")
             raise NotImplementedError()
         for key, value in kwargs.items():
             match key:
@@ -78,7 +77,7 @@ class BiomedicalConceptProperty:
                     try:
                         self.key = value
                     except Exception as e: # TODO replace with more specific exception.
-                        raise NotImplementedError(f"No exact match found for key:{key}")
+                        raise NotImplementedError(f"[{e.__qualname__}]No exact match found for key:{key}")
                     
             
             

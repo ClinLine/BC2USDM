@@ -11,6 +11,7 @@ import requests
 
 # import json
 from dotenv import dotenv_values
+from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
 import pandas
 import numpy as np
 
@@ -36,21 +37,31 @@ def get_latest_biomedical_concept_categories():
         print(e)
 
 
-def get_biomedical_concepts_list(category: str=None, categories: list[str]=None):
+def get_biomedical_concepts_list(category:USDM_Category|str=None, categories:list[str]|list[USDM_Category]=None):
     endpoint: str = "https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/biomedicalconcepts"
     url = endpoint
-    if(category is not None and category != ""): # TODO add else state
+    cat_code=""
+    if(category is not None and isinstance(category, USDM_Category)): # TODO add else state
+        cat_code = category.get_code()
         if categories is None:
+            # Get categories
             categories = [c["name"] for c in get_latest_biomedical_concept_categories()]
-        if category in categories:
-            url = f"{endpoint}?category={category}"
+        elif isinstance(categories[0], USDM_Category):
+            for cat in categories: # for each category in the list
+                if cat.get_code() == cat_code: # check if the code matches the code I provided as category
+                    # if it does
+                    url = f"{endpoint}?category={cat_code}" # building api URL
+                    break
+        elif isinstance(category, str)and len(categories)>0 and isinstance(categories[0], str): # Category and categories are strings
+                if category in categories: # else return to string support
+                    url = f"{endpoint}?category={category}"
         else:
-            print("category not found!")
+            print("category not found!") # catch all, something went wrong here
     else:
         print("Category can't be None or \"\"")
         raise ValueError(f"Proviced {category.__qualname__} can't be None or \"\"")
-    
-    try:
+    # can you see the popup window?
+    try: 
         req = requests.api.get(url, headers=__headers, timeout=10)
         if req.json()["_links"] is None:
             print("json:")
@@ -65,7 +76,7 @@ def get_biomedical_concepts_list(category: str=None, categories: list[str]=None)
         print(httpe)
     except Exception as e:
         now = datetime.now()
-        file = open(f"ErrorLog_{now.strftime("%dd/%mm/%Y-%H:%M:%S")}.txt", "x+t",encoding="utf-8")
+        file = open(f"ErrorLog_{now.strftime("%dd/%mm/%YY-%H:%M:%S")}.txt", "x+t",encoding="utf-8")
         file.write(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
         print(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
         file.write(f"File {__file__} in {__name__}")

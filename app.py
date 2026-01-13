@@ -1,7 +1,7 @@
 
 # from props_testing import PropertyDisplay
 from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
-from views.ui_display import UIDisplay, BC2USDM_Window
+from views.bc2usdm_window import BC2USDM_Window
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
 from models.USDM.BiomedicalConcept import BiomedicalConcept as USDM_BC
@@ -16,7 +16,8 @@ from utils.io.FileWriter import FileWriter as fr
 # __categories_list_width: int = 120
 class App(object):
     __APPLICATION_TITLE__ = "BC2USDM"
-    display:UIDisplay
+    # display:UIDisplay
+    display:BC2USDM_Window
 
     categories:list[USDM_Category]
     biomedical_concepts_in_category:list[USDM_BC]
@@ -26,17 +27,7 @@ class App(object):
 
     current_repository:list[USDM_BC] = None
 
-    # __app:"App"
-
-    # @staticmethod
-    # def get_instance():
-    #     '''return a unique static instance of the App class'''
-    #     if App.__app is None:
-    #         App.__app = App()
-    #     return App.__app
-
     def select_category(self, category_list_index:int):
-        print("[App]: select_category has been called")
         selected_category:USDM_Category = self.categories[category_list_index]
 
         # TODO: Get All known bcs in category from disc
@@ -55,13 +46,17 @@ class App(object):
         # TODO: Update biomedical_concepts_in_category
         # TODO: Update UI with new list
 
-    def get_bcs_in_category(self, category):
-        self.biomedical_concepts_in_category = [USDM_BC(bc) for bc in API.get_biomedical_concepts_list(category.get_code())]
+    def get_bcs_in_category(self, category_code):
+        len(self.categories)
+        all_codes = [cat.get_code() for cat in self.categories]
+        self.biomedical_concepts_in_category = [USDM_BC(bc) for bc in API.get_biomedical_concepts_list(category_code, self.categories)]
+        # self.biomedical_concepts_in_category = [USDM_BC(bc) for bc in API.get_biomedical_concepts_list(category.get_code(), all_codes)]
         return self.biomedical_concepts_in_category
+
 
     def __init__(self):
         self.biomedical_concepts_in_selection = None
-        t = BC2USDM_Window(app=self, screenName = App.__APPLICATION_TITLE__)
+        self.display = BC2USDM_Window(app=self, screenName = App.__APPLICATION_TITLE__)
         # last call during runtime
         # user_ui = UIDisplay(self, App.__APPLICATION_TITLE__, category_names=[cat.label for cat in self.categories])
         # self.display = user_ui
@@ -85,7 +80,7 @@ class App(object):
         Raises a ValueError if no index, id or name is provided
         Returns list[str] names
         '''
-        print(f"[APP] requesting bc names ")
+
         current_category = None
         if index is not None:
             current_category = self.categories[index]
@@ -97,18 +92,27 @@ class App(object):
                 if category.id_ == id_ or category.name == name:
                     current_category = category
                     break
-        self.current_bcs: list[USDM_BC] = self.get_bcs_in_category(current_category)
-        return self.current_bcs
-
+        self.biomedical_concepts_in_category: list[USDM_BC] = self.get_bcs_in_category(current_category)
+        return [bc.label for bc in self.biomedical_concepts_in_category]
+    
+    def get_category_label_by_index(self, index:int=None):
+        return self.categories[index].label
+    
     def select_bc(self, index:int):
         if len(self.biomedical_concepts_in_category) > 0:
             selected_bc = self.biomedical_concepts_in_category[index]
             if self.biomedical_concepts_in_selection is None:
                 self.biomedical_concepts_in_selection:list[USDM_BC] = []
             self.biomedical_concepts_in_selection.append(selected_bc)
+            self.set_current_bc(selected_bc)
             return selected_bc
-        else:
-            return None
+        return None
+    
+    def set_current_bc(self, bc):
+        self.current_bc = bc
+        print(self.__dict__["current_bc"])
+        # print(self.display.__dict__)
+        # self.display.update_current_bc(bc)
         
     def get_category_labels(self):
         json_categories = API.get_latest_biomedical_concept_categories()
@@ -122,6 +126,7 @@ class App(object):
 # App autostart
 def main(*args):
     app:App = App()
+
 
 if __name__ == "__main__":
     main()

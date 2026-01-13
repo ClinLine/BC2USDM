@@ -10,7 +10,6 @@ class BiomedicalConceptCategory():
     name: str
     label:str = None
     description: str = None
-    # code: AliasCode = None
     code:AliasCode = None
     # notes: list[CommentAnnotation] = None
     notes:list[str] = None
@@ -26,9 +25,14 @@ class BiomedicalConceptCategory():
         self.name = f"{label.replace(" ","%20")}_{self.id_}"
         self.description = description
         if isinstance(code, str):
-            print(f"didn't expect code to be a string ({code}), using label instead")
-            self.code = AliasCode(label.encode()) #CDISK categories don't have a code currently, they use the encoded name as id
-        else: self.code = code
+            print(f"Didn't expect code to be a string ({code}), using label instead")
+            #CDISK categories don't have a code currently, they use the encoded name as id
+            self.code = AliasCode(label.encode(), check_code=False)
+        else: 
+            if isinstance(code, (AliasCode)):
+                self.code = code
+            else:
+                print(type(code))
         self.notes = notes
         self.categories = children
 
@@ -41,7 +45,7 @@ class BiomedicalConceptCategory():
         '''Function returns a BiomedicalConceptCategory based on a provided json string'''
         return BiomedicalConceptCategory(
             id_=None,
-            code=AliasCode(json["_links"]["self"]["href"].split('=')[-1]), #Undecoded id
+            code=AliasCode(json["_links"]["self"]["href"].split('=')[-1], check_code=False), #Undecoded id
             # id_=json["_links"]["self"]["href"].split('=')[-1], #Undecoded id
             # name=json["name"],
             label=json["name"],

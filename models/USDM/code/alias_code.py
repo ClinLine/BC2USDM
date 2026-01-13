@@ -18,20 +18,100 @@ class AliasCode():
     # list of codes for all aliases
     standard_code_aliases: list[Code] = field(default_factory=list[Code])
 
-    def __init__(self, standard_code, id_=None, aliases: list[Code] = None):
+    '''
+    List of termsinologies:
+    
+    ncit - NCI Thesaurus
+    ncim - NCI Metathesaurus
+    canmed - CanMED
+    chebi - Chemical Entities of Biological Interest
+    ctcae5 - CTCAE 5
+    duo - Data Use Ontology
+    go - Gene Ontology
+    hgnc - HUGO Gene Nomenclature Committee
+    hl7v30 - Health Level 7 Vocabulary (V3)
+    icd10 = International Classification of Diseases, Tenth Revision
+    icd10cm - The International Classification of Diseases, Tenth Revision, Clinical Modification
+    icd9cm - The International Classification of Diseases, Ninth Revision, Clinical Modification
+    loinc - Logical Observation Identifier Names and Codes
+    ma - Mouse Anatomy: Anatomical Dictionary for the Adult Mouse
+    mdr = Medical Dictionary for Regulatory Activities
+    medrt - MED-RT
+    mged - Microarray Gene Expression Data Ontology
+    ndfrt - National Drug File Reference Terminology
+    npo - NanoParticle Ontology
+    obi - Ontology for Biomedical Investigations
+    obib - The ontology for Biobanking
+    pdq - Physician Data Query
+    radlex - Radiology Lexicon
+    snomedct_us - SNOMED Clinical Terms
+    umlssemnet - UMLS Semantic Network: UMLS Semantic Network
+    zfa - Zebrafish Model Organism Database
+
+    Sample Codes
+
+Following are sample codes you can use with each terminology for testing.
+
+    ncit - C3224 - Melanoma
+    ncim - C0025202 - Melanoma
+    canmed - HCPCS_HPV_VACCINE - HPV Vaccine
+    chebi - CHEBI:119915 - Fentanyl
+    ctcae5 - C143201 - Disease progression
+    duo - DUO_0000004 - no restriction
+    go - GO:0008152 - metabolic process
+    hgnc - HGNC:3430 - ERBB2
+    hl7v30 - F - Female
+    icd10 - D03.9 - Melanoma in situ, unspecified
+    icd10cm - D03.9 - Melanoma in situ, unspecified
+    icd9cm - 172.9 - Melanoma of skin, site unspecified
+    loinc - 21526-9 - Sodium:MCnc:24H:Urine:Qn
+    ma - MA:0000353 - stomach
+    mdr - 10053571 - Melanoma
+    medrt - N0000177915 - Acetaminophen
+    mged - MO_526 - microeinstein_per_minute_and_square_meter
+    ndfrt - N0000175556 - beta-Adrenergic Blocker [EPC]
+    npo - NPO_197 - gold nanocage
+    obi - OBI_0001906 - cancer cell line
+    obib - OBI_0002200 - cannot be assessed determination
+    pdq - CDR0000492706 - cantuzumab ravtansine
+    radlex - RID28531 - ground-glass opacity
+    snomedct_us - 73211009 - Diabetes mellitus
+    umlssemnet - T046 - Disorder
+    zfa - ZFA:0001383 - fin bud
+
+    '''
+    
+    # STATIC METHODS
+    @staticmethod
+    def assess_code_system(code_string:str):
+        # all ncit (and ncim) codes follow C000... pattern:
+        if code_string [0] == 'C' and code_string[1:-1].isdigit():
+            return "ncit"
+        else:
+            # TODO determine code system based on code
+            # Perhaps use NCI EVS Rest API https://evsexplore.semantics.cancer.gov/evsexplore/evsapi 
+            print(f"[AliasCode.assess_code_system:] code recognition other than ncit is not yet supported")
+            return "other"
+    
+    def __init__(self, standard_code, id_=None, aliases: list[Code] = None, check_code:bool=True):
         if(isinstance(id_, str)):
             print(f"[AliasCode.init]String id_ found: {id_}")
         if id_ is None or id_ == "":
+            #TODO request guid from local storage, duplicates having (different) unique ids
             self.id_ = guid()
         else: self.id_ = id_
-        if isinstance(standard_code, str):
-            self.standard_code = Code(code=standard_code, code_system="ncit")
-        else: self.standard_code = standard_code
+        if isinstance(standard_code, str) and check_code:
+            code_system = AliasCode.assess_code_system(standard_code)
+            self.standard_code = Code(code=standard_code, code_system=code_system)
+        else:
+            code_system = None
+            self.standard_code = Code(code=standard_code,code_system=None)
         self.standard_code_aliases = aliases
 
     def add_alias(self, alias:Code):
         '''Append provided alias to alias codes list'''
         self.standard_code_aliases.append(alias)
+
 
     # def __str__(self):
     #     result = "{"
