@@ -65,7 +65,7 @@ def get_biomedical_concepts_list(category: str=None, categories: list[str]=None)
         print(httpe)
     except Exception as e:
         now = datetime.now()
-        file = open(f"ErrorLog_{now}.txt", "x+t",encoding="utf-8")
+        file = open(f"ErrorLog_{now.strftime("%dd/%mm/%Y-%H:%M:%S")}.txt", "x+t",encoding="utf-8")
         file.write(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
         print(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
         file.write(f"File {__file__} in {__name__}")

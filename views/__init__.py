@@ -1,1 +1,1 @@
-__name__="BC2USDM.views"
+__name__= "BC2USDM.views"

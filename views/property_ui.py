@@ -2,33 +2,6 @@ from tkinter import *
 from uuid import uuid4 as guid
 from tkinter import ttk
 
-        
-## Properties: ################################
-# Property:             [NAME           ] #[^]#
-# Property Id:          [ID             ] #[|]#
-# Code:                 [Code.code      ] #[|]#
-# Required:             [?] isRequired    #[ ]#
-# Enabled:              [x] isEnabled     #[ ]#
-# Property Datatype:    [dataType       ] #[ ]#
-## Property Notes #########################[ ]#
-# ____________________________________    #[ ]#
-# |Property Notes:     [notes[0]     ][^]|#[ ]#
-# |                    [             ][|]|#[ ]#
-# |                    [notes[i]     ][ ]|#[ ]#
-# |____________________[_____________][v]|#[ ]#
-###########################################[ ]#
-## Response Codes:#########################[ ]#
-# ____________________________________    #[ ]#
-# |Label:               [label       ]|[^]#[ ]#
-# |Id:                  [ID          ]|[|]#[ ]#
-# |Name:----------------HIDDEN--------|[ ]#[ ]#
-# |Enabled:             [?] isEnabled |[ ]#[ ]#
-# |code:                [Code        ]|[ ]#[ ]#
-# |___________________________________|[ ]#[ ]#
-# |Label:               [label       ]|[ ]#[ ]#
-# |Id:                  [ID          ]|[ ]#[ ]#
-# |Name:----------------HIDDEN--------|[v]#[v]#
-###############################################
 
 class ScrollFrame(Frame):
     # max amount of visible children
@@ -120,7 +93,7 @@ class ScrollFrame(Frame):
         #         self.canvas.yview_scroll(1, UNITS)
 
 class Properties_Container(LabelFrame):
-    def __init__(self, parent, frame_title:str="Properties:",properties=[], *args, **kwargs):
+    def __init__(self, parent, frame_title:str="Properties:",properties=None, *args, **kwargs):
         super().__init__(parent, text=frame_title)
         
         self.scroll_frame = ScrollFrame(self, False)
@@ -128,7 +101,8 @@ class Properties_Container(LabelFrame):
         self.property_containers = []
         self.notebook = ttk.Notebook(self.scroll_frame.view_port)
         self.notebook.pack(side=TOP, fill=BOTH, expand=True)
-
+        if properties is None:
+            properties = []
         for prop in properties:
             main_frame = PropertyFrame(self.scroll_frame.view_port, property=prop, name=f"main_frame_{prop["id_"]}")
             
@@ -143,7 +117,7 @@ class Properties_Container(LabelFrame):
     def create_new_property_frame(self,event,*args):
         print("Attempting to add new property")
         ...
-        raise NotImplementedError("Adding new properties is not yet implemented")
+        # raise NotImplementedError("Adding new properties is not yet implemented")
         
         # new_main_frame = PropertyFrame(self.scroll_frame.view_port, property="""USDM.Property""", name=f"main_frame_new_#")
         # self.notebook.insert(-1,new_main_frame)
@@ -158,7 +132,6 @@ class PropertyFrame(Frame):
         Label(self,text="Property:").grid(row=row_index,column=0,sticky="NWS")
         # Note: (i:=i+1)-1 equates to i++ in c-like languages (++i would be (i:=i+1))
         Entry(self,textvariable=label_var).grid(row=(row_index:=row_index+1)-1,column=1,sticky="NESW")
-        
 
         # Property Id
         id_var = StringVar(value=property["id_"])
@@ -169,7 +142,7 @@ class PropertyFrame(Frame):
         id_var = StringVar(value=property["code"])
         Label(self,text="Code:").grid(row=row_index,column=0,sticky="NWS")
         Entry(self, state=DISABLED, textvariable=id_var).grid(row=(row_index:=row_index+1)-1,column=1,sticky="NESW")
-    
+
         # isRequired
         Label(self,text="Required").grid(row=row_index,column=0,sticky="NWS")
         required_btn = Checkbutton(self)
@@ -180,7 +153,7 @@ class PropertyFrame(Frame):
 
         # isEnabled
         Label(self,text="Enabled").grid(row=row_index,column=0,sticky="NWS")
-        enabled_button = Checkbutton(self, name="!property_enabled_cbtn_"+str(property["id_"]).replace("-","_"))
+        enabled_button = Checkbutton(self, name=f"!property_enabled_cbtn_{str(property["id_"]).replace("-","_")}")
         self.enabled_var = BooleanVar(master=enabled_button, value=property["isEnabled"])
         # self.enabled_properties_vars.append(enabled_var)
         enabled_button.configure(variable=self.enabled_var)

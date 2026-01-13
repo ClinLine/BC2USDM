@@ -26,11 +26,15 @@ class BiomedicalConceptCategory():
         self.name = f"{label.replace(" ","%20")}_{self.id_}"
         self.description = description
         if isinstance(code, str):
-            self.code = AliasCode(code)
+            print(f"didn't expect code to be a string ({code}), using label instead")
+            self.code = AliasCode(label.encode()) #CDISK categories don't have a code currently, they use the encoded name as id
         else: self.code = code
         self.notes = notes
         self.categories = children
 
+    def get_code(self):
+        if self.code.standard_code.code is not None:
+            return self.code.standard_code.code
 
     @staticmethod
     def from_json(json:str):

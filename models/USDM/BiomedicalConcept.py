@@ -64,12 +64,11 @@ class BiomedicalConcept(BiomedicalConceptBase):
         if self.reference == "" or self.reference is None:
             raise ValueError("Reference can't be None or empty")
 
-
-
     def populate(self, **kwargs):
         """ Populates BiomedicalConcept's satelite data based on provided kwargs
         Requests data from API if no keyword-args were provided
         """
+        print(self.label)
         # Populate fields if they were provided as kwargs
         if len(kwargs) > 0:
             if "ncitCode" in kwargs:
@@ -98,7 +97,9 @@ class BiomedicalConcept(BiomedicalConceptBase):
             for key,value in data.items():
                 match key:
                     case "conceptId":
-                        if data["ncitCode"] != value and data["ncitCode"] is not None:
+                        if not "ncitCode" in data.keys():
+                            pass
+                        elif data["ncitCode"] is not None and data["ncitCode"] != value:
                             self.code = AliasCode(standard_code=(Code(data["ncitCode"],code_system="ncit")),aliases=[Code(value)])
                         else:
                             self.code = AliasCode(value)
