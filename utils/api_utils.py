@@ -1,3 +1,4 @@
+from datetime import datetime
 import requests
 # try:
 #     from html import unescape # python 3.4+
@@ -10,6 +11,7 @@ import requests
 
 # import json
 from dotenv import dotenv_values
+from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
 import pandas
 import numpy as np
 
@@ -29,51 +31,67 @@ def get_latest_biomedical_concept_categories():
     url: str = "https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/categories"
     try:
         req = requests.get(url, headers=__headers, timeout=10)
-        # unescaped = unescape(req.json())
         categories_json = req.json()["_links"]["categories"]
-        
-        # category_names = []
-        # for category in categories:
-        #     category_names.append(category["name"])
-        # return category_names
         return categories_json
     except requests.Timeout as e:
         print(e)
 
-# print(get_latest_biomedical_concept_categories())
 
-def get_biomedical_concepts_list(category: str=None, categories: list[str]=None):
+def get_biomedical_concepts_list(category:USDM_Category|str=None, categories:list[str]|list[USDM_Category]=None):
     endpoint: str = "https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/biomedicalconcepts"
     url = endpoint
-    if(category is not None and category != ""): # TODO add else state
+    cat_code=""
+    if(category is not None and isinstance(category, USDM_Category)): # TODO add else state
+        cat_code = category.get_code()
         if categories is None:
-            print("No categories provided, aquiring them from api")
-            categories = get_latest_biomedical_concept_categories()
-        if category in categories:
-            url = f"{endpoint}?category={category}"
+            # Get categories
+            categories = [c["name"] for c in get_latest_biomedical_concept_categories()]
+        elif isinstance(categories[0], USDM_Category):
+            for cat in categories: # for each category in the list
+                if cat.get_code() == cat_code: # check if the code matches the code I provided as category
+                    # if it does
+                    url = f"{endpoint}?category={cat_code}" # building api URL
+                    break
+        elif isinstance(category, str)and len(categories)>0 and isinstance(categories[0], str): # Category and categories are strings
+                if category in categories: # else return to string support
+                    url = f"{endpoint}?category={category}"
         else:
-            print("category not found!")
+            print("category not found!") # catch all, something went wrong here
     else:
         print("Category can't be None or \"\"")
-    try:
+        raise ValueError(f"Proviced {category.__qualname__} can't be None or \"\"")
+    # can you see the popup window?
+    try: 
         req = requests.api.get(url, headers=__headers, timeout=10)
+        if req.json()["_links"] is None:
+            print("json:")
+            print(req.json())
+            AttributeError("Expected _links object not found")
+            
         bcs = req.json()["_links"]["biomedicalConcepts"]
-        # result = []
-        # for bc in bcs:
-        #     element = (bc["title"],bc["href"].split("/")[-1], bc["href"],bc )
-        #     result.append(element)
-        # return pandas.DataFrame(result, columns=["title","id","href","json"])
         return bcs
     except requests.Timeout as e:
         print(e)
     except requests.HTTPError as httpe:
         print(httpe)
+    except Exception as e:
+        now = datetime.now()
+        file = open(f"ErrorLog_{now.strftime("%dd/%mm/%YY-%H:%M:%S")}.txt", "x+t",encoding="utf-8")
+        file.write(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
+        print(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
+        file.write(f"File {__file__} in {__name__}")
+        print(f"File {__file__} in {__name__}")
+        for arg in e.args:
+            print(f"\t{arg}")
+            file.write(f"\t{arg}")
+        print(e.__context__)
+        file.write(e.__context__)
+        file.close()
 
 def get_biomedical_concept_package_list():
     endpoint = "https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/packages"
     try:
         req = requests.api.get(endpoint,headers=__headers, timeout=10)
-        # print(req.json()["_links"]["packages"])
         packages_data = req.json()["_links"]["packages"]
         result = []
         for package_data in packages_data:
@@ -107,25 +125,23 @@ def get_biomedical_concept_list_for_package(package_identifier):
     except Exception as e:
         print(e)
 
-def get_latest_biomedical_concept(biomedical_concept_id):
-    endpoint: str = f"https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/biomedicalconcepts/{biomedical_concept_id}"
-
-    if biomedical_concept_id is None or biomedical_concept_id == "":
-        raise Exception("please provide a valid id for the biomedical concept")
-
+def get_latest_biomedical_concept(biomedical_concept_code):
+    endpoint: str = f"https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/biomedicalconcepts/{biomedical_concept_code}"
+    if biomedical_concept_code is None or biomedical_concept_code == "":
+        raise ValueError("please provide a valid id for the biomedical concept")
     try:
         req = requests.api.get(endpoint,headers=__headers, timeout=10)
         if req.status_code == 422:
             raise Exception("Unprocessable Entity")
-        
         if req.status_code == 404:
+            print(f"request for bc with code: {biomedical_concept_code} resulted in a {req.status_code} error")
             raise Exception(req.json()["detail"])
-        json_data: str = req.json()
-        # print(req)
-        return json_data
-        # raise NotImplementedError("Implementation of this endpoint will finish after a datatype has been made")
+            
+        json_data = req.json()
     except Exception as e:
-        print(e)
+        print(f"API.getLatestBiomedicalConcept encountered an unexpected error: {e}")
+    else: 
+        return json_data
 
 # TODO implement this method
 def get_biomedical_concept_for_package(biomedicalconcept_id: str, package_id: str):
