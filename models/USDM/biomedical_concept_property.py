@@ -23,6 +23,7 @@ class BiomedicalConceptProperty:
     response_codes: list[ResponseCode] = None
 
     def __init__(self, *args, **kwargs):
+        print(f"property constructor{len(args)}")
         self.id_ = guid()
         if isinstance(args[0], dict):
             self.__init_from_dict(**args[0], **kwargs)
@@ -58,6 +59,11 @@ class BiomedicalConceptProperty:
                             self.code = AliasCode(value)
                     self.code = AliasCode(value)
                 case "ncitCode": pass # already handled by conceptId
+                case "coding":
+                    self.code.add_alias(
+                        standard_code=kwargs["coding"]["code"],
+                        code_system=kwargs["coding"]["systemName"]
+                    )
                 case "shortName":
                     self.label = value
                     self.name = f"{value}_{self.id_}"

@@ -24,7 +24,7 @@ from views.property.properties_container import PropertiesContainer
     # - MainDisplay
     #    + MenuBar x
     #    + FooterBar (Progress Bar)
-    #    + Categories Container 
+    #    + Categories Container
     #       o Labeled Entrybox + btn => Search box
     #       o Listbox with all categories x
     #    + Current Category container

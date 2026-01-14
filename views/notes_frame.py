@@ -21,8 +21,9 @@ class NotesFrame(LabelFrame):
 
 
         # Create a Textbox for each Note
-        for note_index, note in enumerate(notes):
-            self._add_text_box(note,4)
+        if notes is not None:
+            for note_index, note in enumerate(notes):
+                self._add_text_box(note,4)
 
         # when placing in the scrollframe, we pack scrollFrame itself (NOT the viewPort)
         self.scroll_frame.pack(side=TOP, fill=BOTH, expand=TRUE)
@@ -37,6 +38,9 @@ class NotesFrame(LabelFrame):
     def _on_button_click(self, event=None, *args):
         self._add_text_box("", 4)
 
+    def add_notes(self, notes):
+        for note in notes:
+            self._add_text_box(note.text,4)
 
     def _add_text_box(self, text="", textbox_height:int=4):
         self.note_vars.append(StringVar(value=text))

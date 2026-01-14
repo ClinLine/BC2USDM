@@ -1,6 +1,7 @@
 from tkinter import Button, Entry, Frame, Label, LabelFrame, Listbox, Scrollbar, StringVar
 from tkinter.constants import *
 
+from views.notes_frame import NotesFrame
 from views.property.properties_container import PropertiesContainer
 
 
@@ -87,6 +88,9 @@ class CurrentBiomedicalConceptView(LabelFrame):
 
         self.bc_synonyms_entry.bind("<Return>", lambda event: self.synonym_add_cmd(self.bc_synonyms_entry.get()))
         
+        self.notes_frame = NotesFrame(self, notes="")
+        self.notes_frame.grid(row=6, column=0, columnspan=2, sticky=NSEW, in_=self.master_frame)
+
         self.properties_frame = PropertiesContainer(self, frame_title="Properties:", properties=None)
         self.properties_frame.pack(side=TOP, fill=BOTH, expand=True)
 
@@ -106,6 +110,27 @@ class CurrentBiomedicalConceptView(LabelFrame):
         self.bc_synonyms_entry_value.set("")
 
     def update_view(self, bc, **kwargs):
-        print(bc)
-        for arg in kwargs:
-            print(arg)
+        print(bc.label)
+        print(bc.code.standard_code.code)
+        # for kw, arg in kwargs:
+        #     print(f"{kw}:{arg}")
+
+        self.bc_reference_value.set(bc.reference)
+        self.bc_id_value.set(bc.code.standard_code.code)
+        self.bc_name_value.set(bc.label)
+        
+        print("Notes:")
+        self.notes_frame.add_notes(bc.notes)
+        
+        
+
+        self.bc_synonyms_value.set(bc.synonyms)
+        print(self.bc_synonyms_value.get())
+
+        # properties
+        print("properties:")
+        self.properties_frame.reset()
+        if bc._properties is not None:
+            for prop in bc._properties:
+                self.properties_frame.add_property(prop)
+            

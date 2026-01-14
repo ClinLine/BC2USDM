@@ -110,7 +110,7 @@ class App(object):
     
     def set_current_bc(self, bc):
         self.current_bc = bc
-        print(self.__dict__["current_bc"])
+        print(self.__dict__["current_bc"].label)
         # print(self.display.__dict__)
         # self.display.update_current_bc(bc)
         

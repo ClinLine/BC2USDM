@@ -24,9 +24,10 @@ class ResponseCodesContainerFrame(LabelFrame):
         self.id_vars:list[StringVar] = []
         self.enabled_vars:list[BooleanVar] = []
         self.response_code_frames = []
-        for i, response_code in enumerate(response_codes):
-            new_frame = ResponseCodeFrame(scrollframe.view_port, response_code, i, relief="groove", borderwidth=1,)
-            self.response_code_frames.append(new_frame)
+        if response_codes is not None:
+            for i, response_code in enumerate(response_codes):
+                new_frame = ResponseCodeFrame(scrollframe.view_port, response_code, i, relief="groove", borderwidth=1,)
+                self.response_code_frames.append(new_frame)
 
         # TODO: Replace with Super's add btn
         # Add new rc button:
@@ -47,6 +48,9 @@ class ResponseCodesContainerFrame(LabelFrame):
     def _on_add_button(self, response_code_ui_id):
         new_frame = ResponseCodeFrame(self.scroll_frame.view_port, None, response_code_ui_id, relief="groove", borderwidth=1)
         self.response_code_frames.append(new_frame)
-        self.response_codes.append(None)
+        if self.response_codes is None:
+            self.response_codes = [None]
+        else:
+            self.response_codes.append(None)
         self.update_idletasks()
         self.scroll_frame.check_resize()

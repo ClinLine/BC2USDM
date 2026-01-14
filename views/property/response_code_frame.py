@@ -63,11 +63,12 @@ class ResponseCodeFrame(Frame):
     def populate(self, response_code=None):
         if response_code is not None:
             # Attributes:
-            self.label_var.set(response_code["label"])
-            self.id_var.set(response_code["id"])
+            self.label_var.set(response_code.label)
+            self.id_var.set(response_code.id_)
             # name_var:StringVar # hidden & inferred
-            self.is_enabled_var.set(response_code["isEnabled"])
-            self.code_var.set(response_code["code"])
+            self.is_enabled_var.set(response_code.is_enabled)
+            if response_code.code is not None:
+                self.code_var.set(response_code.code.standard_code.code)
             # TODO Add Code support?
         else:
             self.id_var.set(guid())

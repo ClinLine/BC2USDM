@@ -49,20 +49,18 @@ class CurrentCategoryView(LabelFrame):
         self.listbox_onclick(event, **kwargs)
 
     def listbox_onclick(self, event, **kwargs):
+        print(event.__dict__)
         selection = event.widget.curselection()
+        # Lose focus of this listbox
+        self.parent.root.focus()
 
-        event.widget.master.focus()
         if len(selection) == 0 and isinstance(selection,tuple):
             # Don't do anything if listbox is empty
             return
-        
-        # TODO populate BC panel
-        bc = self.parent.main_app.select_bc(selection[0])
-        # print(bc)
-        # self.parent.current_bc_container.update(bc)
 
-        # Lose focus of this listbox
-        self.parent.root.focus()
+        bc = self.parent.main_app.select_bc(selection[0])
+        self.parent.update_current_bc(bc)
+        
 
     def grab_focus(self):
         self.active_category_overview_listbox.activate(0)

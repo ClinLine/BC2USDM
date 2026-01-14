@@ -110,7 +110,10 @@ Following are sample codes you can use with each terminology for testing.
 
     def add_alias(self, alias:Code):
         '''Append provided alias to alias codes list'''
-        self.standard_code_aliases.append(alias)
+        if self.standard_code_aliases is None:
+            self.standard_code_aliases = [alias]
+        else:
+            self.standard_code_aliases.append(alias)
 
 
     # def __str__(self):

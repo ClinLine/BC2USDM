@@ -58,8 +58,8 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
                 biomedicalConcept["notes"] = super().default(o.notes)
             if o.category is not None and o.category != "":
                 biomedicalConcept["category"] = o.category
-            if hasattr(o, "properties") and o.properties is not None and len(o.properties) > 0:
-                biomedicalConcept["properties"] = super().default(o.properties)
+            if hasattr(o, "properties") and o._properties is not None and len(o._properties) > 0:
+                biomedicalConcept["properties"] = super().default(o._properties)
             return biomedicalConcept
         # Let the base class default method raise the typeError
         return super().default(o)

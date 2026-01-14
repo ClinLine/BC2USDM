@@ -46,8 +46,8 @@ class BiomedicalConceptBase:
 
 class BiomedicalConcept(BiomedicalConceptBase):
     __name__ = "BiomedicalConcept"
-    properties: list[BiomedicalConceptProperty]
-    response_codes:list[ResponseCode]
+    _properties: list[BiomedicalConceptProperty] = None
+    response_codes:list[ResponseCode] = None
     code:AliasCode
     label:str = None
     synonyms:list[str] = None
@@ -81,10 +81,11 @@ class BiomedicalConcept(BiomedicalConceptBase):
                     self.code = AliasCode(kwargs["ncitCode"])
                     self.code.add_alias(Code(kwargs["conceptId"]))
             if "dataElementConcepts" in kwargs and len(kwargs["dataElementConcepts"]) > 0:
-                if self.properties is None:
-                    self.properties = []
-                for date_element_concept in kwargs["dataElementConcepts"]:
-                    self.properties.append(BiomedicalConceptProperty(date_element_concept))
+                if self._properties is None:
+                    self._properties = []
+                for data_element_concept in kwargs["dataElementConcepts"]:
+                    print(f"dec:{data_element_concept}")
+                    self._properties.append(BiomedicalConceptProperty(data_element_concept))
             if "categories" in kwargs:
                 # TODO: Add categories
                 # TODO: Request categories from localStorage, by name
@@ -98,8 +99,9 @@ class BiomedicalConcept(BiomedicalConceptBase):
         
         # if no kwargs were provided, fetch them using the API
         elif not self._populated:
+            #TODO REWORK THIS, it's slowing it down massively
             json_data = get_latest_biomedical_concept(self.code.standard_code.code)
-            
+
             for key,value in json_data.items():
                 match key:
                     case "conceptId":
@@ -111,6 +113,15 @@ class BiomedicalConcept(BiomedicalConceptBase):
                             self.code = AliasCode(value)
                     # already handling ncitCode in conceptId case
                     case "ncitCode": pass # already handling ncitCode in conceptId case
+                    case "coding":
+                        for coding_ in json_data["coding"]:
+                            self.code.add_alias(Code(
+                                code=coding_["code"],
+                                code_system=coding_["systemName"]
+                            ))
+                        # self.code.add_alias(Code(
+                        #     code=json_data["coding"]["code"],
+                        #     code_system=json_data["coding"]["systemName"]))
                     case "_links":
                         self._links = value
                         #TODO: Process links
@@ -129,21 +140,34 @@ class BiomedicalConcept(BiomedicalConceptBase):
                     case "definition":
                         if self.notes is None: self.notes = [CommentAnnotation(value,codes=[code.DEFINITION])] 
                         else: self.notes.append(CommentAnnotation(value,codes=[code.DEFINITION]))
-                    case "definition":
-                            self.notes.append(CommentAnnotation(json_data["definition"],codes=[code.DEFINITION]))
-                            self.notes:CommentAnnotation = [CommentAnnotation(json_data["definition"],codes=[code.DEFINITION])]
+                    # case "definition":
+                    #         self.notes.append(CommentAnnotation(json_data["definition"],codes=[code.DEFINITION]))
+                    #         self.notes:CommentAnnotation = [CommentAnnotation(json_data["definition"],codes=[code.DEFINITION])]
                     case "resultScales":
                         if self.notes is None: self.notes = [CommentAnnotation(rc,codes=[code.RESULT_SCALE]) for rc in json_data["resultScales"]]
                         else:
                             self.notes.append(CommentAnnotation(rc,codes=[code.RESULT_SCALE]) for rc in json_data["resultScales"])
                     case "dataElementConcepts":
-                        self.properties = [BiomedicalConceptProperty(prop) for prop in json_data["dataElementConcepts"]]
+                        print("ADDING PROPERTIES")
+
+                        self._properties = [BiomedicalConceptProperty(prop) for prop in json_data["dataElementConcepts"]]
 
                     # case "synonyms": should be caught by default case
                     #     self.synonyms = value
                     case _:
                         # print("Attempting matching key to value")
-                        self.key = value
+                        #TODO:
+                        # Deal with this:
+                        #                     'key': [{
+                        #         'code': '64098-7',
+                        #         'system': 'http://loinc.org/',
+                        #         'systemName': 'LOINC'
+                        #     }
+                        # ],
+                        self.__dict__[key] = value
+                        if key != "synonyms":
+                            print(f"Attempting to match key to value: {key}")
+                        # self.misc[key] = value
         self._populated = True
 
 
