@@ -46,7 +46,7 @@ class BiomedicalConceptBase:
 
 class BiomedicalConcept(BiomedicalConceptBase):
     __name__ = "BiomedicalConcept"
-    _properties: list[BiomedicalConceptProperty] = None
+    properties: list[BiomedicalConceptProperty] = None
     response_codes:list[ResponseCode] = None
     code:AliasCode
     label:str = None
@@ -81,11 +81,11 @@ class BiomedicalConcept(BiomedicalConceptBase):
                     self.code = AliasCode(kwargs["ncitCode"])
                     self.code.add_alias(Code(kwargs["conceptId"]))
             if "dataElementConcepts" in kwargs and len(kwargs["dataElementConcepts"]) > 0:
-                if self._properties is None:
-                    self._properties = []
+                if self.properties is None:
+                    self.properties = []
                 for data_element_concept in kwargs["dataElementConcepts"]:
                     print(f"dec:{data_element_concept}")
-                    self._properties.append(BiomedicalConceptProperty(data_element_concept))
+                    self.properties.append(BiomedicalConceptProperty(data_element_concept))
             if "categories" in kwargs:
                 # TODO: Add categories
                 # TODO: Request categories from localStorage, by name
@@ -138,19 +138,21 @@ class BiomedicalConcept(BiomedicalConceptBase):
                             print("Encountered label and shortName missmatch, resetting label")
                         self.label = value
                     case "definition":
-                        if self.notes is None: self.notes = [CommentAnnotation(value,codes=[code.DEFINITION])] 
+                        if self.notes is None:
+                            self.notes = [CommentAnnotation(value,codes=[code.DEFINITION])] 
                         else: self.notes.append(CommentAnnotation(value,codes=[code.DEFINITION]))
                     # case "definition":
                     #         self.notes.append(CommentAnnotation(json_data["definition"],codes=[code.DEFINITION]))
                     #         self.notes:CommentAnnotation = [CommentAnnotation(json_data["definition"],codes=[code.DEFINITION])]
                     case "resultScales":
-                        if self.notes is None: self.notes = [CommentAnnotation(rc,codes=[code.RESULT_SCALE]) for rc in json_data["resultScales"]]
+                        if self.notes is None:
+                            self.notes = [CommentAnnotation(rc,codes=[code.RESULT_SCALE]) for rc in json_data["resultScales"]]
                         else:
                             self.notes.append(CommentAnnotation(rc,codes=[code.RESULT_SCALE]) for rc in json_data["resultScales"])
                     case "dataElementConcepts":
                         print("ADDING PROPERTIES")
 
-                        self._properties = [BiomedicalConceptProperty(prop) for prop in json_data["dataElementConcepts"]]
+                        self.properties = [BiomedicalConceptProperty(prop) for prop in json_data["dataElementConcepts"]]
 
                     # case "synonyms": should be caught by default case
                     #     self.synonyms = value

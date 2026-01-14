@@ -130,7 +130,8 @@ class CurrentBiomedicalConceptView(LabelFrame):
         # properties
         print("properties:")
         self.properties_frame.reset()
-        if bc._properties is not None:
-            for prop in bc._properties:
-                self.properties_frame.add_property(prop)
+        self.properties_frame.add_properties(bc.properties)
+        # if bc._properties is not None:
+        #     for prop in bc._properties:
+        #         self.properties_frame.add_property(prop)
             
