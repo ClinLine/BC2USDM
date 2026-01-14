@@ -24,7 +24,7 @@ class PropertiesContainer(ttk.LabelFrame):
             self.property_containers.append(main_frame)
             self.notebook.add(main_frame, text=prop["label"])
         
-        self.notebook.add(new_prop:= ttk.Frame(self.scroll_frame.view_port),sticky=E,text="+")
+        self.notebook.add(new_prop:= ttk.Frame(self.scroll_frame.view_port),sticky=N,text="+")
         new_prop.bind("<Expose>", self.create_new_property_frame)
         ttk.Label(new_prop, text=f"Adding new properties has \n not been implemented yet").pack(side=BOTTOM,fill=BOTH,expand=TRUE)
         
@@ -40,7 +40,7 @@ class PropertiesContainer(ttk.LabelFrame):
     def add_property(self, *args):
         prop = args[0]
         new_prop_frame = PropertyFrame(self.scroll_frame.view_port, property=prop, name=f"prop_frame+{prop.id_}")
-        self.notebook.add(new_prop_frame, sticky=W)
+        self.notebook.add(new_prop_frame,text=prop.label, sticky=N)
         # set code
         
         # set datatype
