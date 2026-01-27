@@ -35,6 +35,7 @@ class CategoriesView(LabelFrame):
         self.parent = parent
         if "title" in kwargs.keys():
             title = kwargs["title"]
+            del kwargs["title"]
         else:
             title = CategoriesView.TITLE_TEXT
         super().__init__(parent.root, text=title, **kwargs)

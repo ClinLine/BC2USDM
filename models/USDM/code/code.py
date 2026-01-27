@@ -15,6 +15,7 @@ class Code():
     # code.standardCodeAliases.codeSystemVerson
     code_system:str
     code_system_version:str # Not availabe in output
+    decode:str = None
 
     def __init__(self, code:str, id_:str = None, code_system:str="", code_system_version:str=None):
         '''constructor method for the Code dataclass\n
@@ -54,9 +55,20 @@ class Code():
             self.code_system_version = None
         else: self.code_system_version = code_system_version
 
-    def __decode(self):
-        '''Not supported in USDM.BiomedicalConcept'''
-        raise NotImplementedError("Decode currently not avialbe in Biomedical Concept outputs.")
+    def decode_setter(self, decode_string: str = None):
+        '''
+        Docstring for decode_setter
+        
+        :param self: Self reference to this Code object
+        :param decode_string: "Decode description of associated code"
+        :type decode_string: str
+        '''
+        if decode_string is None or "":
+            raise NotImplementedError("Looking up decode with api is not yet supported.")
+        self.decode = decode_string
+        return self
+    
+        
     
     # def __str__(self):
     #     result = "{"
@@ -79,4 +91,8 @@ DEFINITION:Code = Code("C43680", code_system="ncit", code_system_version=None)
 RESULT_SCALE:Code = Code("C221799", code_system="ncit", code_system_version=None)
 Example:Code = Code(code="C48175", code_system="ncit", code_system_version=None)
 Error:Code = Code(code="C43369", code_system="ncit", code_system_version=None)
-SOFTWARE_RUNTIME_ERROR = Code(code="C92115", code_system="ncit", code_system_version=None)
+SOFTWARE_RUNTIME_ERROR:Code = Code(code="C92115", code_system="ncit", code_system_version=None)
+APPROVAL_DATE:Code = Code(
+    code="C132352",
+    code_system="http://www.cdisc.org",
+    code_system_version="2024-09-27").decode_setter("Sponsor Approval Date")

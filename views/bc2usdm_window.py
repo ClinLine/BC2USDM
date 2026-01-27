@@ -10,7 +10,7 @@ from views.categories_view import CategoriesView
 from views.current_biomedical_concept_view import CurrentBiomedicalConceptView
 from views.current_category_view import CurrentCategoryView
 from views.menu import MenuBar
-from views.property.properties_container import PropertiesContainer
+from views.repository.repository_view import RepositoryView
 
 
 
@@ -22,11 +22,11 @@ from views.property.properties_container import PropertiesContainer
 
 # TODO refactor main UI into:
     # - MainDisplay
-    #    + MenuBar x
+    #    + MenuBar
     #    + FooterBar (Progress Bar)
     #    + Categories Container
     #       o Labeled Entrybox + btn => Search box
-    #       o Listbox with all categories x
+    #       o Listbox with all categories
     #    + Current Category container
     #       o Labeled Entry box + btn => Search box
     #       o Listbox with all BCs in current category
@@ -48,8 +48,8 @@ from views.property.properties_container import PropertiesContainer
 class BC2USDM_Window():
     
     __default_height: int = 600
-    __data_columns: int = 4
-    __data_column_width = [300,300,300,300]
+    __data_columns: int = 5
+    __data_column_width = [300,300,600,300]
     __default_width: int = sum(__data_column_width)
     __data_column_height = __default_height
     
@@ -75,6 +75,7 @@ class BC2USDM_Window():
         self.categories_container = CategoriesView(self, width=self.__data_column_width[0])
         self.current_category_container = CurrentCategoryView(self, width=self.__data_column_width[1], x=self.__data_column_width[0])
         self.current_bc_container = CurrentBiomedicalConceptView(self, width=self.__data_column_width[2], x=self.__data_column_width[1]+self.__data_column_width[0])
+        self.current_repository_container = RepositoryView(self, width=self.__data_column_width[3], x=self.__default_width-self.__data_column_width[3])
         self.root.mainloop()
 
     def update_current_bc(self, bc):
@@ -82,7 +83,7 @@ class BC2USDM_Window():
 
     def update_categories(self, categories):
         names = [cat.name for cat in categories]
-        # self.categories_container.set_categories(names)
+        self.categories_container.set_categories(names)
 
     def set_current_category(self, index:int):
         cat_name = self.main_app.get_category_label_by_index(index=index)
