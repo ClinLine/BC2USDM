@@ -11,7 +11,7 @@ import requests
 
 # import json
 from dotenv import dotenv_values
-from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
+from models.USDM.biomedical_concept_category import BiomedicalConceptCategory as USDM_Category
 import pandas
 import numpy as np
 

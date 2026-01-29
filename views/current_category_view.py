@@ -49,7 +49,6 @@ class CurrentCategoryView(LabelFrame):
         self.listbox_onclick(event, **kwargs)
 
     def listbox_onclick(self, event, **kwargs):
-        print(event.__dict__)
         selection = event.widget.curselection()
         # Lose focus of this listbox
         self.parent.root.focus()

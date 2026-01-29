@@ -1,10 +1,12 @@
+from uuid import uuid4 as guid
 
 # from props_testing import PropertyDisplay
 from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
+from models.USDM.repository import Repository
 from views.bc2usdm_window import BC2USDM_Window
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
-from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
-from models.USDM.BiomedicalConcept import BiomedicalConcept as USDM_BC
+from models.USDM.biomedical_concept_category import BiomedicalConceptCategory as USDM_Category
+from models.USDM.biomedical_concept import BiomedicalConcept as USDM_BC
 from utils.api_utils import get_biomedical_concepts_list, get_latest_biomedical_concept_categories
 from utils import api_utils as API
 from utils.io.FileWriter import FileWriter as fr
@@ -56,10 +58,14 @@ class App(object):
 
     def __init__(self):
         self.biomedical_concepts_in_selection = None
-        self.display = BC2USDM_Window(app=self, screenName = App.__APPLICATION_TITLE__)
+        print("\033[93m [Warning] App.init: No repository found, creating new one \033[0m")
+        print(f"\033[93m [Warning] App.init: Loading repositories is not supported yet \033[0m")
+        self.current_repository = Repository()
+
         # last call during runtime
         # user_ui = UIDisplay(self, App.__APPLICATION_TITLE__, category_names=[cat.label for cat in self.categories])
         # self.display = user_ui
+        self.display = BC2USDM_Window(app=self, screenName = App.__APPLICATION_TITLE__)
         # calls in init after this line are probably ran after closing the UI
 
     def __call__(self, *args, **kwds):
@@ -122,6 +128,21 @@ class App(object):
         usdm_categories.sort(key=lambda usdm_category: usdm_category.name)
         self.categories = usdm_categories
         return [category.label for category in self.categories]
+    
+    def set_document_version(self, version:str):
+        for ta in self.current_repository.business_therapeutic_areas:
+            ta.code.code_system_version = version
+    
+    def set_therapeutic_area_decode(self, id_:guid, value:str):
+        for ta in self.current_repository.business_therapeutic_areas:
+            if ta.code.id_ == id_:
+                ta.code.decode = value
+
+    def get_therapeutic_areas(self, index:int=None):
+        if index is not None:
+            return self.current_repository.business_therapeutic_areas[index]
+        else:
+            return self.current_repository.business_therapeutic_areas
 
 # App autostart
 def main(*args):
