@@ -161,8 +161,7 @@ class RepositoryBiomedicalConceptsContainer(LabelFrame):
         self.columnconfigure(0,weight=1)
         self.rowconfigure(0,weight=1)
 
-
-
+        
         super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
 
     

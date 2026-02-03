@@ -53,6 +53,9 @@ class NotesFrame(LabelFrame):
         self.update_idletasks()
         self.scroll_frame.check_resize()
 
+    def _on_focus(self, event):
+        ...
+
     def _on_focus_out(self, event):
         # widgit name will be in the shape of NAME#, where # is the index of the textbox
         text_index:int = int(event.widget._name.split('_')[-1])
@@ -64,5 +67,15 @@ class NotesFrame(LabelFrame):
         # remove trailing \n
         if textbox_contents.endswith('\n'):
             textbox_contents = textbox_contents[:-1]
+
         self.note_vars[text_index].set(textbox_contents)
         # self.recalculate_height(event.widget, len(text_dump))
+
+    def get_notes(self):
+        if len(self.note_vars) == 0:
+            return [""]
+        notes:list[str]=[]
+        for string_var in self.note_vars:
+            if string_var.get() != "":
+                notes.append(string_var.get())
+        return notes

@@ -1,4 +1,4 @@
-from uuid import uuid4 as guid
+from uuid import UUID, uuid4 as guid
 
 # from props_testing import PropertyDisplay
 from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
@@ -22,24 +22,25 @@ class App(object):
     display:BC2USDM_Window
 
     categories:list[USDM_Category]
+    current_category:USDM_Category
     biomedical_concepts_in_category:list[USDM_BC]
     all_biomedical_concepts:list[USDM_BC]
     selected_biomedical_concept:USDM_BC
     biomedical_concepts_in_selection:list[USDM_BC]
 
-    current_repository:list[USDM_BC] = None
+    current_repository:Repository = None
 
     def select_category(self, category_list_index:int):
-        selected_category:USDM_Category = self.categories[category_list_index]
+        self.current_category:USDM_Category = self.categories[category_list_index]
 
         # TODO: Get All known bcs in category from disc
-        temp = API.get_biomedical_concepts_list(selected_category.code.standard_code.code, categories=[cat.code.standard_code.code for cat in self.categories])
+        temp = API.get_biomedical_concepts_list(self.current_category.code.standard_code.code, categories=[cat.code.standard_code.code for cat in self.categories])
         available_bcs:list[USDM_BC] = [USDM_BC(row) for row in temp]
 
         self.biomedical_concepts_in_category = available_bcs
 
         return {
-            "category_name":selected_category.label,
+            "category_name":self.current_category.label,
             "bc_names": [bc.label for bc in available_bcs]}
 
 
@@ -72,13 +73,13 @@ class App(object):
         app:App = App()
 
     def get_repository(self):
-        '''return selected USDM BCs'''
-        if self.current_repository is None:
-            self.current_repository = []
-            # Appending a list of bcs, since the repo might have multiple lists of bcs
-            self.current_repository.append(self.get_bcs_in_category("AIMS"))
-            for bc in self.current_repository[0]:
-                bc.populate()
+        '''return current repository'''
+        # if self.current_repository is None:
+        #     self.current_repository = Repository()
+        #     # Appending a list of bcs, since the repo might have multiple lists of bcs
+        #     self.current_repository.biomedical_concepts.append(self.get_bcs_in_category("AIMS"))
+        #     for bc in self.current_repository.biomedical_concepts:
+        #         bc.populate()
         return self.current_repository
 
     def get_biomedical_concept_names_in_category(self, index:int = None, id_:str = None, name:str = None):
@@ -143,6 +144,47 @@ class App(object):
             return self.current_repository.business_therapeutic_areas[index]
         else:
             return self.current_repository.business_therapeutic_areas
+        
+    def get_current_bcs(self):
+        return self.current_repository.biomedical_concepts
+    
+    def in_current_repository(self, id_:UUID):
+        for tbc in self.get_current_bcs():
+            if id_ == tbc.id_:
+                return tbc
+        return None
+        
+    def apply_to_repository(self, data:dict):
+        print(data.key()[0])
+        print(self.current_bc.id_)
+
+        # if current bc != the bc being applied
+        if self.current_bc.id_ != data.keys()[0]:
+            current_bc = self.in_current_repository(data.keys()[0])
+            if current_bc is None:
+                print("SOMETHING WENT AWEFULLY WRONG")
+            else:
+                # Check for changes and apply them
+                
+                self.update_repository(current_bc, data)
+            
+            
+
+        # if current bc is the bc being applied
+        if data.keys()[0] == self.current_bc.id_:
+            # apply any possible changes to current_bc
+            # add current_bc to current_repository
+            # self.current_repository.update_repository(current_bc)
+            self.current_repository.add_category(self.current_category)
+            
+
+            # add current_bc's category(s) to current_repository
+
+
+
+
+        
+
 
 # App autostart
 def main(*args):

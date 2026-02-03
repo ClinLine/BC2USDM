@@ -1,5 +1,7 @@
 from tkinter import ttk
 from tkinter.constants import *
+from uuid import UUID
+
 
 from views.property.property_frame import PropertyFrame
 from views.scroll_frame import ScrollFrame
@@ -57,6 +59,17 @@ class PropertiesView(ttk.LabelFrame):
         
         for arg in args:
             print(arg)
+
+    def get_properties(self):
+
+        properties:dict[UUID ,any] = {}
+        for container in self.property_containers:
+            # self.notebook.nametowidget()
+            prop = container.get_property_dict()
+            properties[prop["id_"]] = prop
+        
+        return properties
+
 
     def create_new_property_frame(self, event, *args):
         # TODO method doesn't do anything yet

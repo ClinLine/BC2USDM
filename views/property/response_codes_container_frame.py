@@ -54,3 +54,7 @@ class ResponseCodesContainerFrame(LabelFrame):
             self.response_codes.append(None)
         self.update_idletasks()
         self.scroll_frame.check_resize()
+
+    def get_response_codes(self):
+        
+        return self.response_codes
