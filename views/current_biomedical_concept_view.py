@@ -118,8 +118,8 @@ class CurrentBiomedicalConceptView(LabelFrame):
             return
         
         label = self.bc_label_value.get()
-        code = self.bc_id_value.get()
-        id_ = self.bc_alias_code_value.get()
+        id_ = self.bc_id_value.get()
+        code = self.bc_alias_code_value.get()
         ref = self.bc_reference_value.get()
 
         synonyms = self.bc_synonyms_value.get()
@@ -130,7 +130,15 @@ class CurrentBiomedicalConceptView(LabelFrame):
 
         properties = self.properties_frame.get_properties()
 
-        bc:dict = (id_, label, code, ref, synonyms, notes, properties)
+        bc:dict = {
+            "id_":id_, 
+            "label":label, 
+            "code": code,
+            "reference":ref,
+            "synonyms":synonyms,
+            "notes":notes, 
+            "properties":properties
+        }
 
         self.parent.main_app.apply_to_repository(bc)
 

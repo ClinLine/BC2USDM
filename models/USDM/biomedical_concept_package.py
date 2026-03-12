@@ -1,7 +1,7 @@
 import json
 from uuid import uuid4 as guid
 
-from models.USDM.code.code import Code
+from models.USDM.code import Code
 from models.USDM.code.alias_code import AliasCode
 from models.USDM.biomedical_concept import BiomedicalConcept
 

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from uuid import uuid4 as guid
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as cdisk_category
 from models.USDM.code.alias_code import AliasCode
+from utils.b_colors import BColors
 # from utils.utils import Encoding
 
 @dataclass
@@ -66,6 +67,11 @@ class BiomedicalConceptCategory():
             # TODO ask Berber if category type should go into notes
         )
 
+    @staticmethod
+    def from_short_name(short_name:str):
+        print(f"{BColors.WARNING}[Warning]: USDM.BiomedicalConceptCategory: returning categories is not implemented yet, returning string{BColors.ENDC}")
+        return short_name
+    
     # def to_csv(self, seperator:str=",", line_ending:str="\n\r"):
     #     '''Method to convert BiomedicalConceptCategory to cvs
     #     Optional parameter seperator determines what the properties are seperated by

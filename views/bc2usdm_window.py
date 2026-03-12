@@ -86,11 +86,15 @@ class BC2USDM_Window():
         self.categories_container.set_categories(names)
 
     def set_current_category(self, index:int):
-        cat_name = self.main_app.get_category_label_by_index(index=index)
-        bc_names = self.main_app.get_biomedical_concept_names_in_category(index=index)
+        self.main_app.set_current_category_by_index(index)
+        
+        cat_label = self.main_app.get_current_category_label()
+        bc_names = self.main_app.get_biomedical_concept_names_in_current_category()
+        # bc_names = self.main_app.get_biomedical_concept_names_in_category(index=index)
         # now to display the
-        self.current_category_container.update_current_category(cat_name, bc_names)
+        self.current_category_container.update_current_category(cat_label, bc_names)
 
+    
 
 
         

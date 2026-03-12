@@ -3,8 +3,8 @@ from uuid import UUID, uuid4 as guid
 
 # from logic.local_storage import LocalStorage
 # from models.USDM.BiomedicalConcept import BiomedicalConcept
+from models.USDM.code import Code
 from models.USDM.code.alias_code import AliasCode
-from models.USDM.code.code import Code
 from models.USDM.comment_annotation import CommentAnnotation
 from models.USDM.response_code import ResponseCode
 
@@ -23,7 +23,6 @@ class BiomedicalConceptProperty:
     response_codes: list[ResponseCode] = None
 
     def __init__(self, *args, **kwargs):
-        print(f"property constructor{len(args)}")
         self.id_ = guid()
         if isinstance(args[0], dict):
             self.__init_from_dict(**args[0], **kwargs)
@@ -50,6 +49,7 @@ class BiomedicalConceptProperty:
             raise NotImplementedError()
         for key, value in kwargs.items():
             match key:
+                # TODO: CHECK THIS
                 case "conceptId":
                     if kwargs["ncitCode"] is not None:
                         if value != kwargs["ncitCode"]:

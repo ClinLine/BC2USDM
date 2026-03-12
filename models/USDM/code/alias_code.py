@@ -2,8 +2,9 @@
 from dataclasses import dataclass
 from dataclasses import field
 from uuid import uuid4 as guid
+from utils.b_colors import BColors
+from models.USDM.code import Code
 
-from models.USDM.code.code import Code
 # from models.USDM.code.code import Code
 
 
@@ -19,7 +20,7 @@ class AliasCode():
     standard_code_aliases: list[Code] = field(default_factory=list[Code])
 
     '''
-    List of termsinologies:
+    List of terminologies:
     
     ncit - NCI Thesaurus
     ncim - NCI Metathesaurus
@@ -80,7 +81,7 @@ Following are sample codes you can use with each terminology for testing.
     zfa - ZFA:0001383 - fin bud
 
     '''
-    
+
     # STATIC METHODS
     @staticmethod
     def assess_code_system(code_string:str):
@@ -93,19 +94,23 @@ Following are sample codes you can use with each terminology for testing.
             print(f"[AliasCode.assess_code_system:] code recognition other than ncit is not yet supported")
             return "other"
     
-    def __init__(self, standard_code, id_=None, aliases: list[Code] = None, check_code:bool=True):
+    def __init__(self, standard_code, id_=None, aliases: list[Code] = None, check_code:bool=False):
         if(isinstance(id_, str)):
             print(f"[AliasCode.init]String id_ found: {id_}")
         if id_ is None or id_ == "":
             #TODO request guid from local storage, duplicates having (different) unique ids
             self.id_ = guid()
         else: self.id_ = id_
+        
         if isinstance(standard_code, str) and check_code:
+            print(f"{BColors.WARNING} AliasCode.init: Avoid creating AliasCode by string, provide a Code object instead. {BColors.ENDC}")
             code_system = AliasCode.assess_code_system(standard_code)
             self.standard_code = Code(code=standard_code, code_system=code_system)
+        elif isinstance(standard_code, Code):
+            self.standard_code = standard_code
         else:
-            code_system = None
-            self.standard_code = Code(code=standard_code,code_system=None)
+            code_system = Code.CodeSystem.CUSTOM
+            self.standard_code = Code(code=standard_code,code_system=code_system,code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION)
         self.standard_code_aliases = aliases
 
     def add_alias(self, alias:Code):

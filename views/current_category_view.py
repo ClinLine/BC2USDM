@@ -57,8 +57,9 @@ class CurrentCategoryView(LabelFrame):
             # Don't do anything if listbox is empty
             return
 
-        bc = self.parent.main_app.select_bc(selection[0])
-        self.parent.update_current_bc(bc)
+        test = self.parent.main_app.select_bc(selection[0])
+        
+        self.parent.update_current_bc(test)
         
 
     def grab_focus(self):

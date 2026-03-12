@@ -45,8 +45,8 @@ class CategoriesView(LabelFrame):
 
         self.place(anchor="nw", relheight=1, width=width)
         # Update this var's value to update category list
-        self.category_names = StringVar(value=["item 1","item 1","item 1","item 1","item 1","item 1"]) 
-        self.categories_overview_listbox = Listbox(self, listvariable=self.category_names, name=CATEGORY_LISTBOX_NAME, selectmode=BROWSE)
+        self.category_names = StringVar(value="") 
+        self.categories_overview_listbox = Listbox(self, listvariable=self.category_names, name=CATEGORY_LISTBOX_NAME, selectmode=SINGLE)
         self.categories_overview_scrollbarX = Scrollbar(self, orient=HORIZONTAL)
         self.categories_overview_scrollbarY = Scrollbar(self, orient=VERTICAL)
         self.categories_overview_listbox.configure(yscrollcommand=self.categories_overview_scrollbarY.set)
@@ -70,15 +70,16 @@ class CategoriesView(LabelFrame):
         self._listbox_onclick(event, **kwargs)
 
     def _listbox_onclick(self, event, **kwargs):
-        selection = event.widget.curselection() # default = ()
-
+        selection = event.widget.curselection() # default = () (Empty tuple)
         if isinstance(selection, tuple) and len(selection) == 0:
             print(f"[CategoriesView._listbox_onclick:] no index found in selection")
             selection = (0,)
             return
+        
 
         # return [self.parent.main_app.get_biomedical_concept_names_in_category(index) for index in selection][0]
         # return self.parent.main_app.get_biomedical_concept_names_in_category(selection[0])
         # current_cats = [self.parent.main_app.get_biomedical_concept_category_by_index(index) for index in selection]
         self.parent.set_current_category(selection[0])
+        
         self.parent.current_category_container.grab_focus()

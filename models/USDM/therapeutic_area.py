@@ -1,6 +1,6 @@
 from uuid import uuid4 as guid
 
-from models.USDM.code.code import Code
+from models.USDM.code import Code
 
 class TherapeuticArea():
     # id_:guid = None => Stored in Code

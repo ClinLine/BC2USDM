@@ -164,6 +164,11 @@ class RepositoryBiomedicalConceptsContainer(LabelFrame):
         
         super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
 
+    def update_added_biomedical_concepts (self, bcs):
+        print(bcs)
+        bc_string = ",".join(bc.label for bc in bcs)
+
+
     
     # Add container with list with added BCs
     #   - List(box) / customn listbox
