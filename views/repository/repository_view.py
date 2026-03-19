@@ -2,6 +2,7 @@ from tkinter import Entry, IntVar, Label, LabelFrame, Listbox, Scrollbar, String
 from tkinter.constants import *
 from uuid import uuid4 as guid
 
+from models.USDM.biomedical_concept import BiomedicalConcept
 from models.USDM.therapeutic_area import TherapeuticArea
 
 
@@ -37,6 +38,9 @@ class RepositoryView(LabelFrame):
 
         self.set_document_version = parent.main_app.set_document_version
         self.set_therapeutic_area_decode = parent.main_app.set_therapeutic_area_decode
+
+    def update_bc_list(self, bcs:list[BiomedicalConcept]):
+        self.added_biomedical_concepts_container.update_biomedical_concepts_list(bcs)
 
 class TherapeuticAreaView(LabelFrame):
     __TITLE_TEXT:str = "Therapeutic Area: "
@@ -150,7 +154,7 @@ class RepositoryBiomedicalConceptsContainer(LabelFrame):
         else:
             title = RepositoryBiomedicalConceptsContainer.__TITLE_TEXT
         super().__init__(parent, text=title, **kwargs)
-        self.bcs_var = Variable(value=["test1", "test2", "test3"])
+        self.bcs_var = Variable(value=[])
         bc_scrollbar_y = Scrollbar(self,orient=VERTICAL)
         bc_scrollbar_y.grid(column=1,row=0,sticky=(N,E,S))
         self.bc_list = Listbox(self, justify=LEFT, listvariable=self.bcs_var,
@@ -164,9 +168,10 @@ class RepositoryBiomedicalConceptsContainer(LabelFrame):
         
         super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
 
-    def update_added_biomedical_concepts (self, bcs):
-        print(bcs)
-        bc_string = ",".join(bc.label for bc in bcs)
+    def update_biomedical_concepts_list (self, bcs:list[BiomedicalConcept]):
+        print(len(bcs))
+        bc_strings:list[str] = [f"{bc.label} - {bc.code.standard_code.code} " for bc in bcs]
+        self.bcs_var.set(bc_strings)
 
 
     

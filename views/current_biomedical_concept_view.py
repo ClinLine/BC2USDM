@@ -140,7 +140,8 @@ class CurrentBiomedicalConceptView(LabelFrame):
             "properties":properties
         }
 
-        self.parent.main_app.apply_to_repository(bc)
+        test = self.parent.apply_to_repository(bc)
+        
 
 
     def remove_bc_from_repository(self):
@@ -183,6 +184,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
         # properties
         self.properties_frame.reset()
         self.properties_frame.add_properties(bc.properties)
+        
         # if bc._properties is not None:
         #     for prop in bc._properties:
         #         self.properties_frame.add_property(prop)

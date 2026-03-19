@@ -85,9 +85,9 @@ class App(object):
         return self.current_repository.biomedical_concepts
     
     def in_current_repository(self, id_:UUID):
-        for temp_id, temp_bc in self.get_bcs_in_repository():
+        for temp_bc in self.get_bcs_in_repository():
             print(temp_bc)
-            if id_ == temp_id:
+            if id_ == temp_bc.id_:
                 return temp_bc
         return None
         
@@ -125,9 +125,10 @@ class App(object):
             self.current_repository.add_category(self.current_category)
             
             print("Updating UI")
-            repo_bcs = self.current_repository.biomedical_concepts
+            biomedical_concepts_in_repository = self.current_repository.biomedical_concepts
             # self.display == None!!
-            self.display.current_repository_container.added_biomedical_concepts_container.update_added_biomedical_concepts(repo_bcs)
+            # self.display.current_repository_container.added_biomedical_concepts_container.update_added_biomedical_concepts(repo_bcs)
+            return biomedical_concepts_in_repository
             # add current_bc's category(s) to current_repository
     #endregion
 

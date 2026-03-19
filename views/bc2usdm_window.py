@@ -79,7 +79,10 @@ class BC2USDM_Window():
         self.root.mainloop()
 
     def update_current_bc(self, bc):
+        # Set current bc in main app
+        self.main_app.set_current_bc(bc)
         self.current_bc_container.update_view(bc)
+        
 
     def update_categories(self, categories):
         names = [cat.name for cat in categories]
@@ -94,7 +97,9 @@ class BC2USDM_Window():
         # now to display the
         self.current_category_container.update_current_category(cat_label, bc_names)
 
-    
+    def apply_to_repository(self, bc:dict):
+        biomedical_concepts_in_repository = self.main_app.apply_to_repository(bc)
+        self.current_repository_container.update_bc_list(biomedical_concepts_in_repository)
 
 
         
