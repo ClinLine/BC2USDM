@@ -107,13 +107,14 @@ class Code():
 
         version_index = None
         substrings = reference.split('/')
-        if substrings[1] == 'mdr': # Assume cdisc link
+        if substrings[1] == 'mdr': # Test if CDISC reference
             for index, substring in enumerate(substrings):
                 if substring == "packages":
                     version_index = index + 1
                     break
-        elif substring[3] == 'evsexplore.semantics.cancer.gov':
-            raise ValueError(f"{BColors.FAIL} Unable to extract package number from ncit reference{BColors.ENDC} \n Is this a property?")
+        elif substrings[2] == 'evsexplore.semantics.cancer.gov': # If NCIT Link
+            print(f"{BColors.WARNING} Unable to extract package number from ncit reference{BColors.ENDC} \n Is this a property?")
+            return None
         if version_index is None:
             raise ValueError(f"{BColors.FAIL} Excpected to find package version in reference.{BColors.ENDC}")
         return substrings[version_index]
@@ -142,6 +143,7 @@ class Code():
 DEFINITION:Code = Code("C43680", code_system=Code.CodeSystem.NCIT, code_system_version="2009-11-23",decode="Definition")
 RESULT_SCALE:Code = Code("C221799", code_system=Code.CodeSystem.NCIT, code_system_version="2026-02-23",decode="Result scale")
 Example:Code = Code(code="C48175", code_system=Code.CodeSystem.NCIT, code_system_version="2009-11-23", decode="Example")
+RESPONSE_CODE:Code = Code(code="C201347", code_system=Code.CodeSystem.CDISC, code_system_version="2024-04-29", decode="A symbol or combination of symbols representing the response to the question.")
 Error:Code = Code(code="C43369", code_system=Code.CodeSystem.NCIT, code_system_version="2009-11-23",decode='Error')
 SOFTWARE_RUNTIME_ERROR:Code = Code(
     code="C92115",

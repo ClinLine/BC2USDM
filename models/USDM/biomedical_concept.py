@@ -5,6 +5,7 @@ from uuid import UUID, uuid4 as guid
 from models.CDISC.BiomedicalConceptLink import Link as CDISC_Link
 # from models.CDISC.BiomedicalConceptLink import BiomedicalConceptLink as CDISC_Links
 from models.CDISC import AttributeNames as CDISC_Attributes
+from models.DTOs import DataElementConceptDTO
 from models.USDM import AttributeNames as USDM_Attributes
 from models.USDM.biomedical_concept_category import BiomedicalConceptCategory as USDM_category
 from models.USDM.biomedical_concept_property import BiomedicalConceptProperty
@@ -241,13 +242,15 @@ class BiomedicalConcept:
                                     decode=self.label))
         
         if CDISC_Attributes.BiomedicalConcept.coding in keys and kwargs[CDISC_Attributes.BiomedicalConcept.coding]:
-            coding_dict = kwargs[CDISC_Attributes.BiomedicalConcept.coding]
-            _code:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.code]
-            code_system:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.system]
-            # code_system_name:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.system_name] # Not used
-            code_system_version:str = Code.get_version_from_reference(self.reference)
-            alias:Code = Code(code=_code,code_system=code_system,code_system_version=code_system_version)
-            self.code.add_alias(alias=alias)
+            coding_dict_list = kwargs[CDISC_Attributes.BiomedicalConcept.coding] # is list with codings
+            for coding_dict in coding_dict_list:
+
+                _code:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.code] # is list
+                code_system:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.system]
+                # code_system_name:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.system_name] # Not used
+                code_system_version:str = Code.get_version_from_reference(self.reference)
+                alias:Code = Code(code=_code,code_system=code_system,code_system_version=code_system_version)
+                self.code.add_alias(alias=alias)
         
         
 
@@ -313,7 +316,10 @@ class BiomedicalConcept:
                 
         # dataElementConcepts
         if CDISC_Attributes.BiomedicalConcept.data_element_concepts in keys:
-            self.properties = [BiomedicalConceptProperty(prop) for prop in kwargs[CDISC_Attributes.BiomedicalConcept.data_element_concepts]]
+            # [f(x) if condition else g(x) for x in sequence] // List comprehension
+            # {f(x) if condition else g(x) for x in sequence} // dict comprehension
+            self.properties = [BiomedicalConceptProperty(data_element_concept=DataElementConceptDTO(**dto)) for dto in kwargs[CDISC_Attributes.BiomedicalConcept.data_element_concepts]]
+            # self.properties = [BiomedicalConceptProperty(prop.id_, prop) for prop in kwargs[CDISC_Attributes.BiomedicalConcept.data_element_concepts] if prop.id_]
         # properties
         elif USDM_Attributes.BiomedicalConcept.properties in keys:
             raise NotImplementedError(f"{BColors.FAIL}[BiomedcalConcept.populate]: Parsing {USDM_Attributes.BiomedicalConcept.properties} is not implemented yet.{BColors.ENDC}")
