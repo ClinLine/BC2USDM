@@ -11,8 +11,11 @@ import requests
 
 # import json
 from dotenv import dotenv_values
+from models.USDM.biomedical_concept_category import BiomedicalConceptCategory as USDM_Category
 import pandas
 import numpy as np
+
+from utils.b_colors import BColors
 
 # from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory
 
@@ -36,36 +39,68 @@ def get_latest_biomedical_concept_categories():
         print(e)
 
 
-def get_biomedical_concepts_list(category: str=None, categories: list[str]=None):
+def get_biomedical_concepts_list(category:USDM_Category|str=None, categories:list[str]|list[USDM_Category]=None):
     endpoint: str = "https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/biomedicalconcepts"
     url = endpoint
-    if(category is not None and category != ""): # TODO add else state
-        if categories is None:
-            categories = [c["name"] for c in get_latest_biomedical_concept_categories()]
-        if category in categories:
-            url = f"{endpoint}?category={category}"
-        else:
-            print("category not found!")
+    cat_code=""
+
+
+    if category is not None:
+        if isinstance(category, USDM_Category):
+            cat_code = category.get_code()
+        elif isinstance(category, str) and category !="":
+            cat_code = category
+            if category == 'all':
+                cat_code = ""
+                print(f"{BColors.WARNING}[Warning] API: All categories specified!{BColors.ENDC}")
     else:
         print("Category can't be None or \"\"")
-        raise ValueError(f"Proviced {category.__qualname__} can't be None or \"\"")
+        raise ValueError(f"Proviced {category.__name__} can't be None or \"\"")
     
+    if categories is None:
+        # Get categories as JSON
+        categories = [category["name"] for category in get_latest_biomedical_concept_categories()]
+    elif isinstance(categories[0], USDM_Category):
+        found = False
+        for cat in categories: # for each category in the list
+            if cat.get_code() == cat_code: # check if the code matches the code I provided as category
+                # if it does
+                url = f"{endpoint}?category={cat_code}" # building api URL
+                found = True
+                break
+        if not found:
+            print("category not found!")
+    # Category and categories are strings
+    elif isinstance(category, str)and len(categories)>0 and isinstance(categories[0], str): 
+        if category in categories: # else return to string support
+            url = f"{endpoint}?category={category}"
+        else:
+            print("category not found!") # catch all, something went wrong here
+    else:
+        print("category not found!") # catch all, something went wrong here
+
     try:
-        req = requests.api.get(url, headers=__headers, timeout=10)
-        if req.json()["_links"] is None:
+        response = requests.api.get(url, headers=__headers, timeout=10)
+        response.raise_for_status() # raise for 4xx and 5xx status codes
+        if response.json()["_links"] is None:
             print("json:")
-            print(req.json())
+            print(response.json())
             AttributeError("Expected _links object not found")
             
-        bcs = req.json()["_links"]["biomedicalConcepts"]
+        # bcs = [{"reference":bc_data["href"],"label":bc_data["title"],"instance_type":bc_data["type"]} for bc_data in req.json()["_links"]]
+        bcs = response.json()["_links"]["biomedicalConcepts"]
         return bcs
     except requests.Timeout as e:
         print(e)
-    except requests.HTTPError as httpe:
+    except requests.exceptions.HTTPError as httpe:
         print(httpe)
+    # except KeyError as keyError:
+        # print(keyError)
     except Exception as e:
         now = datetime.now()
-        file = open(f"ErrorLog_{now}.txt", "x+t",encoding="utf-8")
+        print(now.strftime("%d/%m/%Y-%H:%M:%S"))
+        file = open(f"ErrorLog_{now.strftime("%d/%m/%Y-%H:%M:%S")}.txt", "x+t",encoding="utf-8")
+        file.write(f"{e.__class__}")
         file.write(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
         print(f"{e.__cause__} while getting BiomedicalConcepts in category\n")
         file.write(f"File {__file__} in {__name__}")
@@ -76,6 +111,8 @@ def get_biomedical_concepts_list(category: str=None, categories: list[str]=None)
         print(e.__context__)
         file.write(e.__context__)
         file.close()
+
+
 
 def get_biomedical_concept_package_list():
     endpoint = "https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/packages"

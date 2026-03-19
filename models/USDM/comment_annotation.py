@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from uuid import UUID, uuid4 as guid
-from models.USDM.code.code import Code
+
+from models.USDM.code import Code
 
 
 @dataclass

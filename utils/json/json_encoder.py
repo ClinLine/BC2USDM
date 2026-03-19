@@ -1,11 +1,13 @@
 import json
 from uuid import UUID
 # from models.CDISC.BiomedicalConceptLink import BiomedicalConceptLink
-from models.USDM.BiomedicalConcept import BiomedicalConcept, BiomedicalConceptProperty, ResponseCode
+from models.USDM.biomedical_concept import BiomedicalConcept
 # from models.USDM.BiomedicalConceptCategory import BiomedicalConceptCategory as USDM_Category
+from models.USDM.biomedical_concept_property import BiomedicalConceptProperty
 from models.USDM.code.alias_code import AliasCode
-from models.USDM.code.code import Code
+from models.USDM.code import Code
 from models.USDM.comment_annotation import CommentAnnotation
+from models.USDM.response_code import ResponseCode
 # from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 
 class UUIDEncoder(json.JSONEncoder):
@@ -145,5 +147,6 @@ class USDMEncoder(
     CommentAnnotationEncoder,
     UUIDEncoder,
     IterEncoder):
+    
     def default(self, o):
         return super().default(o)
