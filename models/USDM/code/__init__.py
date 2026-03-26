@@ -92,7 +92,7 @@ class Code():
         return self
     
     @staticmethod
-    def get_version_from_reference(reference:str):
+    def get_version_from_reference(data):
         """
         (static) Method returning <code>code_system_version</code> baised on package version in reference string
             :param reference: reference string - version source 
