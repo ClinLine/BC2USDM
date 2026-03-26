@@ -21,7 +21,7 @@ class BiomedicalConceptProperty:
     is_enabled: bool = False
     # TODO: check if datatype can be an enum or hash for optimizing
     datatype: str
-    INSTANCE_TYPE = __name__
+    INSTANCE_TYPE = __qualname__
     code:AliasCode
     label: str = None
     notes: list[CommentAnnotation] = None
@@ -29,7 +29,7 @@ class BiomedicalConceptProperty:
 
     def __init__(self, id_:UUID|str = None, label:str = None, name:str=None, is_required:bool = False, is_enabled:bool = False,
                  datatype:str = None, response_codes: list[ResponseCode] = None, code: AliasCode = None,
-                 notes: list[CommentAnnotation] = None, data_element_concept:DataElementConceptDTO= None, *args, **kwargs):
+                 notes: list[CommentAnnotation] = None, data_element_concept:DataElementConceptDTO= None, parent_bc:"BiomedicalConcept" = None, *args, **kwargs):
         if len(args)> 0:
             raise ValueError(f"{BColors.FAIL}[Error]:BiomedicalConceptProperty.init: args can't be > 0{BColors.ENDC}")
         if len(kwargs) > 0:
@@ -37,7 +37,7 @@ class BiomedicalConceptProperty:
                 print(f"{BColors.FAIL}[Error]:BiomedicalConceptProperty.init: Attribute {key} not found.{BColors.ENDC}")
 
         if data_element_concept:
-            temp_prop = BiomedicalConceptProperty.from_data_element_concept(data_element_concept)
+            temp_prop = BiomedicalConceptProperty.from_data_element_concept(data_element_concept, parent_bc)
             self.id_=temp_prop.id_
             self.label=temp_prop.label
             self.is_required=temp_prop.is_required
@@ -155,7 +155,7 @@ class BiomedicalConceptProperty:
         #                 raise NotImplementedError(f"[{e.__qualname__}]No exact match found for key:{key}")
 
     @staticmethod            
-    def from_data_element_concept(dec:DataElementConceptDTO):
+    def from_data_element_concept(dec:DataElementConceptDTO, bc:"BiomedicalConcept"):
         ## data_element_concept:
         # concept_id:str
         # short_name:str
@@ -186,14 +186,14 @@ class BiomedicalConceptProperty:
                     code=dec.ncit_code,
                     id_=None,
                     code_system=Code.CodeSystem.NCIT,
-                    code_system_version=Code.get_version_from_reference(reference),
+                    code_system_version=Code.get_version_from_reference(bc),
                     decode=label),
                 id_=None,
                 aliases=[Code(
                     code=dec.concept_id,
                     id_=None,
                     code_system=Code.CodeSystem.CDISC,
-                    code_system_version=Code.get_version_from_reference(reference),
+                    code_system_version=Code.get_version_from_reference(bc),
                     decode=label)])
         else:
             code:AliasCode = AliasCode(
@@ -201,7 +201,7 @@ class BiomedicalConceptProperty:
                     code=dec.concept_id,
                     id_=None,
                     code_system=Code.CodeSystem.CDISC,
-                    code_system_version=Code.get_version_from_reference(reference),
+                    code_system_version=Code.get_version_from_reference(bc),
                     decode=label),
                 id_=None)
         notes:list[CommentAnnotation] = []
@@ -220,7 +220,7 @@ class BiomedicalConceptProperty:
             response_codes=response_codes,
             code=code,
             notes=notes)
- 
+    
     @staticmethod
     def package_from_json(json):
         return BiomedicalConceptProperty(
@@ -231,3 +231,17 @@ class BiomedicalConceptProperty:
             datatype = "parentPackage",
             required = True,
         )
+    
+    def __eq__(self, value):
+        if self.id_ != value.id_: return False
+        if self.label != value.label: return False
+        if self.is_enabled != value.is_enabled: return False
+        if self.is_required != value.is_required: return False
+        if self.datatype != value.datatype: return False
+        if self.code != value.code: return False
+        if self.notes != value.notes: return False
+        if self.response_codes != value.response_codes: return False
+        return True
+     
+    # def __ne__(self, value):
+    #     return self != value

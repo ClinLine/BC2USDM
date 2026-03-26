@@ -32,11 +32,19 @@ __headers = {
 def get_latest_biomedical_concept_categories():
     url: str = "https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/categories"
     try:
-        req = requests.get(url, headers=__headers, timeout=10)
-        categories_json = req.json()["_links"]["categories"]
+        response = requests.get(url, headers=__headers, timeout=10)
+
+        response.raise_for_status()
+        categories_json = response.json()["_links"]["categories"]
         return categories_json
     except requests.Timeout as e:
         print(e)
+    except requests.HTTPError as err:
+        # if err.errno == 401:
+        print(f"[{__name__}]: Error code:{err}")
+        # print(f"[{__name__}]: Error code:{err} - message: {response.text}")
+        raise ConnectionError(f"[{__name__}]:")
+    
 
 
 def get_biomedical_concepts_list(category:USDM_Category|str=None, categories:list[str]|list[USDM_Category]=None):

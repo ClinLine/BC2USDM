@@ -1,12 +1,11 @@
-from uuid import uuid4 as guid
+from uuid import UUID, uuid4 as guid
 
 from models.USDM.code import Code
 
 class TherapeuticArea():
     # id_:guid = None => Stored in Code
     code:Code = None
-    INSTANCE_TYPE:str = "Code"
-
+    # INSTANCE_TYPE:str = Code.__qualname__
     __CODE_SYSTEM:str = "CUSTOM"
     __CODE_SYSTEM_VERSION:str = "00"
 
@@ -22,6 +21,8 @@ class TherapeuticArea():
                             id_=id_,
                             code_system=TherapeuticArea.__CODE_SYSTEM,
                             code_system_version=TherapeuticArea.__CODE_SYSTEM_VERSION)
+            if self.code is None:
+                print(f"Set therapeutic area code to {self.code}, (id={id_})")
 
         if "decode" in kwargs.keys():
             self.code.decode = kwargs["decode"]

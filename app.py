@@ -92,13 +92,15 @@ class App(object):
         return None
         
     def apply_to_repository(self, data:dict):
-        print(data.keys())
+        # print(data.keys())
         print(self.current_bc.id_)
-
+        print(data["id_"])
+        data_id = UUID(data["id_"])
         # if current bc != the bc being applied
-        if self.current_bc.id_ != data["id_"]:
-            current_bc = self.in_current_repository(data["id_"])
-            print(self.in_current_repository(data["id_"]))
+        if str(self.current_bc.id_) != data_id:
+            
+            current_bc = self.in_current_repository(data_id)
+            print(self.in_current_repository(data_id))
             
             
             if current_bc is None:
@@ -107,18 +109,22 @@ class App(object):
                 # Check for changes and apply them
                 print("Checking for Changes")
                 print("Applying found changes")
+                raise NotImplementedError("Editing changes isn't implemented yet")
                 # self.update_repository(current_bc, data)
             
             
 
         # if current bc is the bc being applied
-        if data["id_"] == self.current_bc.id_ or current_bc is None:
+        if data_id == self.current_bc.id_ or current_bc is None:
             # apply any possible changes to current_bc
             print("applying changes to current bc")
             current_bc = USDM_BC(**data)
-            self.current_bc = current_bc
-            # add current_bc to current_repository
-            print("Adding current bc to current repo")
+            if current_bc == self.current_bc:
+                self.current_bc = current_bc
+            else:
+                # add current_bc to current_repository
+                print("Adding current bc to current repo")
+                raise NotImplementedError()
             self.current_repository.add_biomedical_concept(current_bc)
             
             # self.current_repository.update_repository(current_bc)
@@ -130,6 +136,8 @@ class App(object):
             # self.display.current_repository_container.added_biomedical_concepts_container.update_added_biomedical_concepts(repo_bcs)
             return biomedical_concepts_in_repository
             # add current_bc's category(s) to current_repository
+        else:
+            print(f"{BColors.FAIL}App.apply_to_repo: WHAT HAPPENED?!{BColors.ENDC}")
     #endregion
 
     #region Categories list

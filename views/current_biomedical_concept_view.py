@@ -140,7 +140,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
             "properties":properties
         }
 
-        test = self.parent.apply_to_repository(bc)
+        biomedical_concept = self.parent.apply_to_repository(bc)
         
 
 

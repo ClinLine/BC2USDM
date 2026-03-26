@@ -97,17 +97,17 @@ class BiomedicalConceptBase:
 
 # class BiomedicalConcept(BiomedicalConceptBase):
 class BiomedicalConcept:
-    __name__ = "BiomedicalConcept"
-    DATA_TYPE = "Biomedical Concept"
+    # __name__ = "BiomedicalConcept"
+    # DATA_TYPE = "Biomedical Concept"
     properties: list[BiomedicalConceptProperty] = None
-    response_codes:list[ResponseCode] = None
     code:AliasCode
     _package_version:str
     label:str = None
     synonyms:list[str] = None
     reference:str = "" # Not nullable
     notes:list[CommentAnnotation] = None
-    instance_type = DATA_TYPE
+    INSTANCE_TYPE = __qualname__
+    categories = list[USDM_category]
     _links:str = None
     _modified:bool = False
     _populated = False
@@ -123,7 +123,7 @@ class BiomedicalConcept:
                 properties:list[dict]|list[BiomedicalConceptProperty]=None,
                 code:str|Code=None,
                 notes:list[str]|list[CommentAnnotation]=None,
-                instance_type:str=instance_type,
+                instance_type:str=INSTANCE_TYPE,
                 biomedical_concept:BiomedicalConcept=None,
                 category=None,
                 *args, **kws):
@@ -150,6 +150,15 @@ class BiomedicalConcept:
             raise ValueError(f"{BColors.FAIL}Reference can't be None or empty{BColors.ENDC}")
         if not isinstance(properties,type(None)):
             print(f"{BColors.OKCYAN}bc concstructior: (PARAM) properties := {type(properties)}{BColors.ENDC}")
+        if notes is not None and len (notes) > 0:
+            if self.notes is None:
+                self.notes = []
+            for note in notes:
+                if isinstance(note, CommentAnnotation):
+                    self.notes = notes
+                else:
+                    
+                    self.notes.append(CommentAnnotation(note))
         if self.properties is None:
             self.properties = []
         if properties is not None:
@@ -169,6 +178,7 @@ class BiomedicalConcept:
             self.code = code
         elif code is not None:
             print(f"{BColors.WARNING}[Warning]{__name__}.init: {Code.__name__} is not none but not af type {Code.__name__} or {AliasCode.__name__}{BColors.ENDC}")
+            print(f"code: {code}")
             self.code = AliasCode(
                 standard_code=Code(
                     code=code,
@@ -187,11 +197,12 @@ class BiomedicalConcept:
             elif isinstance(notes[0], str):
                 self.notes = [CommentAnnotation(note) for note in notes]
 
-        if instance_type is not None:
-            if instance_type == BiomedicalConcept.DATA_TYPE and (self.instance_type is None or self.instance_type == ""):
-                self.instance_type = BiomedicalConcept.DATA_TYPE
-            elif instance_type != BiomedicalConcept.DATA_TYPE:
-                raise ValueError("The type of Biomedical concepts can not be set")
+        if instance_type is not None and instance_type.replace(' ','') != self.INSTANCE_TYPE:
+            # if instance_type == BiomedicalConcept.DATA_TYPE and (self.INSTANCE_TYPE is None or self.INSTANCE_TYPE == ""):
+            #     self.INSTANCE_TYPE = BiomedicalConcept.DATA_TYPE
+            # elif instance_type != BiomedicalConcept.DATA_TYPE:
+            raise AttributeError(f"The type of {self.__qualname__} cannot be set")
+            
 
 
     def populate(self, **kwargs):
@@ -200,7 +211,7 @@ class BiomedicalConcept:
         """
         
         if len(kwargs) < 1:
-            print([f"{BColors.WARNING}[Warning] BiomedicalConcept.populate: Populating with empty params is going to be deprecated{BColors.ENDC}"])
+            print([f"{BColors.WARNING}[Warning] {__name__}.{BiomedicalConcept.populate.__name__}populate: Populating with empty params is going to be deprecated{BColors.ENDC}"])
         print(f"Populating following keys: {kwargs.keys()}")
         
         # The following are already handled at BC creation:
@@ -213,8 +224,10 @@ class BiomedicalConcept:
             if CDISC_Attributes.BiomedicalConcept.short_name in keys:
                 self.label = kwargs[CDISC_Attributes.BiomedicalConcept.short_name]
         
-        # ncitCode x
-        # conceptId x
+        # parentBC
+        if CDISC_Attributes.BiomedicalConcept.links in keys:
+            package_link:CDISC_Link = CDISC_Link(**kwargs[CDISC_Attributes.BiomedicalConcept.links][CDISC_Attributes.BiomedicalConcept.BiomedicalConceptLinks.parent_package])
+            self._package_version = Code.get_version_from_reference(package_link.href)
 
         if USDM_Attributes.BiomedicalConcept.code in keys and isinstance(kwargs[USDM_Attributes.BiomedicalConcept.code],AliasCode):
             self.code = kwargs[USDM_Attributes.BiomedicalConcept.code]
@@ -248,7 +261,7 @@ class BiomedicalConcept:
                 _code:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.code] # is list
                 code_system:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.system]
                 # code_system_name:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.system_name] # Not used
-                code_system_version:str = Code.get_version_from_reference(self.reference)
+                code_system_version:str = Code.get_version_from_reference(self)
                 alias:Code = Code(code=_code,code_system=code_system,code_system_version=code_system_version)
                 self.code.add_alias(alias=alias)
         
@@ -325,10 +338,7 @@ class BiomedicalConcept:
             raise NotImplementedError(f"{BColors.FAIL}[BiomedcalConcept.populate]: Parsing {USDM_Attributes.BiomedicalConcept.properties} is not implemented yet.{BColors.ENDC}")
         
 
-        # parentBC
-        if CDISC_Attributes.BiomedicalConcept.links in keys:
-            package_link:CDISC_Link = CDISC_Link(**kwargs[CDISC_Attributes.BiomedicalConcept.links][CDISC_Attributes.BiomedicalConcept.BiomedicalConceptLinks.parent_package])
-            self._package_version = Code.get_version_from_reference(package_link.href)
+       
             
             # parent_link:CDISC_Link = CDISC_Link(**kwargs[CDISC_Attributes.BiomedicalConcept.links][CDISC_Attributes.BiomedicalConcept.BiomedicalConceptLinks.parent_biomedical_concept])
             # self_link:CDISC_Link = CDISC_Link(kwargs[CDISC_Attributes.BiomedicalConcept.links][CDISC_Attributes.BiomedicalConcept.BiomedicalConceptLinks.self])
@@ -441,7 +451,18 @@ class BiomedicalConcept:
         #                 # self.misc[key] = value
         self._populated = True
 
-   
+    def __eq__(self, value):
+        
+        if self.code.standard_code.code != value.code.standard_code.code: return False
+        if self.label != value.label: return False
+        if len(self.synonyms) != len(value.synonyms): return False
+        
+        if len(self.notes) != len(value.notes): return False
+        for note in self.notes:
+            if note not in value.note: return False
+        for i, prop in enumerate(self.properties):
+            if prop != value.properties[i]: return False
+        return True
 
     def set_label(self, label:str):
         self.label = label

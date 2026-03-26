@@ -2,17 +2,19 @@ from dataclasses import dataclass
 from uuid import uuid4 as guid
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as cdisk_category
 from models.USDM.code.alias_code import AliasCode
+from models.USDM.comment_annotation import CommentAnnotation
 from utils.b_colors import BColors
 # from utils.utils import Encoding
 
 @dataclass
 class BiomedicalConceptCategory():
+    INSTANCE_TYPE = __qualname__
     id_:str
     name: str
     label:str = None
     description: str = None
     code:AliasCode = None
-    # notes: list[CommentAnnotation] = None
+    notes: list[CommentAnnotation] = None
     notes:list[str] = None
     children: list['BiomedicalConceptCategory'] = None
     # categories:list[object] = None

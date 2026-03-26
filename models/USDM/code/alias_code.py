@@ -17,7 +17,9 @@ class AliasCode():
     # ncit Code
     standard_code:Code
     # list of codes for all aliases
+    decode:str
     standard_code_aliases: list[Code] = field(default_factory=list[Code])
+    INSTANCE_TYPE = __qualname__
 
     '''
     List of terminologies:
@@ -120,7 +122,19 @@ Following are sample codes you can use with each terminology for testing.
         else:
             self.standard_code_aliases.append(alias)
 
-
+    def __eq__(self, value):
+        if self.id_ != value.id_:
+            print(f"AliasCode.eq: id inequality is currently being disregarded, since it can't be changed by the user.")
+        if self.decode != value.decode: return False
+        if self.standard_code != value.standard_code: return False
+    
+    def __contains__(self, item):
+        if not isinstance(item, Code):
+            raise TypeError(f"{BColors.FAIL} AliasCode.contains can only be used to check for code aliases")
+        
+        if item in self.standard_code_aliases:
+            return True
+        return False
     # def __str__(self):
     #     result = "{"
     #     if self.id_ is not None:
