@@ -17,10 +17,12 @@ class BiomedicalConceptCategory():
     notes: list[CommentAnnotation] = None
     notes:list[str] = None
     children: list['BiomedicalConceptCategory'] = None
+    members: list['BiomedicalConcept'] = None
     # categories:list[object] = None
 
 
     def __init__(self, id_, name:str=None, label:str = None, description:str=None, code=None, notes=None, children=None):
+        # Default populated params are: label, description & code, where description title
         self.id_ = guid()
         # self.name = "".join([name,id_])
         if label is None or label != "":
@@ -35,7 +37,7 @@ class BiomedicalConceptCategory():
             if isinstance(code, (AliasCode)):
                 self.code = code
             else:
-                print(type(code))
+                print(f"Code differed from expected type ({AliasCode.__qualname__}), type = {type(code)}")
         self.notes = notes
         self.categories = children
 
@@ -52,7 +54,7 @@ class BiomedicalConceptCategory():
             # id_=json["_links"]["self"]["href"].split('=')[-1], #Undecoded id
             # name=json["name"],
             label=json["name"],
-            description=json["_links"]["self"]["href"])
+            description=json["_links"]["self"]["title"])
 
     @staticmethod
     def from_cdisc_category(cdisc_cat: cdisk_category):

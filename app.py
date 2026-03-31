@@ -1,6 +1,8 @@
+import configparser
 from uuid import UUID, uuid4 as guid
 
 # from props_testing import PropertyDisplay
+from logic.DAL.data_store import DataStore
 from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
 from models.USDM.repository import Repository
 from utils.b_colors import BColors
@@ -13,15 +15,17 @@ from utils import api_utils as API
 from utils.io.FileWriter import FileWriter as fr
 # from utils.json_encoder import CustomEncoder
 
-
+App_Instance:'App'
 
 # __categories_list_width: int = 120
-class App(object):
+class App:
+    _CONFIG_FILE_NAME = "config.ini"
     __APPLICATION_TITLE__ = "BC2USDM"
     # display:UIDisplay
     display:BC2USDM_Window
 
     categories:list[USDM_Category] = []
+    biomedical_concepts:list[USDM_BC] = []
 
     # state:
     current_repository:Repository = None
@@ -29,11 +33,32 @@ class App(object):
     current_category:USDM_Category = None
     biomedical_concepts_in_current_category:list[USDM_BC] = []
     current_biomedical_concept:USDM_BC = None
+    
+    Instance:__qualname__ = None
+
 
     def __init__(self):
+        super().__init__()
+        config = App.load_configs()
+        self.data_store = DataStore("./Resources/Cache.json")
+        if self.Instance is None:
+            App.Instance = self
         self._initialize_state()
 
+        global App_Instance
+        App_Instance = self
+
         # WARNING: last call during operation time
+    
+    @staticmethod
+    def load_configs():
+        config = configparser.ConfigParser()
+        with open("config.ini", mode="r+t", encoding="UTF-8") as configfile:
+            config.read(configfile)
+        return config
+
+
+    def start(self):
         self.display = BC2USDM_Window(app=self, screenName = App.__APPLICATION_TITLE__)
         # calls in init after this line are ran after closing the UI
 
@@ -161,7 +186,10 @@ class App(object):
     #region Current Category
     def set_current_category_by_index(self, category_list_index:int):
         self.current_category:USDM_Category = self.categories[category_list_index]
-        self.biomedical_concepts_in_current_category = self.get_bcs_in_category(self.current_category.get_code())
+        self.biomedical_concepts_in_current_category = self._get_bcs_in_category(self.current_category.get_code())
+        for bc in self.biomedical_concepts_in_current_category:
+            if bc not in self.biomedical_concepts:
+                self.biomedical_concepts.append(bc)
 
     def get_current_category_label(self):
         return self.current_category.label
@@ -172,16 +200,18 @@ class App(object):
     def get_biomedical_concepts_in_current_category(self):
         return self.biomedical_concepts_in_current_category
     
-    def get_bcs_in_category(self, category_code):
+    def _get_bcs_in_category(self, category_code):
         # all_codes = [cat.get_code() for cat in self.categories]
         
         json_bcs = API.get_biomedical_concepts_list(category_code, self.categories)
+
         biomedical_concepts_in_category = [USDM_BC(label=bc["title"],reference=bc["href"],instance_type=bc["type"]) for bc in json_bcs]
+       
         # self.biomedical_concepts_in_category = [USDM_BC(bc) for bc in API.get_biomedical_concepts_list(category.get_code(), all_codes)]
         return biomedical_concepts_in_category
     
     def get_biomedical_concept_names_in_current_category(self):
-        self.biomedical_concepts_in_current_category:list[USDM_BC] = self.get_bcs_in_category(self.current_category.get_code())
+        self.biomedical_concepts_in_current_category:list[USDM_BC] = self._get_bcs_in_category(self.current_category.get_code())
         return [bc.label for bc in self.biomedical_concepts_in_current_category]
 
     [DeprecationWarning]
@@ -201,11 +231,12 @@ class App(object):
                 if category.id_ == id_ or category.name == name:
                     current_category = category
                     break
-        self.biomedical_concepts_in_current_category: list[USDM_BC] = self.get_bcs_in_category(current_category)
+        self.biomedical_concepts_in_current_category: list[USDM_BC] = self._get_bcs_in_category(current_category)
         return [bc.label for bc in self.biomedical_concepts_in_current_category]
 
     [DeprecationWarning]
     def select_category(self, category_list_index:int):
+        print(f"{BColors.WARNING}[WARNING]: {self.select_bc.__qualname__} is depracated. {BColors.ENDC}")
         self.current_category:USDM_Category = self.categories[category_list_index]
 
         temp = API.get_biomedical_concepts_list(self.current_category.code.standard_code.code, categories=[cat.code.standard_code.code for cat in self.categories])
@@ -218,6 +249,16 @@ class App(object):
             "bc_names": [bc.label for bc in available_bcs]}
     #endregion
     
+    def lookup_property_code(self, bc_id:UUID, property_code_str:str):
+        for bc in self.biomedical_concepts:
+            if bc.id_ == bc_id:
+                for prop in bc.properties:
+                    if prop.code.standard_code.code == property_code_str:
+                        return prop.code
+            
+        print(f"{BColors.FAIL}[Error] {self.lookup_property_code.__qualname__}: Failed to find property with code {property_code_str} for bc with id {str(bc_id)}{BColors.ENDC}")
+        return None
+
     #region Current Biomedical Concept
     def select_bc(self, index:int):
         if len(self.biomedical_concepts_in_current_category) > 0:
@@ -292,7 +333,9 @@ class App(object):
 
 # App autostart
 def main(*args):
-    app:App = App()
+    global App_Instance
+    App_Instance = App()
+    App_Instance.start()
 
 
         
@@ -353,5 +396,6 @@ def main(*args):
     
 
 if __name__ == "__main__":
-    
+    __name__ = "BC2USDM"
+    __package__ = "BC2USDM"
     main()

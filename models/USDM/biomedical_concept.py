@@ -163,12 +163,14 @@ class BiomedicalConcept:
             self.properties = []
         if properties is not None:
             if len(properties) > 0:
-                for prop in properties.items():
+                for prop_id, prop in properties.items():
                     if isinstance(prop, BiomedicalConceptProperty):
                         self.properties = properties
                         break
                     elif isinstance(prop, dict):
-                        self.properties.append(BiomedicalConceptProperty(prop))
+                        self.properties.append(BiomedicalConceptProperty(**prop, parent_bc_id=id_))
+                    else:
+                        print(f"type is: {type(prop)}")
             # elif isinstance(properties, dict) and len(properties) > 0:
             # self.properties = [BiomedicalConceptProperty(prop) for prop in properties]
         else:
@@ -187,6 +189,7 @@ class BiomedicalConcept:
                 )
             )
         elif code is None:
+            self.code = None
             self._populated = False
 
 
@@ -261,7 +264,7 @@ class BiomedicalConcept:
                 _code:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.code] # is list
                 code_system:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.system]
                 # code_system_name:str = coding_dict[CDISC_Attributes.BiomedicalConcept.Coding.system_name] # Not used
-                code_system_version:str = Code.get_version_from_reference(self)
+                code_system_version:str = Code.get_version_from_reference(self.reference)
                 alias:Code = Code(code=_code,code_system=code_system,code_system_version=code_system_version)
                 self.code.add_alias(alias=alias)
         
@@ -453,7 +456,8 @@ class BiomedicalConcept:
 
     def __eq__(self, value):
         
-        if self.code.standard_code.code != value.code.standard_code.code: return False
+        if self.code and value.code:
+            if self.code.standard_code.code != value.code.standard_code.code: return False
         if self.label != value.label: return False
         if len(self.synonyms) != len(value.synonyms): return False
         

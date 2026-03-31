@@ -86,13 +86,13 @@ class Code():
         :type decode_string: str
         '''
         if decode_string is None or "":
-            #TODO Add Decode!!
+            #TODO Add Decode lookup!!
             raise NotImplementedError("Looking up decode with api is not yet supported.")
         self.decode = decode_string
         return self
     
     @staticmethod
-    def get_version_from_reference(data):
+    def get_version_from_reference(reference:str):
         """
         (static) Method returning <code>code_system_version</code> baised on package version in reference string
             :param reference: reference string - version source 
@@ -113,7 +113,8 @@ class Code():
             print(f"{BColors.WARNING} Unable to extract package number from ncit reference{BColors.ENDC} \n Is this a property?")
             return None
         if version_index is None:
-            raise ValueError(f"{BColors.FAIL} Excpected to find package version in reference.{BColors.ENDC}")
+            print(f"{BColors.FAIL} Excpected to find package version in reference.{BColors.ENDC} Returning {None}")
+            return None
         return substrings[version_index]
     
     # def __str__(self):

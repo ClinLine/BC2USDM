@@ -35,7 +35,8 @@ def get_latest_biomedical_concept_categories():
         response = requests.get(url, headers=__headers, timeout=10)
 
         response.raise_for_status()
-        categories_json = response.json()["_links"]["categories"]
+        json = response.json() # Categories don't seem to have 'package-version'
+        categories_json = json["_links"]["categories"]
         return categories_json
     except requests.Timeout as e:
         print(e)

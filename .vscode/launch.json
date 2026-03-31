@@ -9,7 +9,7 @@
             "name": "Python Debugger: App.py",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/app.py",
+            "program": "${workspaceFolder}/__init__.py",
             "console": "integratedTerminal",
             "justMyCode": false
         // },

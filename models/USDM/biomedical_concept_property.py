@@ -1,8 +1,12 @@
+
 # from dataclasses import dataclass, field
 from uuid import UUID, uuid4 as guid
 
 # from logic.local_storage import LocalStorage
 # from models.USDM.BiomedicalConcept import BiomedicalConcept
+
+
+# from ...app import App
 from models.CDISC import AttributeNames as CDISC_Attributes
 from models.DTOs import DataElementConceptDTO
 from models.USDM import AttributeNames as USDM_Attributes
@@ -13,7 +17,6 @@ from models.USDM.response_code import ResponseCode
 from utils.b_colors import BColors
 
 
-# @dataclass
 class BiomedicalConceptProperty:
     id_: UUID
     name: str
@@ -29,7 +32,7 @@ class BiomedicalConceptProperty:
 
     def __init__(self, id_:UUID|str = None, label:str = None, name:str=None, is_required:bool = False, is_enabled:bool = False,
                  datatype:str = None, response_codes: list[ResponseCode] = None, code: AliasCode = None,
-                 notes: list[CommentAnnotation] = None, data_element_concept:DataElementConceptDTO= None, parent_bc:"BiomedicalConcept" = None, *args, **kwargs):
+                 notes: list[CommentAnnotation] = None, data_element_concept:DataElementConceptDTO= None, parent_bc_id:UUID = None, *args, **kwargs):
         if len(args)> 0:
             raise ValueError(f"{BColors.FAIL}[Error]:BiomedicalConceptProperty.init: args can't be > 0{BColors.ENDC}")
         if len(kwargs) > 0:
@@ -37,7 +40,7 @@ class BiomedicalConceptProperty:
                 print(f"{BColors.FAIL}[Error]:BiomedicalConceptProperty.init: Attribute {key} not found.{BColors.ENDC}")
 
         if data_element_concept:
-            temp_prop = BiomedicalConceptProperty.from_data_element_concept(data_element_concept, parent_bc)
+            temp_prop = BiomedicalConceptProperty.from_data_element_concept(data_element_concept)
             self.id_=temp_prop.id_
             self.label=temp_prop.label
             self.is_required=temp_prop.is_required
@@ -49,9 +52,9 @@ class BiomedicalConceptProperty:
                 
         else:
             if id_ is not None:
-                if isinstance(id, str):
+                if isinstance(id_, str):
                     self.id_ = UUID(id_)
-                elif isinstance(id_, UUID):
+                elif isinstance(id_, (UUID)):
                     self.id_ = id_
                 else:
                     self.id_ = guid()
@@ -74,12 +77,17 @@ class BiomedicalConceptProperty:
                     self.response_codes = None
             if code and isinstance(code, AliasCode):
                 self.code = code
+            elif code and isinstance(code, str) and parent_bc_id:
+                # code = __main__.App_Instance.lookup_property_code(parent_bc_id,code)
+                t = globals.__get__("App_Instance")
+                print(t)
+                ...
+                
+                # __module__.Instance.lookup_property_code(parent_bc_id,code)
+                # self.code = t
+                # code = App.Instance.lookup_property_code(parent_bc_id,code)
             else:
-                if code:
-                    for key, value in code:
-                        print(f"[Property code]: {key}={value}")
-                else:
-                    ...
+                raise ValueError("Code must be of type {AliasCode.__qualname__} or a parent ID must be provided")
                 # self.code = AliasCode(
                 #         standard_code=Code(
                 #                 code["code"]),
@@ -155,7 +163,7 @@ class BiomedicalConceptProperty:
         #                 raise NotImplementedError(f"[{e.__qualname__}]No exact match found for key:{key}")
 
     @staticmethod            
-    def from_data_element_concept(dec:DataElementConceptDTO, bc:"BiomedicalConcept"):
+    def from_data_element_concept(dec:DataElementConceptDTO):
         ## data_element_concept:
         # concept_id:str
         # short_name:str
@@ -183,17 +191,17 @@ class BiomedicalConceptProperty:
         if dec.concept_id != dec.ncit_code:
             code:AliasCode = AliasCode(
                 standard_code=Code(
-                    code=dec.ncit_code,
-                    id_=None,
-                    code_system=Code.CodeSystem.NCIT,
-                    code_system_version=Code.get_version_from_reference(bc),
-                    decode=label),
-                id_=None,
-                aliases=[Code(
                     code=dec.concept_id,
                     id_=None,
                     code_system=Code.CodeSystem.CDISC,
-                    code_system_version=Code.get_version_from_reference(bc),
+                    code_system_version=Code.get_version_from_reference(reference),
+                    decode=label),
+                id_=None,
+                aliases=[Code(
+                    code=dec.ncit_code,
+                    id_=None,
+                    code_system=Code.CodeSystem.NCIT,
+                    code_system_version=Code.get_version_from_reference(reference),
                     decode=label)])
         else:
             code:AliasCode = AliasCode(
@@ -201,7 +209,7 @@ class BiomedicalConceptProperty:
                     code=dec.concept_id,
                     id_=None,
                     code_system=Code.CodeSystem.CDISC,
-                    code_system_version=Code.get_version_from_reference(bc),
+                    code_system_version=Code.get_version_from_reference(reference),
                     decode=label),
                 id_=None)
         notes:list[CommentAnnotation] = []
