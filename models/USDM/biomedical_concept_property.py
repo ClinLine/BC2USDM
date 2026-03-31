@@ -5,6 +5,7 @@ from uuid import UUID, uuid4 as guid
 # from logic.local_storage import LocalStorage
 # from models.USDM.BiomedicalConcept import BiomedicalConcept
 
+from logic.DAL.data_store import DataStore
 
 # from ...app import App
 from models.CDISC import AttributeNames as CDISC_Attributes
@@ -79,9 +80,11 @@ class BiomedicalConceptProperty:
                 self.code = code
             elif code and isinstance(code, str) and parent_bc_id:
                 # code = __main__.App_Instance.lookup_property_code(parent_bc_id,code)
-                t = globals.__get__("App_Instance")
-                print(t)
-                ...
+                # t = globals.__get__("App_Instance")
+                print("Currently not working")
+                code = DataStore.lookup_property_code(parent_bc_id, code)
+                #TODO: Get property with parent_id and property code from DataStore
+                #TODO: Set own code to retrieved code
                 
                 # __module__.Instance.lookup_property_code(parent_bc_id,code)
                 # self.code = t

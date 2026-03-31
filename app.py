@@ -33,20 +33,16 @@ class App:
     current_category:USDM_Category = None
     biomedical_concepts_in_current_category:list[USDM_BC] = []
     current_biomedical_concept:USDM_BC = None
-    
-    Instance:__qualname__ = None
+
 
 
     def __init__(self):
         super().__init__()
         config = App.load_configs()
         self.data_store = DataStore("./Resources/Cache.json")
-        if self.Instance is None:
-            App.Instance = self
+
         self._initialize_state()
 
-        global App_Instance
-        App_Instance = self
 
         # WARNING: last call during operation time
     
@@ -149,7 +145,7 @@ class App:
             else:
                 # add current_bc to current_repository
                 print("Adding current bc to current repo")
-                raise NotImplementedError()
+                # raise NotImplementedError()
             self.current_repository.add_biomedical_concept(current_bc)
             
             # self.current_repository.update_repository(current_bc)
@@ -249,15 +245,7 @@ class App:
             "bc_names": [bc.label for bc in available_bcs]}
     #endregion
     
-    def lookup_property_code(self, bc_id:UUID, property_code_str:str):
-        for bc in self.biomedical_concepts:
-            if bc.id_ == bc_id:
-                for prop in bc.properties:
-                    if prop.code.standard_code.code == property_code_str:
-                        return prop.code
-            
-        print(f"{BColors.FAIL}[Error] {self.lookup_property_code.__qualname__}: Failed to find property with code {property_code_str} for bc with id {str(bc_id)}{BColors.ENDC}")
-        return None
+    
 
     #region Current Biomedical Concept
     def select_bc(self, index:int):
