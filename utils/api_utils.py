@@ -12,8 +12,8 @@ import requests
 # import json
 from dotenv import dotenv_values
 from models.USDM.biomedical_concept_category import BiomedicalConceptCategory as USDM_Category
-import pandas
-import numpy as np
+# import pandas
+# import numpy as np
 
 from utils.b_colors import BColors
 

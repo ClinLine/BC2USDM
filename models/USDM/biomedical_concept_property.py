@@ -5,7 +5,6 @@ from uuid import UUID, uuid4 as guid
 # from logic.local_storage import LocalStorage
 # from models.USDM.BiomedicalConcept import BiomedicalConcept
 
-from logic.DAL.data_store import DataStore
 
 # from ...app import App
 from models.CDISC import AttributeNames as CDISC_Attributes
