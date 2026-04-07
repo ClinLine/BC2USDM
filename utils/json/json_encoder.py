@@ -80,19 +80,25 @@ class AliasCodeEncoder(json.JSONEncoder):
         return super().default(o)
 
 class CommentAnnotationEncoder(json.JSONEncoder):
-    def default(self,o):
+    def default(self, o):
         if isinstance(o, CommentAnnotation):
             print(o)
-            if o.codes is not None and DEFINITION not in o.codes:
-                comment_annotation = {}
-                # comment_annotation["id"] = json.dumps(o.id_, UUIDEncoder)
-                comment_annotation["id"] = super().default(o.id_)
-                comment_annotation["text"] = o.text
-                if o.codes is not None:
-                    # codes is list of codes
-                    comment_annotation["codes"] = super().default(o.codes) 
-                else:
-                    comment_annotation["codes"] = []
+            try:
+
+                if o.codes is not None and DEFINITION not in o.codes:
+                    comment_annotation = {}
+                    # comment_annotation["id"] = json.dumps(o.id_, UUIDEncoder)
+                    comment_annotation["id"] = super().default(o.id_)
+                    comment_annotation["text"] = o.text
+                    if o.codes is not None:
+                        # codes is list of codes
+                        comment_annotation["codes"] = super().default(o.codes) 
+                    else:
+                        comment_annotation["codes"] = []
+                    return comment_annotation
+            except TypeError as err:
+                print(f"Encountered a typeError while trying to encode a CommentAnnotation object.\n {err}")
+            else:
                 return comment_annotation
         return super().default(o)
 
@@ -255,7 +261,7 @@ class USDMEncoder(
     ResponseCodeEncoder,
     AliasCodeEncoder,
     CodeEncoder,
-    CommentAnnotationEncoder,
-    UUIDEncoder):
+    UUIDEncoder,
+    CommentAnnotationEncoder):
     def default(self, o):
         return super().default(o)
