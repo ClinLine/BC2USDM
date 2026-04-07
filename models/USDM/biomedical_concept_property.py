@@ -78,16 +78,13 @@ class BiomedicalConceptProperty:
             if code and isinstance(code, AliasCode):
                 self.code = code
             elif code and isinstance(code, str) and parent_bc_id:
-                # code = __main__.App_Instance.lookup_property_code(parent_bc_id,code)
-                # t = globals.__get__("App_Instance")
-                print("Currently not working")
-                code = DataStore.lookup_property_code(parent_bc_id, code)
-                #TODO: Get property with parent_id and property code from DataStore
-                #TODO: Set own code to retrieved code
-                
-                # __module__.Instance.lookup_property_code(parent_bc_id,code)
-                # self.code = t
-                # code = App.Instance.lookup_property_code(parent_bc_id,code)
+                # Naïve fix, needs rework
+                self.code = AliasCode(
+                    Code(
+                        code=code, code_system=Code.CodeSystem.CDISC,code_system_version=None,decode=self.label
+                    )
+                )
+                # code = DataStore.lookup_property_code(parent_bc_id, code)
             else:
                 raise ValueError("Code must be of type {AliasCode.__qualname__} or a parent ID must be provided")
                 # self.code = AliasCode(

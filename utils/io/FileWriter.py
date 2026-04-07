@@ -27,5 +27,5 @@ class FileWriter():
         except FileExistsError:
             # File already exists, overwriting
             with open(file=f"{path}", mode="w+t", encoding="UTF-8") as file:
-                json.dump(o, file, cls=USDMEncoder)
+                json.dump(o, file, check_circular=True, cls=USDMEncoder)
         

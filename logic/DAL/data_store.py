@@ -17,4 +17,5 @@ from __future__ import annotations
 #         raise NotImplementedError
     
 class DataStore:
-    ...
+    def __init__(self, path:str):
+        print("Initializing datastore")

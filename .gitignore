@@ -1,3 +1,4 @@
 .env.dev
 *.7z
-__pychache__
+*.pyc
+/.vscode

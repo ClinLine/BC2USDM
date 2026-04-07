@@ -42,9 +42,9 @@ def get_latest_biomedical_concept_categories():
         print(e)
     except requests.HTTPError as err:
         # if err.errno == 401:
-        print(f"[{__name__}]: Error code:{err}")
+        print(f"[{__name__}]: Error {err}")
         # print(f"[{__name__}]: Error code:{err} - message: {response.text}")
-        raise ConnectionError(f"[{__name__}]:")
+        raise ConnectionError(f"[{__name__}]: {err}")
     
 
 

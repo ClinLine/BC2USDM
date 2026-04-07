@@ -459,7 +459,8 @@ class BiomedicalConcept:
         if self.code and value.code:
             if self.code.standard_code.code != value.code.standard_code.code: return False
         if self.label != value.label: return False
-        if len(self.synonyms) != len(value.synonyms): return False
+        if self.synonyms is not None and value.synonyms is not None:
+            if len(self.synonyms) != len(value.synonyms): return False
         
         if len(self.notes) != len(value.notes): return False
         for note in self.notes:
