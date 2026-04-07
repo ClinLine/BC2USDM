@@ -5,11 +5,12 @@ from uuid import UUID, uuid4 as guid
 from logic.DAL.data_store import DataStore
 from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
 from models.USDM.repository import Repository
+from models.USDM.therapeutic_area import TherapeuticArea
 from utils.b_colors import BColors
 from views.bc2usdm_window import BC2USDM_Window
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 from models.USDM.biomedical_concept_category import BiomedicalConceptCategory as USDM_Category
-from models.USDM.biomedical_concept import BiomedicalConcept as USDM_BC
+from models.USDM.biomedical_concept import BiomedicalConcept as USDM_BC, Code
 from utils.api_utils import get_biomedical_concepts_list, get_latest_biomedical_concept_categories
 from utils import api_utils as API
 from utils.io.FileWriter import FileWriter as fr
@@ -29,7 +30,8 @@ class App:
 
     # state:
     current_repository:Repository = None
-    
+    persistent_cdisc_repository:Repository = Repository()
+
     current_category:USDM_Category = None
     biomedical_concepts_in_current_category:list[USDM_BC] = []
     current_biomedical_concept:USDM_BC = None
@@ -64,7 +66,8 @@ class App:
         print("\033[93m [Warning] App.initialize_state: No active repository found, creating new one \033[0m")
         print("\033[93m [Warning] App.initialize_state: Loading pre-existing repositories is not supported yet \033[0m")
         self.current_repository = Repository()
-        
+        self.persistent_cdisc_repository = Repository()
+        # self.persistent_cdisc_repository.business_therapeutic_areas = [TherapeuticArea(Code(code="USDM_PD01", code_system=Code.CodeSystem.CDISC,code_system_version="latest").decode("Latest retrieved repository items"))]
         json_categories = API.get_latest_biomedical_concept_categories()
         usdm_categories:list[USDM_Category] = list(map(USDM_Category.from_json, json_categories))
         usdm_categories.sort(key=lambda usdm_category: usdm_category.name)
@@ -102,30 +105,36 @@ class App:
         else:
             return self.current_repository.business_therapeutic_areas
         
-    def get_bcs_in_repository(self):
+    def get_bcs_in_repository(self) -> list[USDM_BC]:
         return self.current_repository.biomedical_concepts
     
-    def in_current_repository(self, id_:UUID):
+    def get_if_in_repository(self, id_:UUID)-> USDM_BC | None:
         for temp_bc in self.get_bcs_in_repository():
-            print(temp_bc)
+            # print(temp_bc)
             if id_ == temp_bc.id_:
                 return temp_bc
         return None
+    
+    def get_from_cdisc_repository(self, id_:UUID) -> USDM_BC:
+        for _, bc in self.persistent_cdisc_repository.biomedical_concepts.items:
+            if bc.id_ == id_:
+                return bc
         
-    def apply_to_repository(self, data:dict):
+    def apply_to_repository(self, data:dict) -> list[USDM_BC]:
+        print(f"{BColors.WARNING}WARNING, changes made in the UI are currently being discarded.{BColors.ENDC}")
         # print(data.keys())
-        print(self.current_bc.id_)
-        print(data["id_"])
         data_id = UUID(data["id_"])
         # if current bc != the bc being applied
         if str(self.current_bc.id_) != data_id:
             
-            current_bc = self.in_current_repository(data_id)
-            print(self.in_current_repository(data_id))
+            current_bc = self.get_if_in_repository(data_id)
+            print(self.get_if_in_repository(data_id))
             
             
             if current_bc is None:
                 print("Current bc does not exist in current repository")
+                print("adding to repository")
+
             else:
                 # Check for changes and apply them
                 print("Checking for Changes")
@@ -176,6 +185,7 @@ class App:
 
     def set_categories(self, categories:list[USDM_Category]):
         self.categories = categories
+        self.persistent_cdisc_repository.bc_categories = categories
         # self.display.categories_container.set_categories([category.label for category in self.categories])
 
     #endregion
@@ -202,6 +212,7 @@ class App:
         json_bcs = API.get_biomedical_concepts_list(category_code, self.categories)
 
         biomedical_concepts_in_category = [USDM_BC(label=bc["title"],reference=bc["href"],instance_type=bc["type"]) for bc in json_bcs]
+        # self.persistent_cdisc_repository.biomedical_concepts.extend(self.biomedical_concepts_in_current_category)
        
         # self.biomedical_concepts_in_category = [USDM_BC(bc) for bc in API.get_biomedical_concepts_list(category.get_code(), all_codes)]
         return biomedical_concepts_in_category

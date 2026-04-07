@@ -21,7 +21,8 @@ class IterEncoder(json.JSONEncoder):
             iterable = iter(o)
         except TypeError as err:
             print(f"{BColors.FAIL}ERROR: {err}{BColors.ENDC}")
-            return super().default(o)
+            # return super().default(o)
+            pass
         else:
             return list(iterable)
         # Let the base class default method raise the TypeError
@@ -82,20 +83,18 @@ class AliasCodeEncoder(json.JSONEncoder):
 class CommentAnnotationEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, CommentAnnotation):
-            print(o)
             try:
-
+                comment_annotation= {}
+                codes_is_none = o.codes is None
                 if o.codes is not None and DEFINITION not in o.codes:
-                    comment_annotation = {}
-                    # comment_annotation["id"] = json.dumps(o.id_, UUIDEncoder)
+                    # comment_annotation["id"] = json.dumps(o.id_, UUIDEncoder)asdf
                     comment_annotation["id"] = super().default(o.id_)
                     comment_annotation["text"] = o.text
-                    if o.codes is not None:
-                        # codes is list of codes
-                        comment_annotation["codes"] = super().default(o.codes) 
-                    else:
-                        comment_annotation["codes"] = []
-                    return comment_annotation
+                    
+                    # codes is list of codes
+                    comment_annotation["codes"] = super().default(o.codes)
+                else:
+                    comment_annotation["codes"] = []
             except TypeError as err:
                 print(f"Encountered a typeError while trying to encode a CommentAnnotation object.\n {err}")
             else:
@@ -163,7 +162,8 @@ class BiomedicalConceptCategoryEncoder(json.JSONEncoder):
             category = {}
             category["id"] = super().default(o.id_)
             category["name"] = o.name
-            if o.notes is None: category["description"] = ""
+            if o.notes is None: 
+                category["description"] = ""
             else:
                 category["description"] = super().default(CommentAnnotation.find_definition(o.notes))
             category["label"] = o.label
@@ -193,14 +193,16 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
                 biomedicalConcept["label"] = o.label
             # TODO: empty or ommited?
             if o.synonyms is not None and len(o.synonyms) > 0:
-                biomedicalConcept["synonyms"] = [value for value in o.synonyms]
+                biomedicalConcept["synonyms"] = [value for value in o.synonyms if value != ""]
             biomedicalConcept["reference"] = o.reference
             biomedicalConcept["code"] = super().default(o.code)
             if o.notes is not None and len(o.notes) > 0:
-                _notes = []
-                for note in o.notes:
-                    _notes.append(super().default(note))
-                biomedicalConcept["notes"] = _notes
+                # _notes = []
+                # for note in o.notes:
+                #     _notes.append(super().default(note))
+                # _notes = [super().default(note) for note in o.notes]
+                # biomedicalConcept["notes"] = _notes
+                biomedicalConcept["notes"] = [super().default(note) for note in o.notes]
                 # biomedicalConcept["notes"] = super().default(o.notes)
             # if o.category is not None and o.category != "":
             #     biomedicalConcept["category"] = o.category
@@ -226,7 +228,7 @@ class BiomedicalConceptPropertyEncoder(json.JSONEncoder):
                 property_["isEnabled"] = o.is_enabled
             property_["datatype"] = o.datatype
             property_["code"] = super().default(o.code)
-            if hasattr(o, "notes") and o.notes is not None and o.notes.count() > 0:
+            if hasattr(o, "notes") and o.notes is not None and len(o.notes) > 0:
                 property_["notes"] = super().default(o.notes)
             if hasattr(o, "response_code") and o.response_codes is not None and len(o.response_codes) > 0:
                 property_["responseCodes"] = super().default(o.response_codes)

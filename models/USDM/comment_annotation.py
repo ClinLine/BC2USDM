@@ -5,12 +5,11 @@ from models.USDM.code import Code
 from utils.b_colors import BColors
 
 
-@dataclass
 class CommentAnnotation:
     '''Comment annotations for Biological Concepts or Biological Concept Properties'''
     id_:UUID
     text:str
-    codes: list[Code] = field(default_factory=list['Code'])
+    codes: list[Code]
     INSTANCE_TYPE = __qualname__
 
     def __init__(self, text:str, id_:str = None, codes:list[Code] = None):
@@ -24,11 +23,12 @@ class CommentAnnotation:
             if isinstance(codes[0],str):
                 self.codes = [Code(code) for code in codes]
             elif isinstance(codes[0], Code):
-                self.codes = list(codes)
+                self.codes = codes
 
     @staticmethod
     def find_definition(comment_annotations:list["CommentAnnotation"]):
-        if comment_annotations is None: return None
+        if comment_annotations is None: 
+            return None
         for ca in comment_annotations:
             for code in ca.codes:
                 if code.code == code.DEFINITION.code:

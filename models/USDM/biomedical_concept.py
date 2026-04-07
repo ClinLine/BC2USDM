@@ -158,7 +158,7 @@ class BiomedicalConcept:
                     self.notes = notes
                 else:
                     
-                    self.notes.append(CommentAnnotation(note))
+                    self.notes.append(CommentAnnotation(note, codes = [Code]))
         if self.properties is None:
             self.properties = []
         if properties is not None:
@@ -454,19 +454,18 @@ class BiomedicalConcept:
         #                 # self.misc[key] = value
         self._populated = True
 
-    def __eq__(self, value):
+    def __eq__(self, other) -> bool:
+        if self.code and other.code:
+            if self.code.standard_code.code != other.code.standard_code.code: return False
+        if self.label != other.label: return False
+        if self.synonyms is not None and other.synonyms is not None:
+            if len(self.synonyms) != len(other.synonyms): return False
         
-        if self.code and value.code:
-            if self.code.standard_code.code != value.code.standard_code.code: return False
-        if self.label != value.label: return False
-        if self.synonyms is not None and value.synonyms is not None:
-            if len(self.synonyms) != len(value.synonyms): return False
-        
-        if len(self.notes) != len(value.notes): return False
+        if len(self.notes) != len(other.notes): return False
         for note in self.notes:
-            if note not in value.note: return False
+            if note not in other.note: return False
         for i, prop in enumerate(self.properties):
-            if prop != value.properties[i]: return False
+            if prop != other.properties[i]: return False
         return True
 
     def set_label(self, label:str):
