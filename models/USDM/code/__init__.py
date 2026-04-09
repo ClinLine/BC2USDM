@@ -20,6 +20,7 @@ class Code():
     class CodeSystem(str):
         CDISC = "http://www.cdisc.org"
         NCIT = "http://www.ncit.org"
+        USDM = "USDM"
         CUSTOM = "CUSTOM"
 
     #endregion
@@ -61,13 +62,13 @@ class Code():
             if isinstance(code, str):
                 if code[:0] == 'C':
                     # self.code_system = "ncit"
-                    self.code_system = self.CodeSystem.NCIT
+                    self.code_system = self.CodeSystem.CDISC
             elif isinstance(code, Code):
                 if code.code[:0] == 'C':
                     # self.code_system = "ncit"
-                    self.code_system = self.CodeSystem.NCIT
+                    self.code_system = self.CodeSystem.CDISC
             else:
-                self.code_system = self.CodeSystem.CUSTOM
+                self.code_system = self.CodeSystem.USDM
         else:
             self.code_system = code_system
 

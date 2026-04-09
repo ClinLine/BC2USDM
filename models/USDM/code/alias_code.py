@@ -89,7 +89,7 @@ Following are sample codes you can use with each terminology for testing.
     def assess_code_system(code_string:str):
         # all ncit (and ncim) codes follow C000... pattern:
         if code_string [0] == 'C' and code_string[1:-1].isdigit():
-            return "ncit"
+            return "cdisc"
         else:
             # TODO determine code system based on code
             # Perhaps use NCI EVS Rest API https://evsexplore.semantics.cancer.gov/evsexplore/evsapi 
@@ -111,8 +111,11 @@ Following are sample codes you can use with each terminology for testing.
         elif isinstance(standard_code, Code):
             self.standard_code = standard_code
         else:
-            code_system = Code.CodeSystem.CUSTOM
-            self.standard_code = Code(code=standard_code,code_system=code_system,code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION)
+            code_system = Code.CodeSystem.USDM
+            self.standard_code = Code(
+                code=standard_code,
+                code_system=code_system,
+                code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION)
         self.standard_code_aliases = aliases
 
     def add_alias(self, alias:Code):
@@ -127,6 +130,7 @@ Following are sample codes you can use with each terminology for testing.
             print(f"AliasCode.eq: id inequality is currently being disregarded, since it can't be changed by the user.")
         if self.decode != value.decode: return False
         if self.standard_code != value.standard_code: return False
+        return True
     
     def __contains__(self, item):
         if not isinstance(item, Code):

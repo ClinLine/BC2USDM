@@ -33,11 +33,13 @@ class Repository:
 
         if "biomedical_concepts" in keys:
             if isinstance(kwargs["biomedical_concepts"], BiomedicalConcept):
-                self.biomedical_concepts = [kwargs["biomedical_concepts"]]
+                self.biomedical_concepts[kwargs["biomedical_concepts"].id_] = kwargs["biomedical_concepts"]
+            elif isinstance(kwargs["biomedical_concepts"], dict[UUID,BiomedicalConcept]):
+                self.biomedical_concepts.update(kwargs["biomedical_concepts"])
             elif isinstance(kwargs["biomedical_concepts"], list[BiomedicalConcept]):
-                self.biomedical_concepts = kwargs["biomedical_concepts"]
+                self.biomedical_concepts.update({(bc.id_, bc) for bc in kwargs["biomedical_concepts"]})
         else:
-            self.biomedical_concepts = []
+            self.biomedical_concepts = {}
 
     def add_category(self, category:BiomedicalConceptCategory):
         if self.bc_categories is None or len(self.bc_categories) == 0:
@@ -45,10 +47,10 @@ class Repository:
         self.bc_categories.append(category)
 
     def add_biomedical_concept(self, biomedical_concept:BiomedicalConcept):
-        self.biomedical_concepts.insert(len(self.biomedical_concepts),biomedical_concept)
+        self.biomedical_concepts[biomedical_concept.id_] = biomedical_concept
 
     def set_biomedical_concept(self, bc_id:UUID, biomedical_concept:BiomedicalConcept):
-        self.biomedical_concepts.update(bc_id, biomedical_concept)
+        self.biomedical_concepts.update((bc_id, biomedical_concept))
 
     def update_biomedical_concept(self, data:dict[UUID, dict[str,any]], id_:UUID):
         dirty = False

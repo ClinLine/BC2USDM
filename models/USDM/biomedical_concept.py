@@ -455,18 +455,27 @@ class BiomedicalConcept:
         self._populated = True
 
     def __eq__(self, other) -> bool:
-        if self.code and other.code:
-            if self.code.standard_code.code != other.code.standard_code.code: return False
-        if self.label != other.label: return False
-        if self.synonyms is not None and other.synonyms is not None:
-            if len(self.synonyms) != len(other.synonyms): return False
-        
-        if len(self.notes) != len(other.notes): return False
-        for note in self.notes:
-            if note not in other.note: return False
-        for i, prop in enumerate(self.properties):
-            if prop != other.properties[i]: return False
-        return True
+        if isinstance(other, BiomedicalConcept):
+            if other.id_ == self.id_:
+                return True
+            else:
+                return False
+        raise NotImplementedError()
+    
+        #  if self.code and other.code:
+        #     if self.code.standard_code.code != other.code.standard_code.code: return False
+        # if self.label != other.label: return False
+        # if self.synonyms is not None and other.synonyms is not None:
+        #     if len(self.synonyms) != len(other.synonyms): return False
+        # if self.notes is None and other.notes is not None: return False
+        # if self.notes is not None and other.notes is None: return False
+        # if self.notes and other.notes:
+        #     if len(self.notes) != len(other.notes): return False
+        # for note in self.notes:
+        #     if note not in other.note: return False
+        # for i, prop in enumerate(self.properties):
+        #     if prop != other.properties[i]: return False
+        # return True
 
     def set_label(self, label:str):
         self.label = label

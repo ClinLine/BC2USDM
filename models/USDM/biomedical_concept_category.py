@@ -40,6 +40,7 @@ class BiomedicalConceptCategory():
                 print(f"Code differed from expected type ({AliasCode.__qualname__}), type = {type(code)}")
         self.notes = notes
         self.categories = children
+        self.code.decode = label
 
     def get_code(self):
         if self.code.standard_code.code is not None:

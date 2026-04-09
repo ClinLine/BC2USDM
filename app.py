@@ -82,19 +82,15 @@ class App:
     #region Current Repository
     def get_repository(self):
         '''return current repository'''
-        # if self.current_repository is None:
-        #     self.current_repository = Repository()
-        #     # Appending a list of bcs, since the repo might have multiple lists of bcs
-        #     self.current_repository.biomedical_concepts.append(self.get_bcs_in_category("AIMS"))
-        #     for bc in self.current_repository.biomedical_concepts:
-        #         bc.populate()
         return self.current_repository
     
     def set_document_version(self, version:str):
         for ta in self.current_repository.business_therapeutic_areas:
             ta.code.code_system_version = version
     
-    def set_therapeutic_area_decode(self, id_:guid, value:str):
+    def set_therapeutic_area_decode(self, id_:UUID, value:str):
+        if not isinstance(id_, UUID):
+            id_ = UUID(id_)
         for ta in self.current_repository.business_therapeutic_areas:
             if ta.code.id_ == id_:
                 ta.code.decode = value
@@ -106,7 +102,7 @@ class App:
             return self.current_repository.business_therapeutic_areas
         
     def get_bcs_in_repository(self) -> list[USDM_BC]:
-        return self.current_repository.biomedical_concepts
+        return self.current_repository.biomedical_concepts.values()
     
     def get_if_in_repository(self, id_:UUID)-> USDM_BC | None:
         for temp_bc in self.get_bcs_in_repository():
@@ -115,10 +111,11 @@ class App:
                 return temp_bc
         return None
     
-    def get_from_cdisc_repository(self, id_:UUID) -> USDM_BC:
-        for _, bc in self.persistent_cdisc_repository.biomedical_concepts.items:
-            if bc.id_ == id_:
+    def get_from_cdisc_repository(self, request_id:UUID) -> USDM_BC:
+        for uuid, bc in self.persistent_cdisc_repository.biomedical_concepts.items():
+            if uuid == request_id:
                 return bc
+        raise ValueError(f"{BColors.FAIL} Request_id should be an UUID in the cache")
         
     def apply_to_repository(self, data:dict) -> list[USDM_BC]:
         print(f"{BColors.WARNING}WARNING, changes made in the UI are currently being discarded.{BColors.ENDC}")
@@ -129,12 +126,15 @@ class App:
             
             current_bc = self.get_if_in_repository(data_id)
             print(self.get_if_in_repository(data_id))
-            
+            fresh_bc = self.get_from_cdisc_repository(data_id)
             
             if current_bc is None:
                 print("Current bc does not exist in current repository")
                 print("adding to repository")
-
+                self.current_repository.add_biomedical_concept(fresh_bc)
+                if self.current_category.id_ not in [cat.id_ for cat in self.current_repository.bc_categories]:
+                    self.current_repository.bc_categories.append(self.current_category)
+                return self.current_repository.biomedical_concepts.values()
             else:
                 # Check for changes and apply them
                 print("Checking for Changes")
@@ -212,6 +212,9 @@ class App:
         json_bcs = API.get_biomedical_concepts_list(category_code, self.categories)
 
         biomedical_concepts_in_category = [USDM_BC(label=bc["title"],reference=bc["href"],instance_type=bc["type"]) for bc in json_bcs]
+        for bc in biomedical_concepts_in_category:
+            if bc.id_ not in self.persistent_cdisc_repository.biomedical_concepts:
+                self.persistent_cdisc_repository.add_biomedical_concept(bc)
         # self.persistent_cdisc_repository.biomedical_concepts.extend(self.biomedical_concepts_in_current_category)
        
         # self.biomedical_concepts_in_category = [USDM_BC(bc) for bc in API.get_biomedical_concepts_list(category.get_code(), all_codes)]
