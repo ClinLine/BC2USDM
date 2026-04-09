@@ -1,6 +1,4 @@
 .env.dev
 *.7z
 *.pyc
-/.vscode
-*/__pychache__/*
-logic/DAL/__pycache__/data_store.cpython-312.pyc
+*/__pycache__/*
