@@ -17,13 +17,12 @@ from utils.b_colors import BColors
 
 class IterEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"IterEncoder: encoding {o.__class__.__name__}")
+        print(f"INFO|[IterEncoder]: encoding {o.__class__.__name__}")
+        # print(f"{BColors.WARNING}WARNING|[IterEncoder]: Iter encoder changed, check if this doesn't break dependant encoders{BColors.ENDC}")
         try:
             iterable = iter(o)
         except TypeError as err:
-            print(f"{BColors.OKCYAN}INFO | [IterEncoder]: {err}{BColors.ENDC}")
-            pass
-            # return super().default(o)
+            print(f"{BColors.OKCYAN}INFO|[IterEncoder]: {err}, exiting IterEncoder{BColors.ENDC}")
         else:
             return list(iterable)
         # Let the base class default method raise the TypeError
@@ -31,6 +30,7 @@ class IterEncoder(json.JSONEncoder):
 
 class UUIDEncoder(json.JSONEncoder):
     def default(self, o:UUID) -> str:
+        print(f"INFO|[UUIDEncoder]: encoding {o.__class__.__name__}")
         if isinstance(o, UUID):
             return str(o)
         # Let the base class default method raise the typeError
@@ -38,7 +38,7 @@ class UUIDEncoder(json.JSONEncoder):
 
 class CodeEncoder(json.JSONEncoder):
     def default (self, o):
-        print(f"CodeEncoder: encoding {o.__class__.__name__}")
+        print(f"INFO|[CodeEncoder]: encoding {o.__class__.__name__}")
         # if isinstance(o, (Code, AliasCode)):
         if isinstance(o, USDM_Code):
             try:
@@ -64,7 +64,7 @@ class CodeEncoder(json.JSONEncoder):
 
 class AliasCodeEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"AliasCodeEncoder: encoding {o.__class__.__name__}")
+        print(f"INFO|[AliasCodeEncoder]: encoding {o.__class__.__name__}")
         if isinstance(o, AliasCode):
             try:
                 alias_code = {}
@@ -85,31 +85,27 @@ class AliasCodeEncoder(json.JSONEncoder):
 
 class CommentAnnotationEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"CommentAnnotationEncoder: encoding {o.__class__.__name__}")
+        print(f"INFO|[CommentAnnotationEncoder]: encoding {o.__class__.__name__}")
         
         if isinstance(o, CommentAnnotation):
-            print(o)
+            print(o.__dict__)
             comment_annotation = {}
             try:
-                if o.codes is not None and DEFINITION not in o.codes:
+                if o.codes is not None:
                     # comment_annotation["id"] = json.dumps(o.id_, UUIDEncoder)
                     comment_annotation["id"] = super().default(o.id_)
                     comment_annotation["text"] = o.text
-                    if o.codes is not None:
-                        # codes is list of codes
-                        comment_annotation["codes"] = super().default(o.codes) 
-                    else:
-                        comment_annotation["codes"] = []
+                   
+                    # codes is list of codes
+                    comment_annotation["codes"] = [super().default(code) for code in o.codes if o.codes]
                     
             except TypeError as err:
                 print(f"Encountered a typeError while trying to encode a CommentAnnotation object.\n {err}")
-                pass
             else:
                 return comment_annotation
         return super().default(o)
 
 class RepositoryEncoder(json.JSONEncoder):
-    
     def decode_therapeutic_area(self, therapeutic_area, child_categories, biomedical_concepts)  -> dict[str,str]:
         print(f"{BColors.WARNING}Warning {__name__} ln:60: Currently a max of 1 Business Therapeutic Area(s) is hardcoded in this encoder.{BColors.ENDC}")
         members = [*[str(category.id_) for category in child_categories],
@@ -122,7 +118,7 @@ class RepositoryEncoder(json.JSONEncoder):
         decoded_biomedical_concept_list = [super().default(biomedical_concept) for biomedical_concept in biomedical_concepts if biomedical_concept]
         return decoded_biomedical_concept_list
     
-    def default(self, o):
+    def default(self, o) -> dict[str,str]:
         print(f"RepositoryEncoder: encoding {o.__class__.__name__}")
         if isinstance(o, USDM_Repository):
             repo = {}
@@ -131,16 +127,8 @@ class RepositoryEncoder(json.JSONEncoder):
             
             # repo["bcRepository"]["bcCategories"] = [super().default(category) for category in o.bc_categories if category]
             
-            # bcs_ = []
-            # for bc in o.biomedical_concepts.values():
-            #     bcs_.append(super().default(bc))
-            
             repo["bcRepository"]["biomedicalConcepts"] = self.decode_biomedical_concepts(o.biomedical_concepts.values())
-            # # repo["bcRepository"]["biomedicalConcepts"] = super().default(o.biomedical_concepts)
-            
-            
-           
-            
+
             # repo["bcRepository"]["businessTherapeuticAreas"] = self.decode_therapeutic_area(
             #     o.business_therapeutic_areas[0],
             #     o.bc_categories,
@@ -157,12 +145,9 @@ class TherapeuticAreaEncoder(json.JSONEncoder):
             bta_code:USDM_Code = o["therapeutric_area"].code
             members = o["members"]
             raise NotImplementedError()
-            # therapeutic_area_dict:dict = json.dumps(bta_code,cls=CodeEncoder)
-            therapeutic_area_dict:dict = super().default(bta_code)
+            # therapeutic_area_dict:dict = super().default(bta_code)
             
-            # code_dict = super().default(o.business_therapeutic_areas[0])
-            # therapeutic_area_dict["id"] = super().default(o.business_therapeutic_areas.code.id_)
-            # therapeutic_area_dict["code"] o
+
             
         if isinstance(o,TherapeuticArea):
             
@@ -205,18 +190,26 @@ class BiomedicalConceptCategoryEncoder(json.JSONEncoder):
 
 class BiomedicalConceptEncoder(json.JSONEncoder):
     def do_code(self, alias_code:AliasCode) -> dict:
-        print("decoding code")
-        result = super().default(alias_code)
-        return result
-
-    def do_notes(self, notes):
-        result = []
-        print(f"{BColors.OKCYAN} INFO | [BiomedicalConceptEncoder]: ADDING NOTES!!{BColors.ENDC}")
-        print(f"provided notes: {notes}")
         try:
-            notes_list = super().default(notes)
+            result = super().default(alias_code)
+        except TypeError as err:
+            print(f"{BColors.OKCYAN}INFO|[BiomedicalConceptEncoder]: {err}{BColors.ENDC}")
+        except ValueError as err:
+            print(f"{BColors.WARNING}INFO|[BiomedicalConceptEncoder]: {err}{BColors.ENDC}")
+        else:
+            return result
+        super().default(alias_code)
+
+    def do_notes(self, notes:CommentAnnotation):
+        print(f"{BColors.OKCYAN}INFO | [BiomedicalConceptEncoder]: ADDING NOTES!!{BColors.ENDC}")
+        print("provided notes:")
+        for note in notes:
+            print(note.text)#{[f"{note.text}" for note in notes]}")
+        try:
+            # Observation: calling super().default(notes) does never reach IterEncoder sibling class
+            # Moved IterEncoder down in hierchy in attempt to fix this.
             encoded_list:list[dict[str:str]] = []
-            for note in notes_list:
+            for note in notes:
                 encoded_list.append(super().default(note))
         except TypeError as err:
             print(f"{BColors.OKCYAN}INFO|[BiomedicalConceptEncoder]: {err}{BColors.ENDC}")
@@ -226,14 +219,17 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
         # if o.notes is not None and len(o.notes) > 0:
         #     biomedicalConcept["notes"] = [super().default(note) for note in o.notes if note and o.notes]
         #     biomedicalConcept["notes"] = super().default(o.notes)
-        return result
+        return []
     
-    def do_props(self, properties):
+    def do_props(self, properties) -> list[dict[str,str]]:
         result = []
-        # print(f"{BColors.WARNING} BC ENCODER: NOT ADDING propeties yet!!{BColors.ENDC}")
-            # if hasattr(o, "properties") and o.properties is not None and len(o.properties) > 0:
-                # print("properties found")
-        result = [super().default(prop) for prop in properties]
+        print(f"{BColors.OKGREEN}INFO|[BiomedicalConceptEncoder]: encoding Properties{BColors.ENDC}")
+        try:
+            result = [super().default(prop) for prop in properties]
+        except Exception as err:
+            print(f"{BColors.OKCYAN}WARN|[{self.__class__.__name__}]:{err}{BColors.ENDC}")
+        else:
+            return result
         return result
 
     def default(self, o):
@@ -256,14 +252,15 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
             # biomedicalConcept["reference"] = o.reference
             # if o.category is not None and o.category != "":
             #     biomedicalConcept["category"] = o.category
-            biomedicalConcept["properties"] = []
             print(f"{BColors.WARNING} BC ENCODER: NOT ADDING propeties yet!!{BColors.ENDC}")
             if hasattr(o, "properties") and o.properties is not None and len(o.properties) > 0:
                 print("properties found")
+            biomedicalConcept["properties"] = self.do_props(o.properties)
             #     biomedicalConcept["properties"] = [super().default(prop) for prop in o.properties]
-            if isinstance(o.code, AliasCode):
-                biomedicalConcept["code"] = self.do_code(o.code)
-            # biomedicalConcept["code"] = super().default(o.code)
+            
+           
+            biomedicalConcept["code"] = self.do_code(o.code)
+            
 
             biomedicalConcept["notes"] = self.do_notes(o.notes)
             # biomedicalConcept["instanceType"] = o.INSTANCE_TYPE
@@ -273,33 +270,39 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
 
 class BiomedicalConceptPropertyEncoder(json.JSONEncoder):
     def default(self, o:BiomedicalConceptProperty):
-        print(f"BiomedicalConceptPropertyEncoder encoding {o.__class__.__name__}")
+        print(f"INFO|[BiomedicalConceptPropertyEncoder]: encoding {o.__class__.__name__}")
         
         if isinstance(o, BiomedicalConceptProperty):
             # print(f"properties dict: {o.__dict__}")
-            property_ = {}
-            property_["id"] = super().default(o.id_)
-            property_["name"] = o.name
-            if o.label is not None and o.label != "":
-                property_["label"] = o.label
-            if hasattr(o, "is_required") and o.is_required is not None:
-                property_["isRequired"] = o.is_required
-            if hasattr(o, "is_enabled") and o.is_enabled is not None:
-                property_["isEnabled"] = o.is_enabled
-            property_["datatype"] = o.datatype
-            property_["code"] = super().default(o.code)
-            if hasattr(o, "notes") and o.notes is not None and o.notes.count() > 0:
-                property_["notes"] = super().default(o.notes)
-            if hasattr(o, "response_code") and o.response_codes is not None and len(o.response_codes) > 0:
-                property_["responseCodes"] = super().default(o.response_codes)
-            property_["instanceType"] = o.INSTANCE_TYPE
-            return property_
+            try:
+                property_:dict[str,str] = {}
+                property_["id"] = super().default(o.id_)
+                property_["name"] = o.name
+                if o.label is not None and o.label != "":
+                    property_["label"] = o.label
+                if hasattr(o, "is_required") and o.is_required is not None:
+                    property_["isRequired"] = o.is_required
+                if hasattr(o, "is_enabled") and o.is_enabled is not None:
+                    property_["isEnabled"] = o.is_enabled
+                property_["datatype"] = o.datatype
+                property_["code"] = super().default(o.code)
+                if hasattr(o, "notes") and o.notes is not None and len(o.notes) > 0:
+                    property_["notes"] = super().default(o.notes)
+                if hasattr(o, "response_code") and o.response_codes is not None and len(o.response_codes) > 0:
+                    property_["responseCodes"] = super().default(o.response_codes)
+                property_["instanceType"] = o.INSTANCE_TYPE
+            except (ValueError, AttributeError) as err:
+                print(f"{BColors.FAIL}ERROR|[BiomedicalPropertyEncoder]:{err}{BColors.ENDC}")
+                raise err
+            
+            else:
+                return property_
         # Let the base class default method raise the typeError
         return super().default(o)
 
 class ResponseCodeEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"ResponseCodeEncoder: encoding {o.__class__.__name__}")
+        print(f"INFO|[ResponseCodeEncoder]: encoding {o.__class__.__name__}")
         
         if isinstance(o, ResponseCode):
             responseCode = {}
@@ -317,23 +320,23 @@ class ResponseCodeEncoder(json.JSONEncoder):
 
 class USDMEncoder(
     RepositoryEncoder,
-    IterEncoder,
     TherapeuticAreaEncoder,
     BiomedicalConceptCategoryEncoder,
     BiomedicalConceptEncoder,
     BiomedicalConceptPropertyEncoder,
     ResponseCodeEncoder,
+    CommentAnnotationEncoder,
     AliasCodeEncoder,
     CodeEncoder,
-    CommentAnnotationEncoder,
+    IterEncoder,
     UUIDEncoder):
     def default(self, o):
         print(f"USDMEncoder: encoding {o.__class__.__name__}")
         return super().default(o)
     
-    def decode_uuid(self, o:UUID) -> dict[str, str]:
-        print(f"UUIDEncoder: encoding {o.__class__.__name__} object")
-        if isinstance(o, UUID):
-            return str(o)
-        # Let the base class default method raise the typeError
-        return super().default(o)
+    # def decode_uuid(self, o:UUID) -> dict[str, str]:
+    #     print(f"UUIDEncoder: encoding {o.__class__.__name__} object")
+    #     if isinstance(o, UUID):
+    #         return str(o)
+    #     # Let the base class default method raise the typeError
+    #     return super().default(o)

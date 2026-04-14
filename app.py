@@ -3,6 +3,7 @@ from uuid import UUID, uuid4 as guid
 
 # from props_testing import PropertyDisplay
 from logic.DAL.data_store import DataStore
+from models import USDM
 from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
 from models.USDM.repository import Repository
 from models.USDM.therapeutic_area import TherapeuticArea
@@ -120,10 +121,10 @@ class App:
     def apply_to_repository(self, data:dict) -> list[USDM_BC]:
         print(f"{BColors.WARNING}WARNING, changes made in the UI are currently being discarded.{BColors.ENDC}")
         # print(data.keys())
-        data_id = UUID(data["id_"])
+        data_id:UUID = UUID(data["id_"])
+        
         # if current bc != the bc being applied
-        if str(self.current_bc.id_) != data_id:
-            
+        if self.current_bc.id_ != data_id: 
             current_bc = self.get_if_in_repository(data_id)
             print(self.get_if_in_repository(data_id))
             fresh_bc = self.get_from_cdisc_repository(data_id)
@@ -148,23 +149,28 @@ class App:
         if data_id == self.current_bc.id_ or current_bc is None:
             # apply any possible changes to current_bc
             print("applying changes to current bc")
-            current_bc = USDM_BC(**data)
-            if current_bc == self.current_bc:
-                self.current_bc = current_bc
-            else:
+            # current_bc = USDM_BC(**data)
+            current_bc = self.current_bc # TEMP!!
+            print(f"{BColors.WARNING}WARN|[App.applyToRepo]: Currently we're not taking changes made in the UI into account{BColors.ENDC}")
+            
+            # if current_bc == self.current_bc: # <- doesn't work, since this only does a reference comp.
+            #     self.current_bc = current_bc
+            # USDM_BC.sync(self.current_bc, current_bc)
+            # else:
+
                 # add current_bc to current_repository
-                print("Adding current bc to current repo")
-                # raise NotImplementedError()
+                # print("Adding current bc to current repo")
+                # # raise NotImplementedError()
             self.current_repository.add_biomedical_concept(current_bc)
             
             # self.current_repository.update_repository(current_bc)
             self.current_repository.add_category(self.current_category)
             
-            print("Updating UI")
+            # print("Updating UI (Am I though?)")
             biomedical_concepts_in_repository = self.current_repository.biomedical_concepts
             # self.display == None!!
             # self.display.current_repository_container.added_biomedical_concepts_container.update_added_biomedical_concepts(repo_bcs)
-            return biomedical_concepts_in_repository
+            return biomedical_concepts_in_repository.values()
             # add current_bc's category(s) to current_repository
         else:
             print(f"{BColors.FAIL}App.apply_to_repo: WHAT HAPPENED?!{BColors.ENDC}")

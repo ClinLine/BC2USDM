@@ -148,8 +148,6 @@ class BiomedicalConcept:
             self.reference = reference
         else:
             raise ValueError(f"{BColors.FAIL}Reference can't be None or empty{BColors.ENDC}")
-        if not isinstance(properties,type(None)):
-            print(f"{BColors.OKCYAN}bc concstructior: (PARAM) properties := {type(properties)}{BColors.ENDC}")
         if notes is not None and len (notes) > 0:
             if self.notes is None:
                 self.notes = []
@@ -159,6 +157,8 @@ class BiomedicalConcept:
                 else:
                     
                     self.notes.append(CommentAnnotation(note, codes = [Code]))
+        if not isinstance(properties,type(None)):
+            print(f"{BColors.OKCYAN}bc concstructor: (PARAM) properties := {type(properties)}{BColors.ENDC}")
         if self.properties is None:
             self.properties = []
         if properties is not None:
@@ -513,5 +513,43 @@ class BiomedicalConcept:
             package=BiomedicalConceptProperty.package_from_json(json["_links"]["parentPackage"])
             )
     
+    def __hash__(self):
+        # id_
+        # properties: list[BiomedicalConceptProperty] = None
+        # code:AliasCode
+        # _package_version:str
+        # label:str = None
+        # synonyms:list[str] = None
+        # reference:str = "" # Not nullable
+        # notes:list[CommentAnnotation] = None
+        # INSTANCE_TYPE = __qualname__
+        # categories = list[USDM_category]
+        # _links:str = None
+        # _modified:bool = False
+        # _populated = False
+        
+        # args = (self.id_, 
+        #         self.label,
+        #         self.synonyms,
+        #         )
+        
+        
+        raise NotImplementedError()
     
-    
+    @staticmethod
+    def sync(origin:BiomedicalConcept, target:BiomedicalConcept) -> BiomedicalConcept:
+        #     # __name__ = "BiomedicalConcept"
+        # # DATA_TYPE = "Biomedical Concept"
+        # match = True
+        # id_ = None
+        
+        # match = hash(origin) == hash(target)
+        # label = target.label
+        
+
+        # if match:
+        #     id_ = origin.id_
+        # else:
+        #     id_ = guid()
+        # name = "_".join((target.label.replace(" ",""),id_))
+        raise NotImplementedError()

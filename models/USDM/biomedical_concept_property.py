@@ -41,15 +41,19 @@ class BiomedicalConceptProperty:
 
         if data_element_concept:
             temp_prop = BiomedicalConceptProperty.from_data_element_concept(data_element_concept)
-            self.id_=temp_prop.id_
-            self.label=temp_prop.label
-            self.is_required=temp_prop.is_required
-            self.is_enabled=temp_prop.is_enabled
-            self.datatype=temp_prop.datatype
-            self.response_codes=response_codes
-            self.code=temp_prop.code
-            self.notes=temp_prop.notes
-                
+            try:
+                self.id_=temp_prop.id_
+                self.label=temp_prop.label
+                self.name = f"{self.label.replace(" ","")}_{self.id_}"
+                self.is_required=temp_prop.is_required
+                self.is_enabled=temp_prop.is_enabled
+                self.datatype=temp_prop.datatype
+                self.response_codes=temp_prop.response_codes
+                self.code=temp_prop.code
+                self.notes=temp_prop.notes
+            except (ValueError,TypeError, AttributeError) as err:
+                print(f"{BColors.WARNING}ERROR|[BiomedicalConceptPRoperty].init: {err}{BColors.ENDC}")
+                raise err
         else:
             if id_ is not None:
                 if isinstance(id_, str):
@@ -62,8 +66,7 @@ class BiomedicalConceptProperty:
             if label:
                 self.label = label
             
-
-            self.name = f"{self.label}_{self.id_}"
+            self.name = f"{self.label.replace(" ","")}_{self.id_}"
             self.is_required = is_required
             self.is_enabled= is_enabled
             self.datatype = datatype

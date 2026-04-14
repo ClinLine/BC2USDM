@@ -2,7 +2,7 @@
 from uuid import UUID, uuid4 as guid
 
 from models.USDM.code import Code, RESPONSE_CODE as R_CODE
-
+from utils.b_colors import BColors
 
 
 class ResponseCode():
@@ -25,8 +25,9 @@ class ResponseCode():
         if name:
             self.name = name
         else:
-            self.name = f"{label}_{id_}"
-        self.code = R_CODE
+            self.name = f"{label}_{self.id_}"
+        print(f"{BColors.WARNING}WARN|[ResponseCode].init: Retreiving Code for individual response codes is not supported by cdisc api, setting static 'responsecode' code instead{BColors.ENDC}")
+        self.code = R_CODE 
         self.is_enabled = enabled
 
     @staticmethod
