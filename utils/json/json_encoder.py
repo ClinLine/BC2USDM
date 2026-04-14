@@ -21,7 +21,7 @@ class IterEncoder(json.JSONEncoder):
         try:
             iterable = iter(o)
         except TypeError as err:
-            print(f"{BColors.FAIL}ERROR: {err}{BColors.ENDC}")
+            print(f"{BColors.OKCYAN}INFO | [IterEncoder]: {err}{BColors.ENDC}")
             pass
             # return super().default(o)
         else:
@@ -30,8 +30,7 @@ class IterEncoder(json.JSONEncoder):
         return super().default(o)
 
 class UUIDEncoder(json.JSONEncoder):
-    def default(self, o):
-        print(f"UUIDEncoder: encoding {o.__class__.__name__}")
+    def default(self, o:UUID) -> str:
         if isinstance(o, UUID):
             return str(o)
         # Let the base class default method raise the typeError
@@ -207,14 +206,23 @@ class BiomedicalConceptCategoryEncoder(json.JSONEncoder):
 class BiomedicalConceptEncoder(json.JSONEncoder):
     def do_code(self, alias_code:AliasCode) -> dict:
         print("decoding code")
-        result = {}
-        _ = super().default(alias_code)
+        result = super().default(alias_code)
         return result
 
     def do_notes(self, notes):
         result = []
-        print(f"{BColors.WARNING} BC ENCODER: NOT ADDING NOTES!!{BColors.ENDC}")
+        print(f"{BColors.OKCYAN} INFO | [BiomedicalConceptEncoder]: ADDING NOTES!!{BColors.ENDC}")
         print(f"provided notes: {notes}")
+        try:
+            notes_list = super().default(notes)
+            encoded_list:list[dict[str:str]] = []
+            for note in notes_list:
+                encoded_list.append(super().default(note))
+        except TypeError as err:
+            print(f"{BColors.OKCYAN}INFO|[BiomedicalConceptEncoder]: {err}{BColors.ENDC}")
+        else:
+            return encoded_list
+        
         # if o.notes is not None and len(o.notes) > 0:
         #     biomedicalConcept["notes"] = [super().default(note) for note in o.notes if note and o.notes]
         #     biomedicalConcept["notes"] = super().default(o.notes)
@@ -254,8 +262,7 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
                 print("properties found")
             #     biomedicalConcept["properties"] = [super().default(prop) for prop in o.properties]
             if isinstance(o.code, AliasCode):
-                print("Alias code found")
-            biomedicalConcept["code"] = self.do_code(o.code)
+                biomedicalConcept["code"] = self.do_code(o.code)
             # biomedicalConcept["code"] = super().default(o.code)
 
             biomedicalConcept["notes"] = self.do_notes(o.notes)
@@ -322,4 +329,11 @@ class USDMEncoder(
     UUIDEncoder):
     def default(self, o):
         print(f"USDMEncoder: encoding {o.__class__.__name__}")
+        return super().default(o)
+    
+    def decode_uuid(self, o:UUID) -> dict[str, str]:
+        print(f"UUIDEncoder: encoding {o.__class__.__name__} object")
+        if isinstance(o, UUID):
+            return str(o)
+        # Let the base class default method raise the typeError
         return super().default(o)
