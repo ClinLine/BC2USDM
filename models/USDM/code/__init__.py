@@ -1,7 +1,5 @@
 from __future__ import annotations
-
 from utils.b_colors import BColors
-__name__="models.USDM.standardCode"
 
 from uuid import uuid4 as guid
 from uuid import UUID
@@ -17,8 +15,8 @@ class Code():
     CustomCategoryFlag:str="USDM"
     # CODE_SYSTEM_CUSTOM:str="CUSTOM"
     DEFAULT_CODE_SYSTEM_VERSION:str="00"
-    
-  
+    INSTANCE_TYPE = __qualname__
+
     class CodeSystem(str):
         CDISC = "http://www.cdisc.org"
         NCIT = "http://www.ncit.org"
@@ -31,10 +29,10 @@ class Code():
     id_:UUID
     # code.standardCodeAliases.codeSystem
     # string representation of the related code alias
-    code:str
+    code:str = ""
     # code.standardCodeAliases.codeSystemVerson
-    code_system:str
-    code_system_version:str # Not availabe in output
+    code_system:str = ""
+    code_system_version:str = ""
     decode:str = None
 
     def __init__(self, code:str, id_:str = None, code_system:str="", code_system_version:str=None, decode:str=""):
@@ -63,11 +61,11 @@ class Code():
             if isinstance(code, str):
                 if code[:0] == 'C':
                     # self.code_system = "ncit"
-                    self.code_system = self.CodeSystem.NCIT
+                    self.code_system = self.CodeSystem.CDISC
             elif isinstance(code, Code):
                 if code.code[:0] == 'C':
                     # self.code_system = "ncit"
-                    self.code_system = self.CodeSystem.NCIT
+                    self.code_system = self.CodeSystem.CDISC
             else:
                 self.code_system = self.CodeSystem.CUSTOM
         else:
@@ -88,7 +86,7 @@ class Code():
         :type decode_string: str
         '''
         if decode_string is None or "":
-            #TODO Add Decode!!
+            #TODO Add Decode lookup!!
             raise NotImplementedError("Looking up decode with api is not yet supported.")
         self.decode = decode_string
         return self
@@ -104,7 +102,6 @@ class Code():
             :raises ValueError: Raise value error when reference does not include substring 'packages'
 
         """
-
         version_index = None
         substrings = reference.split('/')
         if substrings[1] == 'mdr': # Test if CDISC reference
@@ -116,28 +113,28 @@ class Code():
             print(f"{BColors.WARNING} Unable to extract package number from ncit reference{BColors.ENDC} \n Is this a property?")
             return None
         if version_index is None:
-            raise ValueError(f"{BColors.FAIL} Excpected to find package version in reference.{BColors.ENDC}")
+            print(f"{BColors.FAIL} Excpected to find package version in reference.{BColors.ENDC} Returning {None}")
+            return None
         return substrings[version_index]
     
-    def __str__(self):
-        return self.decode
-    
     # def __str__(self):
-    #     result = "{"
-    #     if self.id_ is not None:
-    #         result += f"\n\r\t\"id\":\"{str(self.id_)}\","
-        
-    #     if self.code is not None:
-    #         result +=f"\n\r\t\"code\":\"{self.code}\","
-    #     if self.code_system is not None:
-    #         result +=f"\n\r\t\"codeSystem\":\"{self.code_system}\","
-    #     if self.code_system_version is not None:
-    #         # Should never occur, since self.code_system should always be None in this verison
-    #         result +=f"\n\r\t\"codeSystemVersion\":\"{self.code_system_version}\","
-    #     result = result[:-2]
-    #     result +="\n\r}"
+    #     return self.decode
 
-    #     return result
+    def __eq__(self, value):
+        # Skipping id since it can't be modified by the user
+        if self.code != value.code: return False
+        if self.code_system != value.code: return False
+        if self.decode != value.decode: return False
+        return True
+
+    # def __repr__(self):
+    #     id_substring = f"{"id"}:{type(self.id_)}={self.id_}"
+    #     # self.__class__.code.__qualname__
+    #     code_substring = f"'code':{type(self.code)}={self.code}"
+    #     code_system_substring = f"code_system:{type(self.code_system)}={self.code_system}"
+    #     code_system_version_substring = f"code_system_version:{type(self.code_system_version)}={self.code_system_version}"
+    #     decode_substring = f"decode:{type(self.decode)}={self.decode}"
+    #     return f"Code({id_substring}, {code_substring}, {code_system_substring}, {code_system_version_substring}, {decode_substring})"
     
 #TODO Set code_system_versions & decodes for constants
 DEFINITION:Code = Code("C43680", code_system=Code.CodeSystem.NCIT, code_system_version="2009-11-23",decode="Definition")

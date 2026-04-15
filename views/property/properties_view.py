@@ -43,6 +43,8 @@ class PropertiesView(ttk.LabelFrame):
                 self.notebook.forget(tab)
 
     def add_properties(self, properties):
+        if properties is None:
+            return
         for prop in properties:
             new_prop_frame = PropertyFrame(self.scroll_frame.view_port, property=prop,name=f"prop_frame+{prop.id_}")
             self.notebook.add(new_prop_frame, text=prop.label, sticky=N)

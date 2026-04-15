@@ -1,8 +1,12 @@
+
 # from dataclasses import dataclass, field
 from uuid import UUID, uuid4 as guid
 
 # from logic.local_storage import LocalStorage
 # from models.USDM.BiomedicalConcept import BiomedicalConcept
+
+
+# from ...app import App
 from models.CDISC import AttributeNames as CDISC_Attributes
 from models.DTOs import DataElementConceptDTO
 from models.USDM import AttributeNames as USDM_Attributes
@@ -13,7 +17,6 @@ from models.USDM.response_code import ResponseCode
 from utils.b_colors import BColors
 
 
-# @dataclass
 class BiomedicalConceptProperty:
     id_: UUID
     name: str
@@ -21,7 +24,7 @@ class BiomedicalConceptProperty:
     is_enabled: bool = False
     # TODO: check if datatype can be an enum or hash for optimizing
     datatype: str
-    INSTANCE_TYPE = __name__
+    INSTANCE_TYPE = __qualname__
     code:AliasCode
     label: str = None
     notes: list[CommentAnnotation] = None
@@ -29,7 +32,7 @@ class BiomedicalConceptProperty:
 
     def __init__(self, id_:UUID|str = None, label:str = None, name:str=None, is_required:bool = False, is_enabled:bool = False,
                  datatype:str = None, response_codes: list[ResponseCode] = None, code: AliasCode = None,
-                 notes: list[CommentAnnotation] = None, data_element_concept:DataElementConceptDTO= None, *args, **kwargs):
+                 notes: list[CommentAnnotation] = None, data_element_concept:DataElementConceptDTO= None, parent_bc_id:UUID = None, *args, **kwargs):
         if len(args)> 0:
             raise ValueError(f"{BColors.FAIL}[Error]:BiomedicalConceptProperty.init: args can't be > 0{BColors.ENDC}")
         if len(kwargs) > 0:
@@ -38,20 +41,24 @@ class BiomedicalConceptProperty:
 
         if data_element_concept:
             temp_prop = BiomedicalConceptProperty.from_data_element_concept(data_element_concept)
-            self.id_=temp_prop.id_
-            self.label=temp_prop.label
-            self.is_required=temp_prop.is_required
-            self.is_enabled=temp_prop.is_enabled
-            self.datatype=temp_prop.datatype
-            self.response_codes=response_codes
-            self.code=temp_prop.code
-            self.notes=temp_prop.notes
-                
+            try:
+                self.id_=temp_prop.id_
+                self.label=temp_prop.label
+                self.name = f"{self.label.replace(" ","")}_{self.id_}"
+                self.is_required=temp_prop.is_required
+                self.is_enabled=temp_prop.is_enabled
+                self.datatype=temp_prop.datatype
+                self.response_codes=temp_prop.response_codes
+                self.code=temp_prop.code
+                self.notes=temp_prop.notes
+            except (ValueError,TypeError, AttributeError) as err:
+                print(f"{BColors.WARNING}ERROR|[BiomedicalConceptPRoperty].init: {err}{BColors.ENDC}")
+                raise err
         else:
             if id_ is not None:
-                if isinstance(id, str):
+                if isinstance(id_, str):
                     self.id_ = UUID(id_)
-                elif isinstance(id_, UUID):
+                elif isinstance(id_, (UUID)):
                     self.id_ = id_
                 else:
                     self.id_ = guid()
@@ -59,8 +66,7 @@ class BiomedicalConceptProperty:
             if label:
                 self.label = label
             
-
-            self.name = f"{self.label}_{self.id_}"
+            self.name = f"{self.label.replace(" ","")}_{self.id_}"
             self.is_required = is_required
             self.is_enabled= is_enabled
             self.datatype = datatype
@@ -74,12 +80,16 @@ class BiomedicalConceptProperty:
                     self.response_codes = None
             if code and isinstance(code, AliasCode):
                 self.code = code
+            elif code and isinstance(code, str) and parent_bc_id:
+                # Naïve fix, needs rework
+                self.code = AliasCode(
+                    Code(
+                        code=code, code_system=Code.CodeSystem.CDISC,code_system_version=None,decode=self.label
+                    )
+                )
+                # code = DataStore.lookup_property_code(parent_bc_id, code)
             else:
-                if code:
-                    for key, value in code:
-                        print(f"[Property code]: {key}={value}")
-                else:
-                    ...
+                raise ValueError("Code must be of type {AliasCode.__qualname__} or a parent ID must be provided")
                 # self.code = AliasCode(
                 #         standard_code=Code(
                 #                 code["code"]),
@@ -183,16 +193,16 @@ class BiomedicalConceptProperty:
         if dec.concept_id != dec.ncit_code:
             code:AliasCode = AliasCode(
                 standard_code=Code(
-                    code=dec.ncit_code,
+                    code=dec.concept_id,
                     id_=None,
-                    code_system=Code.CodeSystem.NCIT,
+                    code_system=Code.CodeSystem.CDISC,
                     code_system_version=Code.get_version_from_reference(reference),
                     decode=label),
                 id_=None,
                 aliases=[Code(
-                    code=dec.concept_id,
+                    code=dec.ncit_code,
                     id_=None,
-                    code_system=Code.CodeSystem.CDISC,
+                    code_system=Code.CodeSystem.NCIT,
                     code_system_version=Code.get_version_from_reference(reference),
                     decode=label)])
         else:
@@ -220,7 +230,7 @@ class BiomedicalConceptProperty:
             response_codes=response_codes,
             code=code,
             notes=notes)
- 
+    
     @staticmethod
     def package_from_json(json):
         return BiomedicalConceptProperty(
@@ -231,3 +241,17 @@ class BiomedicalConceptProperty:
             datatype = "parentPackage",
             required = True,
         )
+    
+    def __eq__(self, value):
+        if self.id_ != value.id_: return False
+        if self.label != value.label: return False
+        if self.is_enabled != value.is_enabled: return False
+        if self.is_required != value.is_required: return False
+        if self.datatype != value.datatype: return False
+        if self.code != value.code: return False
+        if self.notes != value.notes: return False
+        if self.response_codes != value.response_codes: return False
+        return True
+     
+    # def __ne__(self, value):
+    #     return self != value

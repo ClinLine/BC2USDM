@@ -16,6 +16,7 @@ class BiomedicalConceptPackage:
     version:str
     #_effectiveDate:str
     reference:str
+    INSTANCE_TYPE=__qualname__
 
     def __init__(self, json:str):
         self.guid = guid() # TODO: request guid from localStorage / DataManager

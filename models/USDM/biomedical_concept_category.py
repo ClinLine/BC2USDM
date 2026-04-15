@@ -2,23 +2,27 @@ from dataclasses import dataclass
 from uuid import uuid4 as guid
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as cdisk_category
 from models.USDM.code.alias_code import AliasCode
+from models.USDM.comment_annotation import CommentAnnotation
 from utils.b_colors import BColors
 # from utils.utils import Encoding
 
 @dataclass
 class BiomedicalConceptCategory():
+    INSTANCE_TYPE = __qualname__
     id_:str
     name: str
     label:str = None
     description: str = None
     code:AliasCode = None
-    # notes: list[CommentAnnotation] = None
+    notes: list[CommentAnnotation] = None
     notes:list[str] = None
     children: list['BiomedicalConceptCategory'] = None
+    members: list['BiomedicalConcept'] = None
     # categories:list[object] = None
 
 
     def __init__(self, id_, name:str=None, label:str = None, description:str=None, code=None, notes=None, children=None):
+        # Default populated params are: label, description & code, where description title
         self.id_ = guid()
         # self.name = "".join([name,id_])
         if label is None or label != "":
@@ -33,9 +37,10 @@ class BiomedicalConceptCategory():
             if isinstance(code, (AliasCode)):
                 self.code = code
             else:
-                print(type(code))
+                print(f"Code differed from expected type ({AliasCode.__qualname__}), type = {type(code)}")
         self.notes = notes
         self.categories = children
+        self.code.decode = label
 
     def get_code(self):
         if self.code.standard_code.code is not None:
@@ -50,7 +55,7 @@ class BiomedicalConceptCategory():
             # id_=json["_links"]["self"]["href"].split('=')[-1], #Undecoded id
             # name=json["name"],
             label=json["name"],
-            description=json["_links"]["self"]["href"])
+            description=json["_links"]["self"]["title"])
 
     @staticmethod
     def from_cdisc_category(cdisc_cat: cdisk_category):

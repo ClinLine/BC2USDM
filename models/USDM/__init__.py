@@ -1,4 +1,4 @@
-__name__="models.USDM"
+__name__="BC2USDM.models.USDM"
 
 class AttributeNames:
     repository = "bcRepository"

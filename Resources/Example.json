@@ -1,0 +1,207 @@
+{
+  "bcRepository": 
+  {
+    "businessTherapeuticAreas": 
+    [
+      {
+        "id": "Code_001",
+        "code": "TA001",
+        "codeSystem": "CUSTOM",
+        "codeSystemVersion": "00",
+        "decode": "..entered area..",
+        "instanceType": "Code"
+      }
+        ],
+    "bcCategories":[
+      {
+        "id": "BCCat_1",
+        "name": "DEM",
+        "description": "..entered description, if in tool available ...",
+        "label": ".. copied and/or changed label from BC library ..",
+        "code": "... Code from BC library if label not changed...",
+        "childIds": [],
+        "memberIds": ["BiomedicalConcept_1","BiomedicalConcept_2"],
+        "instanceType": "BiomedicalConceptCategory",
+        "notes": []
+      }
+    ],
+    "biomedicalConcepts":[
+      {
+        "id": "BiomedicalConcept_1",
+        "name": "Sex",
+        "label": "Sex",
+        "synonyms": [],
+        "reference": "/mdr/bc/packages/2025-04-01/biomedicalconcepts/C28421",
+        "properties": [
+          {
+            "id": "BiomedicalConceptProperty_130",
+            "name": "Sex",
+            "label": "Sex",
+            "isRequired": true,
+            "isEnabled": true,
+            "datatype": "string",
+            "responseCodes": [
+              {
+                "id": "ResponseCode_174",
+                "name": "RC_C20197",
+                "label": "",
+                "isEnabled": true,
+                "code": {
+                  "id": "Code_482",
+                  "code": "C20197",
+                  "codeSystem": "http://www.cdisc.org",
+                  "codeSystemVersion": "2025-09-26",
+                  "decode": "Male",
+                  "instanceType": "Code"
+                },
+                "instanceType": "ResponseCode"
+              },
+              {
+                "id": "ResponseCode_175",
+                "name": "RC_C16576",
+                "label": "",
+                "isEnabled": true,
+                "code": {
+                  "id": "Code_483",
+                  "code": "C16576",
+                  "codeSystem": "http://www.cdisc.org",
+                  "codeSystemVersion": "2025-09-26",
+                  "decode": "Female",
+                  "instanceType": "Code"
+                },
+                "instanceType": "ResponseCode"
+              }
+            ],
+            "code": {
+              "id": "AliasCode_173",
+              "standardCode": {
+                "id": "Code_484",
+                "code": "C28421",
+                "codeSystem": "http://www.cdisc.org",
+                "codeSystemVersion": "2025-09-26",
+                "decode": "Sex",
+                "instanceType": "Code"
+              },
+            "standardCodeAliases": [],
+            "instanceType": "AliasCode"
+            },
+            "notes": [],
+            "instanceType": "BiomedicalConceptProperty"
+          },
+          {
+            "id": "BiomedicalConceptProperty_131",
+            "name": "ColDT1",
+            "label": "Collection Date Time",
+            "isRequired": true,
+            "isEnabled": true,
+            "datatype": "datetime",
+            "responseCodes": [],
+            "code": {
+              "id": "AliasCode_174",
+              "standardCode": {
+                "id": "Code_485",
+                "code": "C82515",
+                "codeSystem": "http://www.cdisc.org",
+                "codeSystemVersion": "2025-09-26",
+                "decode": "Collection Date Time",
+                "instanceType": "Code"
+              },
+              "standardCodeAliases": [],
+              "instanceType": "AliasCode"
+            },
+            "notes": [],
+            "instanceType": "BiomedicalConceptProperty"
+          }
+        ],
+        "code": {
+          "id": "AliasCode_175",
+          "standardCode": {
+            "id": "Code_486",
+            "code": "C28421",
+            "codeSystem": "http://www.cdisc.org",
+            "codeSystemVersion": "2025-09-26",
+            "decode": "Sex",
+            "instanceType": "Code"
+          },
+          "standardCodeAliases": [],
+          "instanceType": "AliasCode"
+        },
+        "notes": [],
+        "instanceType": "BiomedicalConcept"
+      },
+      {
+        "id": "BiomedicalConcept_2",
+        "name": "Race",
+        "label": "Race",
+        "synonyms": [
+        "Racial Group"
+        ],
+        "reference": "/mdr/bc/packages/2025-04-01/biomedicalconcepts/C17049",
+        "properties": [
+          {
+            "id": "BiomedicalConceptProperty_132",
+            "name": "Race",
+            "label": "Race",
+            "isRequired": true,
+            "isEnabled": true,
+            "datatype": "string",
+            "responseCodes": [],
+            "code": {
+				"id": "AliasCode_176",
+				"standardCode": {
+				  "id": "Code_487",
+				  "code": "C17049",
+				  "codeSystem": "http://www.cdisc.org",
+				  "codeSystemVersion": "2025-09-26",
+				  "decode": "Race",
+				  "instanceType": "Code"
+				},
+				"standardCodeAliases": [],
+            "instanceType": "AliasCode"
+            },
+            "notes": [],
+            "instanceType": "BiomedicalConceptProperty"
+          },{
+            "id": "BiomedicalConceptProperty_133",
+            "name": "ColDT2",
+            "label": "Collection Date Time",
+            "isRequired": true,
+            "isEnabled": true,
+            "datatype": "datetime",
+            "responseCodes": [],
+            "code": {
+              "id": "AliasCode_177",
+              "standardCode": {
+                "id": "Code_488",
+                "code": "C82515",
+                "codeSystem": "http://www.cdisc.org",
+                "codeSystemVersion": "2025-09-26",
+                "decode": "Collection Date Time",
+                "instanceType": "Code"
+              },
+              "standardCodeAliases": [],
+              "instanceType": "AliasCode"
+            },
+            "notes": [],
+            "instanceType": "BiomedicalConceptProperty"
+          }
+        ],
+        "code": {
+          "id": "AliasCode_178",
+          "standardCode": {
+            "id": "Code_489",
+            "code": "C17049",
+            "codeSystem": "http://www.cdisc.org",
+            "codeSystemVersion": "2025-09-26",
+            "decode": "Race",
+            "instanceType": "Code"
+          },
+          "standardCodeAliases": [],
+          "instanceType": "AliasCode"
+        },
+        "notes": [],
+        "instanceType": "BiomedicalConcept"
+      }
+    ]
+  }
+}

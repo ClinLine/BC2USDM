@@ -78,9 +78,9 @@ class PropertyFrame(Frame):
             "label":label,
             "id_":id_,
             "code":code,
-            "required":required,
-            "enabled":enabled,
-            "instance_type":instance_type,
+            "is_required":required,
+            "is_enabled":enabled,
+            "datatype":instance_type,
             "notes":notes,
             "response_codes":response_codes,
         }

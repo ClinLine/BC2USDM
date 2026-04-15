@@ -68,7 +68,7 @@ class ResponseCodeFrame(Frame):
             # name_var:StringVar # hidden & inferred
             self.is_enabled_var.set(response_code.is_enabled)
             if response_code.code is not None:
-                self.code_var.set(response_code.code.standard_code.code)
+                self.code_var.set(response_code.code.code)
             # TODO Add Code support?
         else:
             self.id_var.set(guid())

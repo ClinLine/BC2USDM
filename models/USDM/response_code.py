@@ -1,16 +1,17 @@
-from dataclasses import dataclass
+# from dataclasses import dataclass
 from uuid import UUID, uuid4 as guid
 
-from models.USDM.code import Code, RESPONSE_CODE as CODE
+from models.USDM.code import Code, RESPONSE_CODE as R_CODE
+from utils.b_colors import BColors
 
 
-@dataclass
 class ResponseCode():
-    id_:guid
+    id_:UUID
     name: str
     is_enabled: bool
-    code:Code = CODE
+    code:Code = R_CODE
     label: str = None
+    INSTANCE_TYPE = __qualname__
 
     # def __init__(self, id_:UUID=None, name:str=None, enabled:bool=False, code:Code=None, label:str=None):
     def __init__(self, id_:UUID=None, name:str=None, enabled:bool=False, label:str=None):
@@ -24,8 +25,9 @@ class ResponseCode():
         if name:
             self.name = name
         else:
-            self.name = f"{label}_{id_}"
-        self.code = CODE
+            self.name = f"{label}_{self.id_}"
+        print(f"{BColors.WARNING}WARN|[ResponseCode].init: Retreiving Code for individual response codes is not supported by cdisc api, setting static 'responsecode' code instead{BColors.ENDC}")
+        self.code = R_CODE 
         self.is_enabled = enabled
 
     @staticmethod
@@ -44,3 +46,9 @@ class ResponseCode():
         for label in labels:
             result.append(ResponseCode(label=label))
         return result
+    
+    def __eq__(self, other):
+        if self.label != other.label: return False
+        # Not checking code since all response codes should have the same code
+        if self.is_enabled != other.is_enabled: return False
+        return True

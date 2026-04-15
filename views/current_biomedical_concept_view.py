@@ -63,7 +63,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
         # synonyms:Label            synonyms:Lisbox
         self.bc_synonyms_frame = Frame(self)
         self.bc_synonyms_frame.grid(row=i, column=1,sticky="WE",padx=1, in_=self.master_frame)
-        self.bc_synonyms_value = StringVar(value="")
+        self.bc_synonyms_value = StringVar(value=[])
         bc_synonyms_label = Label(self, text="Synonyms: ")
         bc_synonyms_label.grid(row=(i:=i+1)-1,column=0,sticky="W", in_=self.master_frame)
         self.bc_synonyms_listbox = Listbox(self,listvariable=self.bc_synonyms_value)
@@ -121,10 +121,10 @@ class CurrentBiomedicalConceptView(LabelFrame):
         id_ = self.bc_id_value.get()
         code = self.bc_alias_code_value.get()
         ref = self.bc_reference_value.get()
-
-        synonyms = self.bc_synonyms_value.get()
-        # print(synonyms)
-        # synonyms = self.bc_synonyms_listbox.get()
+        # "('value1', 'value2', 'valueN')"
+        t_synonyms = self.bc_synonyms_value.get()
+        t_synonyms = t_synonyms.removeprefix("('").removesuffix("')")
+        synonyms = t_synonyms.split("', '")
 
         notes = self.notes_frame.get_notes()
 
@@ -140,7 +140,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
             "properties":properties
         }
 
-        test = self.parent.apply_to_repository(bc)
+        _ = self.parent.apply_to_repository(bc)
         
 
 
