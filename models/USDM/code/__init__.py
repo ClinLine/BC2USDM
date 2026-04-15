@@ -20,7 +20,6 @@ class Code():
     class CodeSystem(str):
         CDISC = "http://www.cdisc.org"
         NCIT = "http://www.ncit.org"
-        USDM = "USDM"
         CUSTOM = "CUSTOM"
 
     #endregion
@@ -68,7 +67,7 @@ class Code():
                     # self.code_system = "ncit"
                     self.code_system = self.CodeSystem.CDISC
             else:
-                self.code_system = self.CodeSystem.USDM
+                self.code_system = self.CodeSystem.CUSTOM
         else:
             self.code_system = code_system
 

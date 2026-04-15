@@ -167,10 +167,10 @@ class App:
             self.current_repository.add_category(self.current_category)
             
             # print("Updating UI (Am I though?)")
-            biomedical_concepts_in_repository = self.current_repository.biomedical_concepts
+            biomedical_concepts_in_repository = self.current_repository.biomedical_concepts.values()
             # self.display == None!!
             # self.display.current_repository_container.added_biomedical_concepts_container.update_added_biomedical_concepts(repo_bcs)
-            return biomedical_concepts_in_repository.values()
+            return biomedical_concepts_in_repository
             # add current_bc's category(s) to current_repository
         else:
             print(f"{BColors.FAIL}App.apply_to_repo: WHAT HAPPENED?!{BColors.ENDC}")
@@ -216,8 +216,15 @@ class App:
         # all_codes = [cat.get_code() for cat in self.categories]
         
         json_bcs = API.get_biomedical_concepts_list(category_code, self.categories)
-
-        biomedical_concepts_in_category = [USDM_BC(label=bc["title"],reference=bc["href"],instance_type=bc["type"]) for bc in json_bcs]
+        biomedical_concepts_in_category:list[USDM_BC] = []
+        try:
+            _bcs_in_category = [USDM_BC(label=bc["title"],reference=bc["href"],instance_type=bc["type"]) for bc in json_bcs if json_bcs]
+        except TypeError as err:
+            print(f"{BColors.WARNING}WARN|[App]._get_bcs_in_category: {err}{BColors.ENDC}")
+        else:
+            biomedical_concepts_in_category = _bcs_in_category
+        
+        
         for bc in biomedical_concepts_in_category:
             if bc.id_ not in self.persistent_cdisc_repository.biomedical_concepts:
                 self.persistent_cdisc_repository.add_biomedical_concept(bc)

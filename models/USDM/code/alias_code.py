@@ -111,7 +111,7 @@ Following are sample codes you can use with each terminology for testing.
         elif isinstance(standard_code, Code):
             self.standard_code = standard_code
         else:
-            code_system = Code.CodeSystem.USDM
+            code_system = Code.CodeSystem.CUSTOM
             self.standard_code = Code(
                 code=standard_code,
                 code_system=code_system,
