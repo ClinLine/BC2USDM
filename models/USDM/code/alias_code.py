@@ -139,6 +139,7 @@ Following are sample codes you can use with each terminology for testing.
         if item in self.standard_code_aliases:
             return True
         return False
+    
     # def __str__(self):
     #     result = "{"
     #     if self.id_ is not None:

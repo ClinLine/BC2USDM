@@ -168,7 +168,8 @@ class BiomedicalConceptCategoryEncoder(json.JSONEncoder):
             category = {}
             category["id"] = super().default(o.id_)
             category["name"] = o.name
-            if o.notes is None: category["description"] = ""
+            if o.notes is None:
+                category["description"] = ""
             else:
                 category["description"] = super().default(CommentAnnotation.find_definition(o.notes))
             category["label"] = o.label
@@ -176,11 +177,14 @@ class BiomedicalConceptCategoryEncoder(json.JSONEncoder):
             category["childIds"] = []
             # TODO: add memberIds
             # category["memberIds"] = super().default(o.children)
-            category["memberIds"] = []
+            # category["memberIds"] = []
+            if o.members is not None:
+                category["members"] = [super().default(bc.id_) for bc in o.members]
             category["instanceType"] = o.INSTANCE_TYPE
             if o.notes is not None:
                 category["notes"] = super().default(o.notes)
             else: category["notes"] = []
+            
 
             return category
         return super().default(o)

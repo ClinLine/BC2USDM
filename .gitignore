@@ -2,3 +2,4 @@
 *.7z
 *.pyc
 */__pycache__/*
+.vscode/*

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from uuid import uuid4 as guid
+from uuid import uuid4 as guid, UUID
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as cdisk_category
 from models.USDM.code.alias_code import AliasCode
 from models.USDM.comment_annotation import CommentAnnotation
@@ -10,14 +12,16 @@ from utils.b_colors import BColors
 class BiomedicalConceptCategory():
     INSTANCE_TYPE = __qualname__
     id_:str
-    name: str
+    name:str
     label:str = None
     description: str = None
     code:AliasCode = None
-    notes: list[CommentAnnotation] = None
+    notes:list[CommentAnnotation] = None
     notes:list[str] = None
-    children: list['BiomedicalConceptCategory'] = None
-    members: list['BiomedicalConcept'] = None
+    # Child categories:
+    children:list[BiomedicalConceptCategory] = None
+    # member concepts: -> Use dict instead?
+    members:list["BiomedicalConcept"] = None
     # categories:list[object] = None
 
 
@@ -27,7 +31,8 @@ class BiomedicalConceptCategory():
         # self.name = "".join([name,id_])
         if label is None or label != "":
             self.label = label
-        self.name = f"{label.replace(" ","%20")}_{self.id_}"
+        self.name = f"{label.replace(" ","")}_{self.id_}"
+        # self.name = f"{label.replace(" ","%20")}_{self.id_}"
         self.description = description
         if isinstance(code, str):
             print(f"Didn't expect code to be a string ({code}), using label instead")
@@ -41,6 +46,7 @@ class BiomedicalConceptCategory():
         self.notes = notes
         self.categories = children
         self.code.decode = label
+        self.members:list["BiomedicalConcept"] = []
 
     def get_code(self):
         if self.code.standard_code.code is not None:
@@ -76,6 +82,17 @@ class BiomedicalConceptCategory():
     def from_short_name(short_name:str):
         print(f"{BColors.WARNING}[Warning]: USDM.BiomedicalConceptCategory: returning categories is not implemented yet, returning string{BColors.ENDC}")
         return short_name
+    
+
+    # def __eq__(self, other:BiomedicalConceptCategory) -> bool:
+    #     if not isinstance(other, BiomedicalConceptCategory):
+    #         return False
+    #     return other.id_ == self.id_
+    
+    # def __hash__(self) -> int:
+    #     return hash(self.id_)
+    
+    
     
     # def to_csv(self, seperator:str=",", line_ending:str="\n\r"):
     #     '''Method to convert BiomedicalConceptCategory to cvs

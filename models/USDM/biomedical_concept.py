@@ -537,7 +537,7 @@ class BiomedicalConcept:
         raise NotImplementedError()
     
     @staticmethod
-    def sync(origin:BiomedicalConcept, target:BiomedicalConcept) -> BiomedicalConcept:
+    def sync(origin:BiomedicalConcept, new:BiomedicalConcept) -> BiomedicalConcept:
         #     # __name__ = "BiomedicalConcept"
         # # DATA_TYPE = "Biomedical Concept"
         # match = True

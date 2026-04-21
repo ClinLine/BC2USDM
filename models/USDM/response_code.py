@@ -4,7 +4,6 @@ from uuid import UUID, uuid4 as guid
 from models.USDM.code import Code, RESPONSE_CODE as R_CODE
 from utils.b_colors import BColors
 
-
 class ResponseCode():
     id_:UUID
     name: str
@@ -47,8 +46,10 @@ class ResponseCode():
             result.append(ResponseCode(label=label))
         return result
     
-    def __eq__(self, other):
-        if self.label != other.label: return False
-        # Not checking code since all response codes should have the same code
-        if self.is_enabled != other.is_enabled: return False
-        return True
+    # def __eq__(self, other):
+    #     if not isinstance(other, ResponseCode):
+    #         return False
+    #     if self.label != other.label: return False
+    #     # Not checking code since all response codes should have the same code
+    #     if self.is_enabled != other.is_enabled: return False
+    #     return True

@@ -124,7 +124,7 @@ class App:
         data_id:UUID = UUID(data["id_"])
         
         # if current bc != the bc being applied
-        if self.current_bc.id_ != data_id: 
+        if self.current_biomedical_concept.id_ != data_id: 
             current_bc = self.get_if_in_repository(data_id)
             print(self.get_if_in_repository(data_id))
             fresh_bc = self.get_from_cdisc_repository(data_id)
@@ -133,7 +133,8 @@ class App:
                 print("Current bc does not exist in current repository")
                 print("adding to repository")
                 self.current_repository.add_biomedical_concept(fresh_bc)
-                if self.current_category.id_ not in [cat.id_ for cat in self.current_repository.bc_categories]:
+                
+                if self.current_category not in self.current_repository.bc_categories:
                     self.current_repository.bc_categories.append(self.current_category)
                 return self.current_repository.biomedical_concepts.values()
             else:
@@ -146,11 +147,11 @@ class App:
             
 
         # if current bc is the bc being applied
-        if data_id == self.current_bc.id_ or current_bc is None:
+        if data_id == self.current_biomedical_concept.id_ or current_bc is None:
             # apply any possible changes to current_bc
             print("applying changes to current bc")
             # current_bc = USDM_BC(**data)
-            current_bc = self.current_bc # TEMP!!
+            current_bc = self.current_biomedical_concept # TEMP!!
             print(f"{BColors.WARNING}WARN|[App.applyToRepo]: Currently we're not taking changes made in the UI into account{BColors.ENDC}")
             
             # if current_bc == self.current_bc: # <- doesn't work, since this only does a reference comp.
@@ -164,7 +165,13 @@ class App:
             self.current_repository.add_biomedical_concept(current_bc)
             
             # self.current_repository.update_repository(current_bc)
-            self.current_repository.add_category(self.current_category)
+            if self.current_category not in self.current_repository.bc_categories:
+                self.current_category.members.append(current_bc)
+                self.current_repository.bc_categories.append(self.current_category)
+            else:
+                for cat in self.current_repository.bc_categories:
+                    if cat is self.current_category and current_bc not in cat.members:
+                        cat.members.append(current_bc)
             
             # print("Updating UI (Am I though?)")
             biomedical_concepts_in_repository = self.current_repository.biomedical_concepts.values()
@@ -174,6 +181,9 @@ class App:
             # add current_bc's category(s) to current_repository
         else:
             print(f"{BColors.FAIL}App.apply_to_repo: WHAT HAPPENED?!{BColors.ENDC}")
+
+    def get_categories_in_repository(self):
+        return self.current_repository.bc_categories
     #endregion
 
     #region Categories list
@@ -332,10 +342,10 @@ class App:
     
 
     def set_current_bc(self, bc:USDM_BC):
-        self.current_bc = bc
+        self.current_biomedical_concept = bc
 
     def get_current_bc(self):
-        return self.current_bc
+        return self.current_biomedical_concept
     #endregion
 
     # TODO: Review this list
@@ -351,64 +361,6 @@ def main(*args):
     global App_Instance
     App_Instance = App()
     App_Instance.start()
-
-
-        
-
-# def test(categories:dict):
-#     # Print references to test for inconsistencies
-#     print(f"{BColors.OKCYAN.value}Print references to test for inconsistencies{BColors.ENDC.value}")
-#     # for i in range(0, len(categories)):
-#     count = 0
-#     total = 0
-    
-#     l = len(categories)
-#     category_codes = []
-#     print(f'{BColors.OKCYAN.value}checking Category references{BColors.ENDC.value}')
-#     for i, category in progressBar(categories, prefix='Checking Categories:',suffix='Complete', bar_length = 100):
-        
-#         category_codes.append(category['_links']['self']['href'].split('=')[-1])
-#         mdr = category['_links']['self']['href'].split('/')[1]
-#         if mdr != mdr:
-#             count +=1
-#             print(f"{BColors.FAIL.value}[{i}:]{category['_links']['self']['href']}{BColors.ENDC.value}")
-#         total +=1
-
-#         # progressBar(i+1,l,prefix='Progress:',suffix='Complete', length = 50)
-
-    
-#     print(f'{BColors.OKCYAN.value}checking BC references{BColors.ENDC.value}')
-#     # for i, category_code in progressBar(category_codes, prefix="Progress", suffix="Complete", bar_length=50):
-#     #     total +=1
-#     #     if i < l and category_code != "Merged" and category_code != "Non-Target":
-#     #         json_bcs = API.get_biomedical_concepts_list(category_code, [category_code])
-            
-#     #         # prefix = f'[{i}/{l}] {category_code.zfill(35)}'
-#     #         for j, bc in enumerate(json_bcs):
-#     #             mdr = bc['href'].split('/')[1]
-#     #             if mdr != 'mdr':
-#     #                 count +=1
-#     #                 print(f"{BColors.FAIL.value}[{j}:]{bc['href']}{BColors.ENDC.value}")
-
-#     bcs = API.get_biomedical_concepts_list('all')
-#     l = len(bcs)
-#     errors = []
-#     for j, bc in progressBar(bcs, prefix=f'Progress', suffix="bcs checked", bar_length=50):
-#         total +=1
-#         if j < l:
-#             mdr = bc['href'].split('/')[1]
-#             if mdr != 'mdr':
-#                 count +=1
-#                 errors.append(f"{BColors.FAIL.value}[{j}:]{bc['href']}{BColors.ENDC.value}")
-#                 # function.append(lambda: _ => print(f"{BColors.FAIL.value}[{j}:]{bc['href']}{BColors.ENDC.value}"))
-                
-#     print(*errors,sep="\n")
-
-#     print(f"test completed, {BColors.FAIL.value}{count}{BColors.ENDC.value}/{total} references didn't start with /mdr/")        
-
-
-
-    
 
 if __name__ == "__main__":
     __name__ = "BC2USDM"
