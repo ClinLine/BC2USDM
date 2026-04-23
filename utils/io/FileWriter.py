@@ -1,4 +1,5 @@
 import json
+import os
 
 from utils.json.json_encoder import *
 
@@ -41,4 +42,7 @@ class FileWriter():
             # File already exists, overwriting
             with open(file=f"{path}", mode="w+t", encoding="UTF-8") as file:
                 json.dump(obj=o, fp=file, indent=2 ,cls=USDMEncoder)
+        finally:
+            os.startfile(f"{path}")
+            
         

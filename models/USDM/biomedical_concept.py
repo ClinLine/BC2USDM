@@ -354,113 +354,17 @@ class BiomedicalConcept:
         if CDISC_Attributes.BiomedicalConcept.categories in keys:
             self.categories = [USDM_category.from_short_name(cat) for cat in kwargs[CDISC_Attributes.BiomedicalConcept.categories]]
 
-        # # Populate fields if they were provided as kwargs
-        # if len(kwargs) > 0:
-        #     if "ncitCode" in kwargs:
-        #         if kwargs["ncitCode"] is not None and kwargs["conceptId"] != kwargs["ncitCode"]:
-        #             self.code = AliasCode(kwargs["ncitCode"])
-        #             self.code.add_alias(Code(kwargs["conceptId"]))
-        #     if "dataElementConcepts" in kwargs and len(kwargs["dataElementConcepts"]) > 0:
-        #         if self.properties is None:
-        #             self.properties = []
-        #         for data_element_concept in kwargs["dataElementConcepts"]:
-        #             print(f"Data_element_concept:{data_element_concept}")
-        #             self.properties.append(BiomedicalConceptProperty(data_element_concept))
-        #     if "categories" in kwargs:
-        #         # TODO: Add categories
-        #         # TODO: Request categories from localStorage, by name
-        #         self.categories = kwargs["categories"]
-        #     if "synonyms" in kwargs:
-        #         self.synonyms = kwargs["synonyms"]
-        #     if "resultScales" in kwargs:
-        #         self.notes.append([CommentAnnotation(rc,codes=[RESULT_SCALE]) for rc in kwargs["resultScales"]])
-        #     if "definition" in kwargs:
-        #         self.notes.append(CommentAnnotation(kwargs["definition"],codes=[DEFINITION]))
-        
-        # # if no kwargs were provided, fetch them using the API
-        # elif not self._populated:
-        #     #TODO REWORK THIS, it's slowing it down massively
-        #     json_data = get_latest_biomedical_concept(self.code.standard_code.code)
-
-        #     for key,value in json_data.items():
-        #         match key:
-        #             case "conceptId":
-        #                 if not "ncitCode" in json_data.keys():
-        #                     pass
-        #                 elif json_data["ncitCode"] is not None and json_data["ncitCode"] != value:
-        #                     self.code = AliasCode(standard_code=(Code(json_data["ncitCode"],code_system="ncit")),aliases=[Code(value)])
-        #                 else:
-        #                     self.code = AliasCode(value)
-        #             # already handling ncitCode in conceptId case
-        #             case "ncitCode": pass # already handling ncitCode in conceptId case
-        #             case "coding":
-        #                 for coding_ in json_data["coding"]:
-        #                     self.code.add_alias(Code(
-        #                         code=coding_["code"],
-        #                         code_system=coding_["systemName"]
-        #                     ))
-        #                 # self.code.add_alias(Code(
-        #                 #     code=json_data["coding"]["code"],
-        #                 #     code_system=json_data["coding"]["systemName"]))
-        #             case "_links":
-        #                 self._links = value
-        #                 #TODO: Process links
-        #                 # print("LINKS FOUND, but not processed")
-        #                 ...
-        #             case "href":
-        #                 self.reference = value
-        #             case "reference":
-        #                 self.reference = value
-        #             case "categories":
-        #                 #TODO Add processing of categories
-        #                 # print("Categories found but not processed")
-        #                 pass # not allowed to have empty case
-        #             case "shortName":
-        #                 if value != self.label and self.label is not None:
-        #                     print("Encountered label and shortName missmatch, resetting label")
-        #                 self.label = value
-        #             case "definition":
-        #                 if self.notes is None:
-        #                     self.notes = [CommentAnnotation(value,codes=[DEFINITION])] 
-        #                 else: self.notes.append(CommentAnnotation(value,codes=[DEFINITION]))
-        #             # case "definition":
-        #             #         self.notes.append(CommentAnnotation(json_data["definition"],codes=[code.DEFINITION]))
-        #             #         self.notes:CommentAnnotation = [CommentAnnotation(json_data["definition"],codes=[code.DEFINITION])]
-        #             case "resultScales":
-        #                 if self.notes is None:
-        #                     self.notes = [CommentAnnotation(rc,codes=[RESULT_SCALE]) for rc in json_data["resultScales"]]
-        #                 else:
-        #                     self.notes.append(CommentAnnotation(rc,codes=[RESULT_SCALE]) for rc in json_data["resultScales"])
-        #             case "dataElementConcepts":
-        #                 print("ADDING PROPERTIES")
-
-        #                 self.properties = [BiomedicalConceptProperty(prop) for prop in json_data["dataElementConcepts"]]
-
-        #             # case "synonyms": should be caught by default case
-        #             #     self.synonyms = value
-        #             case _:
-        #                 # print("Attempting matching key to value")
-        #                 #TODO:
-        #                 # Deal with this:
-        #                 #                     'key': [{
-        #                 #         'code': '64098-7',
-        #                 #         'system': 'http://loinc.org/',
-        #                 #         'systemName': 'LOINC'
-        #                 #     }
-        #                 # ],
-        #                 self.__dict__[key] = value
-        #                 if key != "synonyms":
-        #                     print(f"Attempting to match key to value: {key}")
-        #                 # self.misc[key] = value
+       
         self._populated = True
 
-    def __eq__(self, other) -> bool:
-        if isinstance(other, BiomedicalConcept):
-            if other.id_ == self.id_:
-                return True
-            else:
-                return False
-        raise NotImplementedError()
+    # Removed: Implementing adds complexity, only adding in if proven required
+    # def __eq__(self, other) -> bool:
+    #     if isinstance(other, BiomedicalConcept):
+    #         if other.id_ == self.id_:
+    #             return True
+    #         else:
+    #             return False
+    #     raise NotImplementedError()
     
         #  if self.code and other.code:
         #     if self.code.standard_code.code != other.code.standard_code.code: return False
@@ -513,7 +417,7 @@ class BiomedicalConcept:
             package=BiomedicalConceptProperty.package_from_json(json["_links"]["parentPackage"])
             )
     
-    def __hash__(self):
+    # def __hash__(self):
         # id_
         # properties: list[BiomedicalConceptProperty] = None
         # code:AliasCode
