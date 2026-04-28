@@ -1,5 +1,4 @@
-
-# from dataclasses import dataclass, field
+from __future__ import annotations
 from uuid import UUID, uuid4 as guid
 
 # from logic.local_storage import LocalStorage
@@ -32,9 +31,20 @@ class BiomedicalConceptProperty:
     notes: list[CommentAnnotation] = None
     response_codes: list[ResponseCode] = None
 
-    def __init__(self, id_:UUID|str = None, label:str = None, name:str=None, is_required:bool = _IS_REQUIRED_DEFAULT, is_enabled:bool = _IS_ENABLED_DEFAULT,
-                 datatype:str = None, response_codes: list[ResponseCode] = None, code: AliasCode = None,
-                 notes: list[CommentAnnotation] = None, data_element_concept:DataElementConceptDTO= None, parent_bc_id:UUID = None, *args, **kwargs):
+    def __init__(self, *args,
+                    id_:UUID|str = None,
+                    label:str = None,
+                    name:str=None,
+                    is_required:bool = _IS_REQUIRED_DEFAULT,
+                    is_enabled:bool = _IS_ENABLED_DEFAULT,
+                    datatype:str = None,
+                    response_codes: list[ResponseCode]=None,
+                    code:AliasCode = None,
+                    notes:list[CommentAnnotation] = None,
+                    data_element_concept:DataElementConceptDTO= None,
+                    parent_bc_id:UUID = None,
+                    **kwargs):
+        
         if len(args)> 0:
             raise ValueError(f"{BColors.FAIL}[Error]:BiomedicalConceptProperty.init: args can't be > 0{BColors.ENDC}")
         if len(kwargs) > 0:
@@ -125,65 +135,9 @@ class BiomedicalConceptProperty:
         self.code = dict_[USDM_Attributes.BiomedicalConcept.Propety.code]
         self.notes = dict_[USDM_Attributes.BiomedicalConcept.Propety.notes]
         
-        # OLD CODE
-        # if len(args) > 0:
-        #     raise NotImplementedError(f"{BColors.FAIL}{BColors.ENDC}")
-        # for key, value in kwargs.items():
-        #     match key:
-        #         # TODO: CHECK THIS
-        #         case CDISC_Attributes.BiomedicalConcept.concept_id:
-        #             if kwargs[CDISC_Attributes.BiomedicalConcept.ncit_code] is not None:
-        #                 if value != kwargs[CDISC_Attributes.BiomedicalConcept.ncit_code]:
-        #                     # if ncitCode doesn't match conceptId
-        #                     self.code = AliasCode(standard_code=Code(kwargs[CDISC_Attributes.BiomedicalConcept.ncit_code], code_system=Code.CodeSystem.NCIT),aliases=[Code(value)])
-        #                 else:
-        #                     self.code = AliasCode(value)
-        #             self.code = AliasCode(value)
-        #         case CDISC_Attributes.BiomedicalConcept.ncit_code: pass # already handled by conceptId
-        #         case CDISC_Attributes.BiomedicalConcept.coding:
-        #             self.code.add_alias(
-        #                 standard_code=kwargs[CDISC_Attributes.BiomedicalConcept.coding][CDISC_Attributes.BiomedicalConcept.Coding.code],
-        #                 code_system=kwargs[CDISC_Attributes.BiomedicalConcept.coding][CDISC_Attributes.BiomedicalConcept.Coding.system_name]
-        #             )
-        #         case CDISC_Attributes.BiomedicalConcept.short_name:
-        #             self.label = value
-        #             self.name = f"{value}_{self.id_}"
-        #         case CDISC_Attributes.BiomedicalConcept.reference:
-        #             self.reference = value
-        #         case CDISC_Attributes.BiomedicalConcept.DataElementConcepts.data_type:
-        #             self.datatype = value
-        #         case CDISC_Attributes.BiomedicalConcept.DataElementConcepts.example_set:
-        #             # map exampleSet to response codes
-        #             self.response_codes = [ResponseCode(label=rcName) for rcName in value ]
-        #         case USDM_Attributes.BiomedicalConcept.Propety.is_required:
-        #             self.is_required = bool(value)
-        #         case USDM_Attributes.BiomedicalConcept.Propety.is_enabled:
-        #             self.is_enabled = bool(value)
-        #         case _: # Default case
-        #             print(f"using default case to map for key: {key}")
-        #             try:
-        #                 self.key = value
-        #             except Exception as e: # TODO replace with more specific exception.
-        #                 raise NotImplementedError(f"[{e.__qualname__}]No exact match found for key:{key}")
-
+       
     @staticmethod            
     def from_data_element_concept(dec:DataElementConceptDTO):
-        ## data_element_concept:
-        # concept_id:str
-        # short_name:str
-
-        # ncit_code:str = None
-        # href:str = None
-        # data_type:str = None
-        # example_set:list[str] = None
-
-        # code:AliasCode
-        # notes: list[CommentAnnotation] = None
-        # response_codes: list[ResponseCode] = None
-        
-        #############################
-        ## Prop
-        # notes: list[CommentAnnotation] = None No current Mapping
         id_ = guid()
         label = dec.label
         name = f"{label}_{id_}"
@@ -244,17 +198,20 @@ class BiomedicalConceptProperty:
             # required = True,
         )
     
-    # Disabled since this shouldn't be needed and overriding adds complexity
-    # def __eq__(self, value):
-    #     if self.id_ != value.id_: return False
-    #     if self.label != value.label: return False
-    #     if self.is_enabled != value.is_enabled: return False
-    #     if self.is_required != value.is_required: return False
-    #     if self.datatype != value.datatype: return False
-    #     if self.code != value.code: return False
-    #     if self.notes != value.notes: return False
-    #     if self.response_codes != value.response_codes: return False
-    #     return True
-     
-    # def __ne__(self, value):
-    #     return self != value
+    def has_same_values(self, other:BiomedicalConceptProperty) -> bool:
+        ''' Check if the values of two BiomedicalConceptProperty instances match
+        '''
+        if isinstance(other, BiomedicalConceptProperty):
+            if (
+                self.id_ != other.id_
+                or self.label != other.label
+                or self.is_enabled != other.is_enabled
+                or self.is_required != other.is_required
+                or self.code != other.code
+                or self.datatype != other.datatype
+                or self.notes.difference(other.notes) == []
+                or self.response_codes.difference(other.response_codes) == []
+            ):
+                return False
+            return True
+        return False

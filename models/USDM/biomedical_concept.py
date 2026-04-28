@@ -417,43 +417,51 @@ class BiomedicalConcept:
             package=BiomedicalConceptProperty.package_from_json(json["_links"]["parentPackage"])
             )
     
-    # def __hash__(self):
-        # id_
-        # properties: list[BiomedicalConceptProperty] = None
-        # code:AliasCode
-        # _package_version:str
-        # label:str = None
-        # synonyms:list[str] = None
-        # reference:str = "" # Not nullable
-        # notes:list[CommentAnnotation] = None
-        # INSTANCE_TYPE = __qualname__
-        # categories = list[USDM_category]
-        # _links:str = None
-        # _modified:bool = False
-        # _populated = False
+    def has_same_values(self, other:BiomedicalConcept) :
+        ''' Check if the values of two BiomedicalConceptProperty instances match
+        '''
         
-        # args = (self.id_, 
-        #         self.label,
-        #         self.synonyms,
-        #         )
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: id:{self.id_ == other.id_}{BColors.ENDC}")
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: reference:{self.reference == other.reference}{BColors.ENDC}")
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: label:{self.label == other.label}{BColors.ENDC}")
+        # print(f"{BColors.OKCYAN}INFO|[BC].sameValues: code:{self.code.standard_code.code == other.code.standard_code.code}{BColors.ENDC}")
+        # or self.datatype != other.datatype # Always Biomedical Concept for BCs
+        # print(f"delta cats: {set(self.categories) ^ set(other.categories)}")
         
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: notes:{set(self.notes) ^ set(other.notes) != set()}{BColors.ENDC}")
         
-        raise NotImplementedError()
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: propertyes{ set(self.properties) ^ set(other.properties) != set()}{BColors.ENDC}")
+        
+        for s in self.synonyms:
+            print(s)
+
+        for s in other.synonyms:
+            print(s) 
+        
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: synonyms{set(self.synonyms) ^ set(other.synonyms) != set()}{BColors.ENDC}")
+
+
+
+        if isinstance(other, BiomedicalConcept):
+            if (
+                self.id_ != other.id_
+                or self.reference != other.reference
+                or self.label != other.label
+                # or self.code != other.code
+                # or self.datatype != other.datatype # Always Biomedical Concept for BCs
+                
+                # or set(self.categories).difference(set(other.categories)) != []
+                # or self.categories.difference(other.categories) != []
+                or set(self.notes) ^ set(other.notes) != set()
+                or set(self.properties) ^ set(other.properties) != set()
+                or set(self.synonyms) ^ set(other.synonyms) != set()
+            ):
+                return False
+            return True
+        return False
+        
     
+
     @staticmethod
     def sync(origin:BiomedicalConcept, new:BiomedicalConcept) -> BiomedicalConcept:
-        #     # __name__ = "BiomedicalConcept"
-        # # DATA_TYPE = "Biomedical Concept"
-        # match = True
-        # id_ = None
-        
-        # match = hash(origin) == hash(target)
-        # label = target.label
-        
-
-        # if match:
-        #     id_ = origin.id_
-        # else:
-        #     id_ = guid()
-        # name = "_".join((target.label.replace(" ",""),id_))
         raise NotImplementedError()

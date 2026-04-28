@@ -68,40 +68,15 @@ class BiomedicalConceptCategory():
         '''Function returning a USDM Biomedical Concept category,
         based on a provided CDISC Biomedical Concept category.
         '''
-        # TODO: Line below needs refactoring
-        id__=cdisc_cat.links.self_.href.split("=")[-1]
+        id__ = cdisc_cat.links.self_.href.split("=")[-1]
         return BiomedicalConceptCategory(
             id_=id__, # id
             name=cdisc_cat.name, # name
             label=cdisc_cat.get_label(), # label
             description=None # cdisc doesn't store descriptions for categories
-            # TODO ask Berber if category type should go into notes
         )
 
     @staticmethod
     def from_short_name(short_name:str):
         print(f"{BColors.WARNING}[Warning]: USDM.BiomedicalConceptCategory: returning categories is not implemented yet, returning string{BColors.ENDC}")
         return short_name
-    
-
-    # def __eq__(self, other:BiomedicalConceptCategory) -> bool:
-    #     if not isinstance(other, BiomedicalConceptCategory):
-    #         return False
-    #     return other.id_ == self.id_
-    
-    # def __hash__(self) -> int:
-    #     return hash(self.id_)
-    
-    
-    
-    # def to_csv(self, seperator:str=",", line_ending:str="\n\r"):
-    #     '''Method to convert BiomedicalConceptCategory to cvs
-    #     Optional parameter seperator determines what the properties are seperated by
-    #     Optional parameter line_ending adds a line ending to the returned string.
-    #     returns a string with all properties of the category seperated by seperator (default ',')
-    #     '''
-    #     # TODO: add code, notes and children
-    #     result =  f"{self.id_}{seperator}{self.name}{seperator}{self.label}{seperator}{self.description}"
-    #     if line_ending is not None and line_ending != "":
-    #         result =  f"{result}{line_ending}"
-    #     return result

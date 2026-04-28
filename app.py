@@ -123,6 +123,7 @@ class App:
         # print(data.keys())
         data_id:UUID = UUID(data["id_"])
         
+
         # if current bc != the bc being applied
         if self.current_biomedical_concept.id_ != data_id: 
             current_bc = self.get_if_in_repository(data_id)
@@ -148,8 +149,19 @@ class App:
 
         # if current bc is the bc being applied
         if data_id == self.current_biomedical_concept.id_ or current_bc is None:
+            
+            current_bc = USDM_BC(**data)
+            
             # apply any possible changes to current_bc
             print("applying changes to current bc")
+            
+            ### TEST CODE
+            t = self.current_biomedical_concept.has_same_values(current_bc)
+            if not t:
+                print(f"{BColors.WARNING}WARN|[App].applyToRepo BCs should be reflexive! This should be {True}!!{BColors.ENDC}")
+            print(t)
+            ###
+            
             # current_bc = USDM_BC(**data)
             current_bc = self.current_biomedical_concept # TEMP!!
             print(f"{BColors.WARNING}WARN|[App.applyToRepo]: Currently we're not taking changes made in the UI into account{BColors.ENDC}")
