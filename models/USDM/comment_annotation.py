@@ -37,15 +37,15 @@ class CommentAnnotation:
         print(f"{BColors.WARNING}[Warning]: Didn't find a Defninition in notes{BColors.ENDC}")
         return None
     
-    def __eq__(self, value):
-        # TODO: Since Comment annotations are entities, not datatypes, __eq__ should technically only compaire IDs
-        if self.id_ != value.id_: 
-            print(f"{BColors.WARNING}Warning: CommentAnnotation.eq: ids are not equal{BColors.ENDC}")
-            print("Id inequality is currently being disregarded since they can't be changed by the user")
+    # def __eq__(self, value):
+    #     # TODO: Since Comment annotations are entities, not datatypes, __eq__ should technically only compaire IDs
+    #     if self.id_ != value.id_: 
+    #         print(f"{BColors.WARNING}Warning: CommentAnnotation.eq: ids are not equal{BColors.ENDC}")
+    #         print("Id inequality is currently being disregarded since they can't be changed by the user")
             
-        if self.text != value.text: return False
-        if self.codes != value.codes:
-            # Not testing codes atm since they can't be changed by the user
-            print(f"{BColors.WARNING}Warning: CommentAnnotation.eq: Codes are not equal{BColors.ENDC}")
-            print("Code inequality is currently being disregarded since they can't be changed by the user")
-        return True
+    #     if self.text != value.text: return False
+    #     if self.codes != value.codes:
+    #         # Not testing codes atm since they can't be changed by the user
+    #         print(f"{BColors.WARNING}Warning: CommentAnnotation.eq: Codes are not equal{BColors.ENDC}")
+    #         print("Code inequality is currently being disregarded since they can't be changed by the user")
+    #     return True

@@ -1,4 +1,2 @@
 .env.dev
 *.7z
-*.pyc
-*/__pycache__/*

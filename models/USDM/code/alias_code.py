@@ -125,12 +125,12 @@ Following are sample codes you can use with each terminology for testing.
         else:
             self.standard_code_aliases.append(alias)
 
-    def __eq__(self, value):
-        if self.id_ != value.id_:
-            print(f"AliasCode.eq: id inequality is currently being disregarded, since it can't be changed by the user.")
-        if self.decode != value.decode: return False
-        if self.standard_code != value.standard_code: return False
-        return True
+    # def __eq__(self, value):
+    #     if self.id_ != value.id_:
+    #         print(f"AliasCode.eq: id inequality is currently being disregarded, since it can't be changed by the user.")
+    #     if self.decode != value.decode: return False
+    #     if self.standard_code != value.standard_code: return False
+    #     return True
     
     def __contains__(self, item):
         if not isinstance(item, Code):

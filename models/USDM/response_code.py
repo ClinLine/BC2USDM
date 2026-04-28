@@ -9,12 +9,13 @@ class ResponseCode():
     id_:UUID
     name: str
     is_enabled: bool
+    __IS_ENABLED_DEFAULT:bool = True
     code:Code = R_CODE
     label: str = None
     INSTANCE_TYPE = __qualname__
 
     # def __init__(self, id_:UUID=None, name:str=None, enabled:bool=False, code:Code=None, label:str=None):
-    def __init__(self, id_:UUID=None, name:str=None, enabled:bool=False, label:str=None):
+    def __init__(self, id_:UUID=None, name:str=None, enabled:bool=__IS_ENABLED_DEFAULT, label:str=None):
         if id_ is None:
             self.id_ = guid()
         elif isinstance(id_,str):
@@ -46,9 +47,3 @@ class ResponseCode():
         for label in labels:
             result.append(ResponseCode(label=label))
         return result
-    
-    def __eq__(self, other):
-        if self.label != other.label: return False
-        # Not checking code since all response codes should have the same code
-        if self.is_enabled != other.is_enabled: return False
-        return True
