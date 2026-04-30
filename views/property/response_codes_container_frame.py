@@ -8,7 +8,10 @@ class ResponseCodesContainerFrame(LabelFrame):
     def __init__(self, parent, response_codes=[], *args, **kwargs):
         super().__init__(parent, text="Response Codes:")
         self.scroll_frame = self.config_scrollframe()
-        self.response_codes = response_codes
+        if response_codes is None:
+            self.response_codes = []
+        else:
+            self.response_codes = response_codes
         self.initialize_response_codes(response_codes, self.scroll_frame)
 
 

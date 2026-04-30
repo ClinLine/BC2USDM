@@ -138,6 +138,7 @@ class Code():
     
 #TODO Set code_system_versions & decodes for constants
 DEFINITION:Code = Code("C43680", code_system=Code.CodeSystem.NCIT, code_system_version="2009-11-23",decode="Definition")
+USER_DEFINED_NOTE_CODE:Code = Code("CUSTOM1", code_system=Code.CodeSystem.CUSTOM, code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION, decode="User defined note")
 RESULT_SCALE:Code = Code("C221799", code_system=Code.CodeSystem.NCIT, code_system_version="2026-02-23",decode="Result scale")
 Example:Code = Code(code="C48175", code_system=Code.CodeSystem.NCIT, code_system_version="2009-11-23", decode="Example")
 RESPONSE_CODE:Code = Code(code="C201347", code_system=Code.CodeSystem.CDISC, code_system_version="2024-04-29", decode="A symbol or combination of symbols representing the response to the question.")

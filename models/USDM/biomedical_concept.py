@@ -90,7 +90,7 @@ class BiomedicalConceptBase:
         self.code = AliasCode(reference.split('/')[-1])
         self.id_ = guid() # TODO: Request guid from local storage
         self.label = title
-        self.name = f"{title.replace(" ","")}_{self.id_}"
+        self.name = f"{title.replace(" ","")}_{self.id_.int}"
         # TODO:
         #"name": "AspartateAminotransferaseMeasurement"+id_
 
@@ -139,10 +139,10 @@ class BiomedicalConcept:
         else:
             # Print error if no lable and no title were found
             print(f"{BColors.FAIL}Error: BC({self.id_}) has no label{BColors.ENDC}")
-        self.name = '_'.join([self.label.replace(" ",""),str(self.id_)])
+        self.name = f"{self.label.replace(" ","")}_{self.id_.int}"
         
         if synonyms:
-            self.synonyms = synonyms,
+            self.synonyms = synonyms
 
         if reference != "" and reference is not None:
             self.reference = reference
@@ -163,14 +163,25 @@ class BiomedicalConcept:
             self.properties = []
         if properties is not None:
             if len(properties) > 0:
-                for prop_id, prop in properties.items():
-                    if isinstance(prop, BiomedicalConceptProperty):
-                        self.properties = properties
-                        break
-                    elif isinstance(prop, dict):
-                        self.properties.append(BiomedicalConceptProperty(**prop, parent_bc_id=id_))
-                    else:
-                        print(f"type is: {type(prop)}")
+                if isinstance(properties, dict):
+                    for prop_id, prop in properties.items():
+                        if isinstance(prop, BiomedicalConceptProperty):
+                            self.properties = properties
+                            break
+                        elif isinstance(prop, dict):
+                            self.properties.append(BiomedicalConceptProperty(**prop, parent_bc_id=id_))
+                        else:
+                            print(f"type is: {type(prop)}")
+                if isinstance(properties, list):
+                    for prop in properties:
+                        if isinstance(prop, BiomedicalConceptProperty):
+                            self.properties = properties
+                            break
+                        elif isinstance(prop, dict):
+                            self.properties.append(BiomedicalConceptProperty(**prop, parent_bc_id=id_))
+                        else:
+                            print(f"type is: {type(prop)}")
+
             # elif isinstance(properties, dict) and len(properties) > 0:
             # self.properties = [BiomedicalConceptProperty(prop) for prop in properties]
         else:
@@ -275,7 +286,7 @@ class BiomedicalConcept:
         
 
 
-        # shortName x 
+       
 
         # synonyms x
         if not self.synonyms:
@@ -384,7 +395,15 @@ class BiomedicalConcept:
     def set_label(self, label:str):
         self.label = label
         self._set_modified(True)
-            
+
+    def set_attribute(self, name:str, value) -> None:
+        if getattr(self,name) == value:
+            return
+        else:
+            self.id_ = guid()
+            setattr(self,name,value)
+
+    def get_attribute(self, name:str): getattr
 
     def _set_modified(self, value:bool):
         if self._modified and value:
@@ -428,17 +447,18 @@ class BiomedicalConcept:
         # or self.datatype != other.datatype # Always Biomedical Concept for BCs
         # print(f"delta cats: {set(self.categories) ^ set(other.categories)}")
         
-        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: notes:{set(self.notes) ^ set(other.notes) != set()}{BColors.ENDC}")
-        
-        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: propertyes{ set(self.properties) ^ set(other.properties) != set()}{BColors.ENDC}")
-        
-        for s in self.synonyms:
-            print(s)
 
-        for s in other.synonyms:
-            print(s) 
+
+        for i in range(len(self.notes)):
+            print(self.notes[i])
+            print(other.notes[i])
+            print(self.notes[i]==other.notes[i])
+
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: notes:{set(self.notes) ^ set(other.notes) == set()}{BColors.ENDC}")
         
-        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: synonyms{set(self.synonyms) ^ set(other.synonyms) != set()}{BColors.ENDC}")
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: propertyes{ set(self.properties) ^ set(other.properties) == set()}{BColors.ENDC}")
+        
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: synonyms{set(self.synonyms) ^ set(other.synonyms) == set()}{BColors.ENDC}")
 
 
 

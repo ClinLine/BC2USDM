@@ -11,7 +11,7 @@ from utils.b_colors import BColors
 @dataclass
 class BiomedicalConceptCategory():
     INSTANCE_TYPE = __qualname__
-    id_:str
+    id_:UUID
     name:str
     label:str = None
     description: str = None
@@ -28,11 +28,9 @@ class BiomedicalConceptCategory():
     def __init__(self, id_, name:str=None, label:str = None, description:str=None, code=None, notes=None, children=None):
         # Default populated params are: label, description & code, where description title
         self.id_ = guid()
-        # self.name = "".join([name,id_])
         if label is None or label != "":
             self.label = label
-        self.name = f"{label.replace(" ","")}_{self.id_}"
-        # self.name = f"{label.replace(" ","%20")}_{self.id_}"
+        self.name = f"{label.replace(" ","")}_{self.id_.int}"
         self.description = description
         if isinstance(code, str):
             print(f"Didn't expect code to be a string ({code}), using label instead")

@@ -78,11 +78,13 @@ class BC2USDM_Window():
         self.current_repository_container = RepositoryView(self, width=self.__data_column_width[3], x=self.__default_width-self.__data_column_width[3])
         self.root.mainloop()
 
-    def update_current_bc(self, bc):
+    def set_current_bc(self, bc):
         # Set current bc in main app
         self.main_app.set_current_bc(bc)
         self.current_bc_container.update_view(bc)
-        
+
+    # def update_current_bc(self, attr_name, value):
+    #     self.main_app.update_current_bc(attr_name, value)
 
     def update_categories(self, categories):
         names = [cat.name for cat in categories]

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from uuid import UUID, uuid4 as guid
 
-from models.USDM.code import Code
+from models.USDM.code import Code, USER_DEFINED_NOTE_CODE
 from utils.b_colors import BColors
 
 
@@ -11,6 +11,7 @@ class CommentAnnotation:
     text:str
     codes: list[Code]
     INSTANCE_TYPE = __qualname__
+    USER_DEFINED_CODE = USER_DEFINED_NOTE_CODE
 
     def __init__(self, text:str, id_:str = None, codes:list[Code] = None):
         '''CommentAnnotation constructor'''

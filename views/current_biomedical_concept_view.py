@@ -23,14 +23,16 @@ class CurrentBiomedicalConceptView(LabelFrame):
 
         self.master_frame = Frame(self)
         self.master_frame.pack(side=TOP, fill=BOTH, expand=False)
-        print(self.master_frame.master.widgetName)
 
         i=0
         # label_label:Label         label:Textbox
         self.bc_name_label = Label(self, text="Name: ")
         self.bc_name_label.grid(row=i,column=0,sticky="W",in_=self.master_frame)
-        self.bc_label_value = StringVar(value="")
+        self.bc_label_value = StringVar(name="bc_label_var")
         self.bc_name_entry = Entry(self, textvariable=self.bc_label_value)
+        # self.bc_label_value.trace_add("write", self.write_label)
+        # label_validate_command = (self.bc_name_entry.register(self.validate_label), self.bc_label_value.get())
+        # self.bc_name_entry["validatecommand"] = label_validate_command
         self.bc_name_entry.grid(row=(i:=i+1)-1,column=1,sticky="WE",in_=self.master_frame,padx=1)
         self.master_frame.columnconfigure(1,weight=1)
         self.master_frame.columnconfigure(0,uniform=TRUE)
@@ -147,6 +149,8 @@ class CurrentBiomedicalConceptView(LabelFrame):
     def remove_bc_from_repository(self):
         self.parent.remove_bc_from_repository(self.bc_id_value)
 
+    
+    
     def synonym_add_cmd(self, *args):
         temp_synonyms = list(self.bc_synonyms_listbox.get(0,END)) # to list is required as typles are immutable
         if len(temp_synonyms) == 0:
@@ -188,4 +192,22 @@ class CurrentBiomedicalConceptView(LabelFrame):
         # if bc._properties is not None:
         #     for prop in bc._properties:
         #         self.properties_frame.add_property(prop)
-            
+
+    # def validate_label(self, *args, **kwargs) -> bool:
+    #     for arg in args:
+    #         print(arg)
+    #     print(self.bc_label_value.get())
+    #     return True
+    
+    # def write_label(self, *args):
+    #     print(self.bc_label_value.get())
+        
+    #     print(args[0])
+    #     print(args[1])
+    #     print(args[2])
+        
+    #     # if args[2] == "write":
+    #     #     self.parent.update_current_bc("label", self.bc_label_value.get())
+
+        
+

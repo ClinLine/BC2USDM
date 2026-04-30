@@ -28,8 +28,8 @@ class BiomedicalConceptProperty:
     INSTANCE_TYPE = __qualname__
     code:AliasCode
     label: str = None
-    notes: list[CommentAnnotation] = None
-    response_codes: list[ResponseCode] = None
+    notes: list[CommentAnnotation] = []
+    response_codes: list[ResponseCode] = []
 
     def __init__(self, *args,
                     id_:UUID|str = None,
@@ -38,9 +38,9 @@ class BiomedicalConceptProperty:
                     is_required:bool = _IS_REQUIRED_DEFAULT,
                     is_enabled:bool = _IS_ENABLED_DEFAULT,
                     datatype:str = None,
-                    response_codes: list[ResponseCode]=None,
+                    response_codes: list[ResponseCode]=[],
                     code:AliasCode = None,
-                    notes:list[CommentAnnotation] = None,
+                    notes:list[CommentAnnotation] = [],
                     data_element_concept:DataElementConceptDTO= None,
                     parent_bc_id:UUID = None,
                     **kwargs):
@@ -56,7 +56,7 @@ class BiomedicalConceptProperty:
             try:
                 self.id_=temp_prop.id_
                 self.label=temp_prop.label
-                self.name = f"{self.label.replace(" ","")}_{self.id_}"
+                self.name = f"{self.label.replace(" ","")}_{self.id_.int}"
                 self.is_required=temp_prop.is_required
                 self.is_enabled=temp_prop.is_enabled
                 self.datatype=temp_prop.datatype
@@ -78,10 +78,11 @@ class BiomedicalConceptProperty:
             if label:
                 self.label = label
             
-            self.name = f"{self.label.replace(" ","")}_{self.id_}"
+            self.name = f"{self.label.replace(" ","")}_{self.id_.int}"
             self.is_required = is_required
             self.is_enabled= is_enabled
             self.datatype = datatype
+            self.response_codes:list[ResponseCode] = []
             if response_codes and len(response_codes)> 0 and isinstance(response_codes[0], ResponseCode):
                 self.response_codes = response_codes
             else:
@@ -171,10 +172,11 @@ class BiomedicalConceptProperty:
                     decode=label),
                 id_=None)
         notes:list[CommentAnnotation] = []
+        response_codes = []
         if dec.example_set is not None:
             response_codes = ResponseCode.from_example_set(dec.example_set)
         else:
-            response_codes = None
+            response_codes = []
         
         return BiomedicalConceptProperty(
             id_=id_,

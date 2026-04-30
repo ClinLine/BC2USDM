@@ -36,7 +36,7 @@ class PropertiesView(ttk.LabelFrame):
         self.scroll_frame._on_post_init()
 
     def reset(self):
-        self.property_containers = []
+        self.property_containers:list[PropertyFrame] = []
 
         for tab in self.notebook.tabs():
             if tab != self.new_prop_btn_name:

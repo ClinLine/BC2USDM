@@ -73,7 +73,7 @@ class NotesFrame(LabelFrame):
 
     def get_notes(self):
         if len(self.note_vars) == 0:
-            return [""]
+            return []
         notes:list[str]=[]
         for string_var in self.note_vars:
             if string_var.get() != "":

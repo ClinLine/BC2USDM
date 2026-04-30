@@ -65,13 +65,13 @@ class PropertyFrame(Frame):
         self.columnconfigure(1,weight=1)
 
     def get_property_dict(self):
-        label = self.label_var.get()
-        id_:UUID = self.id_var.get()
-        code = self.code_var.get()
-        required = self.required_var.get()
-        enabled = self.enabled_var.get()
-        instance_type = self.type_var.get()
-        notes = self.notes_frame.get_notes()
+        label:str = self.label_var.get()
+        id_:str = self.id_var.get()
+        code:str = self.code_var.get()
+        required:bool = self.required_var.get()
+        enabled:bool = self.enabled_var.get()
+        instance_type:str = self.type_var.get()
+        notes:list[str] = self.notes_frame.get_notes()
         response_codes = self.response_code_frame.get_response_codes()
 
         prop = {

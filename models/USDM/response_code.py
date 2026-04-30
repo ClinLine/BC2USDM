@@ -11,9 +11,10 @@ class ResponseCode():
     code:Code = R_CODE
     label: str = None
     INSTANCE_TYPE = __qualname__
+    __IS_ENABLED_DEFAULT_VALUE = True
 
     # def __init__(self, id_:UUID=None, name:str=None, enabled:bool=False, code:Code=None, label:str=None):
-    def __init__(self, id_:UUID=None, name:str=None, enabled:bool=False, label:str=None):
+    def __init__(self, id_:UUID=None, name:str=None, enabled:bool=__IS_ENABLED_DEFAULT_VALUE, label:str=None):
         if id_ is None:
             self.id_ = guid()
         elif isinstance(id_,str):
@@ -24,7 +25,7 @@ class ResponseCode():
         if name:
             self.name = name
         else:
-            self.name = f"{label}_{self.id_}"
+            self.name = f"{label}_{self.id_.int}"
         print(f"{BColors.WARNING}WARN|[ResponseCode].init: Retreiving Code for individual response codes is not supported by cdisc api, setting static 'responsecode' code instead{BColors.ENDC}")
         self.code = R_CODE 
         self.is_enabled = enabled
@@ -35,13 +36,14 @@ class ResponseCode():
         response codes:
         Each value in the ExampleSet (delimited by ;) will be a new instance in the responseCode entity. No codes provided.
         '''
+        result:list[ResponseCode] = []
         if isinstance(json_str, str):
             labels = json_str.split(';')
         elif isinstance(json_str, list): #TODO: check if I already split it somewhere, because I'm getting an array of strings (might be done by json lib too)
             labels = json_str
         else:
             raise ValueError()
-        result:list[ResponseCode] = []
+        # result:list[ResponseCode] = []
         for label in labels:
             result.append(ResponseCode(label=label))
         return result
