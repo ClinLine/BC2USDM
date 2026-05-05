@@ -134,12 +134,8 @@ class App:
             print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Labels match, no change required.{BColors.ENDC}")
     
         
-        if set(self.current_biomedical_concept.synonyms).difference(set(bc_dao["synonyms"])) != set():
-            if verbose_: print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Synonyms were changed, applying changes{BColors.ENDC}")
-            self.current_biomedical_concept.synonyms = bc_dao["synonyms"]
-        else:
-            if verbose_: print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Synonyms were unchanged{BColors.ENDC}")
-        print(f"{BColors.WARNING}WARN|[App].apply_to_repository: since notes aren't currently displayed correctly, they are not taken into account while applying to repo{BColors.ENDC}")
+        # Since synonyms is just a list of strings, compairing isn't required and we can just copy from the UI
+        self.current_biomedical_concept.synonyms = bc_dao["synonyms"]
         
         for prop in self.current_biomedical_concept.properties:
             dao_properties = bc_dao["properties"]
