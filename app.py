@@ -20,6 +20,7 @@ from utils import api_utils as API
 # from utils.json_encoder import CustomEncoder
 
 App_Instance:'App'
+verbose_ = False
 
 # __categories_list_width: int = 120
 class App:
@@ -69,7 +70,8 @@ class App:
         self.current_biomedical_concept = None
         self.original_biomedical_concept = None
         
-        print("[Info] App.initialize_state: Initializing")
+        if verbose_:
+            print("[Info] App.initialize_state: Initializing")
         self.biomedical_concepts_in_current_category = None
         print("\033[93m [Warning] App.initialize_state: No active repository found, creating new one \033[0m")
         print("\033[93m [Warning] App.initialize_state: Loading pre-existing repositories is not supported yet \033[0m")
@@ -81,7 +83,8 @@ class App:
         usdm_categories.sort(key=lambda usdm_category: usdm_category.name)
         self.set_categories(usdm_categories)
 
-        print("[Info] App.initialize_state: Done")
+        if verbose_:
+            print("[Info] App.initialize_state: Done")
 
 
     def __call__(self, *args, **kwds):
@@ -126,14 +129,12 @@ class App:
         raise ValueError(f"{BColors.FAIL} Request_id should be an UUID in the cache")
         
     def apply_to_repository(self, bc_dao:dict) -> list[USDM_BC]:
-        verbose_ = False
-        
         if bc_dao["label"] != self.current_biomedical_concept.label:
             self.current_biomedical_concept.label = bc_dao["label"]
         elif verbose_:
             print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Labels match, no change required.{BColors.ENDC}")
     
-        if not verbose_:
+        if verbose_:
             print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Checking what notes are all about.{BColors.ENDC}")
             if bc_dao["notes"]:
                 for note in bc_dao["notes"]:
@@ -286,25 +287,6 @@ class App:
                             )
                     break # break out of inner loop to continue to next prop in currentBC.props
             
-        # properties: list[dict[str,obj]]
-            # label:str
-            # id_:str -> UUID(id_)
-            # is_required:bool
-            # is_enabled:bool
-            # datatype:str
-            # notes:list[str]
-            
-
-
-
-
-
-
-
-
-
-
-
         
         self.current_repository.add_biomedical_concept(self.current_biomedical_concept)
         if self.current_category not in self.current_repository.bc_categories:
@@ -380,39 +362,7 @@ class App:
         self.biomedical_concepts_in_current_category:list[USDM_BC] = self._get_bcs_in_category(self.current_category.get_code())
         return [bc.label for bc in self.biomedical_concepts_in_current_category]
 
-    # [DeprecationWarning]
-    # def get_biomedical_concept_names_in_category(self, index:int = None, id_:str = None, name:str = None):
-    #     ''' Set bc_selection to all biomedical concepts in provided category and returns a list of the related names
-    #     Raises a ValueError if no index, id or name is provided
-    #     Returns list[str] names
-    #     '''
-    #     current_category = None
-    #     if index is not None:
-    #         current_category = self.categories[index]
-    #     elif id_ is None and name is None:
-    #         # index, id and name are none. So can't provide a category
-    #         raise ValueError("Provide an index, id or name of the category in question")
-    #     else:
-    #         for category in self.categories:
-    #             if category.id_ == id_ or category.name == name:
-    #                 current_category = category
-    #                 break
-    #     self.biomedical_concepts_in_current_category: list[USDM_BC] = self._get_bcs_in_category(current_category)
-    #     return [bc.label for bc in self.biomedical_concepts_in_current_category]
-
-    # [DeprecationWarning]
-    # def select_category(self, category_list_index:int):
-    #     print(f"{BColors.WARNING}[WARNING]: {self.select_category.__qualname__} is depracated. {BColors.ENDC}")
-    #     self.current_category:USDM_Category = self.categories[category_list_index]
-
-    #     temp = API.get_biomedical_concepts_list(self.current_category.code.standard_code.code, categories=[cat.code.standard_code.code for cat in self.categories])
-    #     available_bcs:list[USDM_BC] = [USDM_BC(row) for row in temp]
-
-    #     self.biomedical_concepts_in_current_category = available_bcs
-
-    #     return {
-    #         "category_name":self.current_category.label,
-    #         "bc_names": [bc.label for bc in available_bcs]}
+    
     #endregion
     
     
@@ -447,25 +397,7 @@ class App:
         return None
             
 
-    # def update_current_bc(self, name:str, value) -> None:
-    #     # if self.original_biomedical_concept == None:
-    #     #     id__ = self.current_biomedical_concept.id_
-  
-    #     #     self.original_biomedical_concept = deepcopy(self.get_biomedical_concept_by_id(id__))
-        
-    #     # Apply changes to current BC
-    #     self.current_biomedical_concept.set_attribute(name, value)
-
-    #     # if currentBC and originalBC
-    #     if self.current_biomedical_concept != self.original_biomedical_concept:
-    #         self.current_biomedical_concept.id_ = guid()
-    #     if self.original_biomedical_concept.get_attribute(name) != self.current_biomedical_concept.get_attribute(name):
-            
-    #         self.current_biomedical_concept.id_ = guid()
-    #     raise NotImplementedError("Simply getting a copy from self.biomedicalConcepts would get a mutated version, since self.currentBC is already a shallow copy of this instance")
-
-
-       
+    
         
        
 
