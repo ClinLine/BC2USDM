@@ -16,6 +16,7 @@ class ResponseCode():
 
     # def __init__(self, id_:UUID=None, name:str=None, enabled:bool=False, code:Code=None, label:str=None):
     def __init__(self, id_:UUID=None, name:str=None, is_enabled:bool=__IS_ENABLED_DEFAULT_VALUE, label:str=None, **kwargs):
+        verbose_ = False
         if id_ is None:
             self.id_ = guid()
         elif isinstance(id_,str):
@@ -27,7 +28,8 @@ class ResponseCode():
             self.name = name
         else:
             self.name = f"{label.replace(" ","")}_{self.id_}"
-        print(f"{BColors.WARNING}WARN|[ResponseCode].init: Retreiving Code for individual response codes is not supported by cdisc api, setting static 'responsecode' code instead{BColors.ENDC}")
+        if verbose_:
+            print(f"{BColors.WARNING}WARN|[ResponseCode].init: Retreiving Code for individual response codes is not supported by cdisc api, setting static 'responsecode' code instead{BColors.ENDC}")
         self.code = R_CODE
         self.is_enabled = is_enabled
 

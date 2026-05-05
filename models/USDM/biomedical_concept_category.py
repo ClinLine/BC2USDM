@@ -76,5 +76,7 @@ class BiomedicalConceptCategory():
 
     @staticmethod
     def from_short_name(short_name:str):
-        print(f"{BColors.WARNING}[Warning]: USDM.BiomedicalConceptCategory: returning categories is not implemented yet, returning string{BColors.ENDC}")
+        verbose_ = False
+        if verbose_:
+            print(f"{BColors.WARNING}[Warning]: USDM.BiomedicalConceptCategory: returning categories is not implemented yet, returning string{BColors.ENDC}")
         return short_name

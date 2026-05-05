@@ -102,6 +102,7 @@ class Code():
             :raises ValueError: Raise value error when reference does not include substring 'packages'
 
         """
+        verbose_ = False
         version_index = None
         substrings = reference.split('/')
         if substrings[1] == 'mdr': # Test if CDISC reference
@@ -110,7 +111,8 @@ class Code():
                     version_index = index + 1
                     break
         elif substrings[2] == 'evsexplore.semantics.cancer.gov': # If NCIT Link
-            print(f"{BColors.WARNING} Unable to extract package number from ncit reference{BColors.ENDC} \n Is this a property?")
+            if verbose_:
+                print(f"{BColors.WARNING} Unable to extract package number from ncit reference{BColors.ENDC} \n Is this a property?")
             return None
         if version_index is None:
             print(f"{BColors.FAIL} Excpected to find package version in reference.{BColors.ENDC} Returning {None}")

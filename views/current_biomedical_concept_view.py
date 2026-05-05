@@ -180,6 +180,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
         self.bc_alias_code_value.set(bc.code.standard_code.code)
         self.bc_label_value.set(bc.label)
 
+        self.notes_frame.reset()
         self.notes_frame.add_notes(bc.notes)
 
         self.bc_synonyms_value.set(bc.synonyms)

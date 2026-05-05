@@ -223,10 +223,11 @@ class BiomedicalConcept:
         """ Populates BiomedicalConcept's satelite data based on provided kwargs
         Requests data from API if no keyword-args were provided
         """
-        
+        verbose_ = False
         if len(kwargs) < 1:
             print([f"{BColors.WARNING}[Warning] {__name__}.{BiomedicalConcept.populate.__name__}populate: Populating with empty params is going to be deprecated{BColors.ENDC}"])
-        print(f"Populating following keys: {kwargs.keys()}")
+        if verbose_:
+            print(f"Populating following keys: {kwargs.keys()}")
         
         # The following are already handled at BC creation:
         # self.reference = kwargs["href"]

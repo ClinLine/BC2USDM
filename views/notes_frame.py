@@ -1,6 +1,7 @@
 from tkinter import LabelFrame, PanedWindow, StringVar, Text
 from tkinter.constants import *
 
+from utils.b_colors import BColors
 from views.scroll_frame import ScrollFrame
 
 
@@ -13,7 +14,8 @@ class NotesFrame(LabelFrame):
         super().__init__(parent, text="Notes:")
         self.scroll_frame = ScrollFrame(self, True)
         
-        self.note_vars:list[StringVar]=[]
+        self.note_vars:list[StringVar] = []
+        self.note_text_boxes:list[Text] = []
 
         # create PanedWindow to make the boxes scalable
         self.notes_panel = PanedWindow(self.scroll_frame.view_port, orient=VERTICAL)
@@ -45,11 +47,13 @@ class NotesFrame(LabelFrame):
     def _add_text_box(self, text="", textbox_height:int=4):
         self.note_vars.append(StringVar(value=text))
         new_box = Text(self.scroll_frame.view_port, name=f"notebox_{len(self.note_vars)-1}", height=textbox_height)
+        # new_box = Text(self.notes_panel, name=f"notebox_{len(self.note_vars)-1}", height=textbox_height)
         if text != "":
             new_box.insert('end', text)
         new_box.bind("<FocusOut>", self._on_focus_out)
         new_box.pack(side=TOP, fill=BOTH, expand=True)
         self.notes_panel.add(new_box)
+        self.note_text_boxes.append(new_box)
         self.update_idletasks()
         self.scroll_frame.check_resize()
 
@@ -67,8 +71,11 @@ class NotesFrame(LabelFrame):
         # remove trailing \n
         if textbox_contents.endswith('\n'):
             textbox_contents = textbox_contents[:-1]
-
-        self.note_vars[text_index].set(textbox_contents)
+        
+        # if text_index is a valid index, otherwise assume note_vars length changed.
+        if text_index < len(self.note_vars):
+            self.note_vars[text_index].set(textbox_contents)
+        
         # self.recalculate_height(event.widget, len(text_dump))
 
     def get_notes(self):
@@ -79,3 +86,19 @@ class NotesFrame(LabelFrame):
             if string_var.get() != "":
                 notes.append(string_var.get())
         return notes
+    
+    def reset(self) -> None:
+        verbose_ = False
+        if verbose_:
+            print("\n\n")
+            print(f"{BColors.OKCYAN}INFO|[NotesFrame].reset: Resetting note_vars{BColors.ENDC}")
+            print(f"{BColors.OKBLUE}{self.notes_panel.__dict__}{BColors.ENDC}")
+            print(f"{BColors.OKCYAN}{self.scroll_frame.__dict__}{BColors.ENDC}")
+            print(f"{BColors.OKGREEN}{self.scroll_frame.view_port.__dict__}{BColors.ENDC}")
+
+            for child in self.note_text_boxes:
+                print(child)
+                print(f"{BColors.FAIL}FORGETTING: {child}{BColors.ENDC}")
+                self.notes_panel.forget(child)
+            
+        self.note_vars = []

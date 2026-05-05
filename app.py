@@ -14,7 +14,7 @@ from views.bc2usdm_window import BC2USDM_Window
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 from models.USDM.biomedical_concept_category import BiomedicalConceptCategory as USDM_Category
 from models.USDM.biomedical_concept import BiomedicalConcept as USDM_BC, Code
-from models.USDM.comment_annotation import CommentAnnotation
+from models.USDM.comment_annotation import USER_DEFINED_NOTE_CODE, CommentAnnotation
 from utils.api_utils import get_biomedical_concepts_list, get_latest_biomedical_concept_categories
 from utils import api_utils as API
 # from utils.json_encoder import CustomEncoder
@@ -126,15 +126,55 @@ class App:
         raise ValueError(f"{BColors.FAIL} Request_id should be an UUID in the cache")
         
     def apply_to_repository(self, bc_dao:dict) -> list[USDM_BC]:
-        verbose_ = True
+        verbose_ = False
         
         if bc_dao["label"] != self.current_biomedical_concept.label:
             self.current_biomedical_concept.label = bc_dao["label"]
         elif verbose_:
             print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Labels match, no change required.{BColors.ENDC}")
     
+        if not verbose_:
+            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Checking what notes are all about.{BColors.ENDC}")
+            if bc_dao["notes"]:
+                for note in bc_dao["notes"]:
+                    print(note)
+            if self.current_biomedical_concept.notes:
+                for note in self.current_biomedical_concept.notes:
+                    print(note.text)
+
+        # if len(self.current_biomedical_concept.notes) == len(bc_dao["notes"]):
+        #     # Naïvely assuming order stayed the same
+        #     for i, note in self.current_biomedical_concept:
+        #         if note.text != bc_dao["notes"][i]:
+        #             note.text = bc_dao["notes"][i]
+        #             note.code = USER_DEFINED_NOTE_CODE
+        
+        if len(self.current_biomedical_concept.notes) > 0 or len(bc_dao["notes"]) > 0:
+            # DO OVERLAPPING NOTES
+            start_index = -1
+            if len(self.current_biomedical_concept.notes) > 0 and len(bc_dao["notes"]) > 0:
+                start_index = len(self.current_biomedical_concept.notes)
+                for i, note in enumerate(self.current_biomedical_concept.notes):
+                    if note.text != bc_dao["notes"][i]:
+                        note.text = bc_dao["notes"][i]
+                        note.code = USER_DEFINED_NOTE_CODE
+            else:
+                start_index = 0
+                
+            # DO NEW NOTES
+            # Should only do the notes don't overlap index pre existing notes
+            if len(bc_dao["notes"]) > len(self.current_biomedical_concept.notes):
+                for i, note_text in enumerate(bc_dao["notes"][start_index:]):
+                    self.current_biomedical_concept.notes.append(
+                        CommentAnnotation(
+                            text=note_text,
+                            codes=[USER_DEFINED_NOTE_CODE]
+                        )
+                    )
         
         # Since synonyms is just a list of strings, compairing isn't required and we can just copy from the UI
+        if verbose_:
+            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Naïvely copying synonyms from UI, since it's just a list of strings.{BColors.ENDC}")
         self.current_biomedical_concept.synonyms = bc_dao["synonyms"]
         
         for prop in self.current_biomedical_concept.properties:
