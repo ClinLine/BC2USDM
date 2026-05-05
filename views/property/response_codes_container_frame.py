@@ -23,12 +23,15 @@ class ResponseCodesContainerFrame(LabelFrame):
     #     add_button = Button(self.scroll_frame.view_port, text="New response code")
     #     add_button.pack(side=BOTTOM, expand=True)
 
-    def initialize_response_codes(self, response_codes={}, scrollframe:ScrollFrame=None):
+    def initialize_response_codes(self, response_codes=[], scrollframe:ScrollFrame=None):
         self.id_vars:list[StringVar] = []
         self.enabled_vars:list[BooleanVar] = []
-        self.response_code_frames = []
+        self.response_code_frames:list[ResponseCodeFrame] = []
+        self.response_codes = response_codes
+        self.debug_codes = []
         if response_codes is not None:
             for i, response_code in enumerate(response_codes):
+                # self.debug_codes.append(response_code)
                 new_frame = ResponseCodeFrame(scrollframe.view_port, response_code, i, relief="groove", borderwidth=1,)
                 self.response_code_frames.append(new_frame)
 
@@ -51,13 +54,16 @@ class ResponseCodesContainerFrame(LabelFrame):
     def _on_add_button(self, response_code_ui_id):
         new_frame = ResponseCodeFrame(self.scroll_frame.view_port, None, response_code_ui_id, relief="groove", borderwidth=1)
         self.response_code_frames.append(new_frame)
-        if self.response_codes is None:
-            self.response_codes = [None]
-        else:
-            self.response_codes.append(None)
+        # if self.response_codes is None:
+        #     self.response_codes = []
+        # else:
+        #     self.response_codes.append([])
         self.update_idletasks()
         self.scroll_frame.check_resize()
 
-    def get_response_codes(self):
-        
-        return self.response_codes
+    def get_response_codes(self) -> list[dict[str:any]]:
+        result = []
+        for frame in self.response_code_frames:
+            result.append(frame.get_response_code())
+        # return self.response_codes
+        return result

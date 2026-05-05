@@ -22,7 +22,7 @@ class TherapeuticArea():
         if code is not None:
             self.code = code
         else:
-            self.code = Code(code=f"TA_{id_.int}",
+            self.code = Code(code=f"TA_{id_}",
                             id_=id_,
                             code_system=TherapeuticArea.__CODE_SYSTEM,
                             code_system_version=TherapeuticArea.__CODE_SYSTEM_VERSION)

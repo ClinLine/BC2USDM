@@ -56,7 +56,7 @@ class BiomedicalConceptProperty:
             try:
                 self.id_=temp_prop.id_
                 self.label=temp_prop.label
-                self.name = f"{self.label.replace(" ","")}_{self.id_.int}"
+                self.name = f"{self.label.replace(" ","")}_{self.id_}"
                 self.is_required=temp_prop.is_required
                 self.is_enabled=temp_prop.is_enabled
                 self.datatype=temp_prop.datatype
@@ -78,7 +78,7 @@ class BiomedicalConceptProperty:
             if label:
                 self.label = label
             
-            self.name = f"{self.label.replace(" ","")}_{self.id_.int}"
+            self.name = f"{self.label.replace(" ","")}_{self.id_}"
             self.is_required = is_required
             self.is_enabled= is_enabled
             self.datatype = datatype
@@ -90,7 +90,7 @@ class BiomedicalConceptProperty:
                     for key, value in response_codes:
                         print(f"[USDM.BiomedicalConceptProperty]: response code: {key}={value}")
                 else:
-                    self.response_codes = None
+                    self.response_codes = []
             if code and isinstance(code, AliasCode):
                 self.code = code
             elif code and isinstance(code, str) and parent_bc_id:
@@ -139,14 +139,16 @@ class BiomedicalConceptProperty:
        
     @staticmethod            
     def from_data_element_concept(dec:DataElementConceptDTO):
-        id_ = guid()
-        label = dec.label
-        name = f"{label}_{id_}"
-        is_required = BiomedicalConceptProperty._IS_REQUIRED_DEFAULT
-        is_enabled = BiomedicalConceptProperty._IS_ENABLED_DEFAULT
-        reference = dec.href
-        data_type=dec.data_type
+        id_:UUID = guid()
+        label:str = dec.label
+        name:str = f"{label}_{id_}"
+        is_required:bool = BiomedicalConceptProperty._IS_REQUIRED_DEFAULT
+        is_enabled:bool = BiomedicalConceptProperty._IS_ENABLED_DEFAULT
+        reference:str = dec.href
+        data_type:str=dec.data_type
+        response_codes:list[ResponseCode] = []
 
+        # if concept_id and ncit code DO NOT match
         if dec.concept_id != dec.ncit_code:
             code:AliasCode = AliasCode(
                 standard_code=Code(
@@ -162,7 +164,7 @@ class BiomedicalConceptProperty:
                     code_system=Code.CodeSystem.NCIT,
                     code_system_version=Code.get_version_from_reference(reference),
                     decode=label)])
-        else:
+        else: # if concept_id == ncit_code
             code:AliasCode = AliasCode(
                 standard_code=Code(
                     code=dec.concept_id,
@@ -171,8 +173,8 @@ class BiomedicalConceptProperty:
                     code_system_version=Code.get_version_from_reference(reference),
                     decode=label),
                 id_=None)
-        notes:list[CommentAnnotation] = []
-        response_codes = []
+        # Set notes to empty list, since DataElementConcept never has notes.
+        notes:list[CommentAnnotation] = [] 
         if dec.example_set is not None:
             response_codes = ResponseCode.from_example_set(dec.example_set)
         else:

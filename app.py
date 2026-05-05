@@ -5,7 +5,9 @@ from uuid import UUID, uuid4 as guid
 # from props_testing import PropertyDisplay
 # from logic.DAL.data_store import DataStore
 # from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
+from models.USDM.code import USER_DEFINED_RESPONSE_CODE
 from models.USDM.repository import Repository
+from models.USDM.response_code import R_CODE as DEFAULT_RESPONSE_CODE_CODE, ResponseCode
 from models.USDM.therapeutic_area import TherapeuticArea
 from utils.b_colors import BColors
 from views.bc2usdm_window import BC2USDM_Window
@@ -159,8 +161,8 @@ class App:
                     # Since the UI only knows of the .text element of CommentAnnotations
                     # We have to separate out the notes that haven't been changed first
                     if verbose_:
-                        print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: this property has {len(prop.notes)} on record.{BColors.ENDC}")
-                        print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: this property has {len(dao_prop["notes"])} on in the UI.{BColors.ENDC}")
+                        print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: this property has {len(prop.notes)} notes on record.{BColors.ENDC}")
+                        print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: this property has {len(dao_prop["notes"])} notes in the UI.{BColors.ENDC}")
                     for note in prop.notes:
                         for note_string in dao_prop["notes"]:
                             if note.text == note_string:
@@ -203,12 +205,21 @@ class App:
                     if verbose_:
                             if prop.response_codes is None:
                                 print(f"{BColors.WARNING}WARN|[App].apply_to_repository: prop.response_codes should never be none, it should be [] instead{BColors.ENDC}")
-                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Number of Response Codes found: {len(prop.response_codes)}{BColors.ENDC}")
-                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first note is:{len(dao_prop["notes"][len(prop.notes):][0])}{BColors.ENDC}")
-                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to add extra notes{BColors.ENDC}")
+                            elif len(prop.response_codes) > 0:
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to resolve response codes{BColors.ENDC}")
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Number of Response Codes found: {len(prop.response_codes)}{BColors.ENDC}")
+                            if len(dao_prop["response_codes"]) > 0:
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first dao_rc is:{dao_prop["response_codes"][0]}{BColors.ENDC}")
+                            if len(prop.response_codes)> 0:
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: prop rc is:{prop.response_codes[0].label}{BColors.ENDC}")
+                            if len(dao_prop["response_codes"]) > len(prop.response_codes) :
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: amount of added notes is:{len(dao_prop["response_codes"][len(prop.notes):])}{BColors.ENDC}")
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first adde note is:{dao_prop["response_codes"][len(prop.response_codes):][0]}{BColors.ENDC}")
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to add additional {BColors.ENDC}")
+
                     for rc in prop.response_codes:
                         for index, rc_dict in enumerate(dao_prop["response_codes"]):
-                            if rc.id_ == rc_dict["id_"]:
+                            if rc.id_ == UUID(rc_dict["id_"]):
                                 rc.label = rc_dict["label"]
                                 rc.is_enabled = rc_dict["is_enabled"]
                             # If code still matches, continue to new item
@@ -219,9 +230,24 @@ class App:
                                     code=rc_dict["code"],
                                     code_system=Code.CodeSystem.CUSTOM,
                                     code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION,
-                                    decode="User defined Code")
+                                    decode="A user-defined symbol or combination of symbols representing the response to the question.")
+                            # Since we encountered a match and applied the changes, we are breaking out of the inner loop, to look for the next match
                             break
-                    # Since we encountered a match and applied the changes, we are breaking out of the inner loop, to look for the next match
+                    if len(prop.response_codes) < len(dao_prop["response_codes"]):
+                        for dao_rc in dao_prop["response_codes"][len(prop.response_codes):]:
+                            if dao_rc["code"] == DEFAULT_RESPONSE_CODE_CODE.code:
+                                code:Code = DEFAULT_RESPONSE_CODE_CODE
+                            else:
+                                code = deepcopy(USER_DEFINED_RESPONSE_CODE)
+                                code.code = dao_rc["code"]
+                                code.id_ = guid()
+                            prop.response_codes.append(ResponseCode(
+                                    id_=UUID(dao_rc["id_"]),
+                                    label=dao_rc["label"],
+                                    is_enabled=dao_rc["is_enabled"],
+                                    code=code
+                                )
+                            )
                     break # break out of inner loop to continue to next prop in currentBC.props
             
         # properties: list[dict[str,obj]]

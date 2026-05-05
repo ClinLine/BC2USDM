@@ -30,7 +30,7 @@ class BiomedicalConceptCategory():
         self.id_ = guid()
         if label is None or label != "":
             self.label = label
-        self.name = f"{label.replace(" ","")}_{self.id_.int}"
+        self.name = f"{label.replace(" ","")}_{self.id_}"
         self.description = description
         if isinstance(code, str):
             print(f"Didn't expect code to be a string ({code}), using label instead")

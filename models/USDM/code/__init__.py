@@ -63,7 +63,7 @@ class Code():
                     # self.code_system = "ncit"
                     self.code_system = self.CodeSystem.CDISC
             elif isinstance(code, Code):
-                if code.code[:0] == 'C':
+                if code.code[:1] == 'C':
                     # self.code_system = "ncit"
                     self.code_system = self.CodeSystem.CDISC
             else:
@@ -138,10 +138,11 @@ class Code():
     
 #TODO Set code_system_versions & decodes for constants
 DEFINITION:Code = Code("C43680", code_system=Code.CodeSystem.NCIT, code_system_version="2009-11-23",decode="Definition")
-USER_DEFINED_NOTE_CODE:Code = Code("CUSTOM1", code_system=Code.CodeSystem.CUSTOM, code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION, decode="User defined note")
+USER_DEFINED_NOTE_CODE:Code = Code("CUSTOM_CA", code_system=Code.CodeSystem.CUSTOM, code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION, decode="User defined note")
 RESULT_SCALE:Code = Code("C221799", code_system=Code.CodeSystem.NCIT, code_system_version="2026-02-23",decode="Result scale")
 Example:Code = Code(code="C48175", code_system=Code.CodeSystem.NCIT, code_system_version="2009-11-23", decode="Example")
 RESPONSE_CODE:Code = Code(code="C201347", code_system=Code.CodeSystem.CDISC, code_system_version="2024-04-29", decode="A symbol or combination of symbols representing the response to the question.")
+USER_DEFINED_RESPONSE_CODE:Code = Code(code="CUSTOM_RC", code_system=Code.CodeSystem.CUSTOM, code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION, decode="A user-defined symbol or combination of symbols representing the response to the question.")
 Error:Code = Code(code="C43369", code_system=Code.CodeSystem.NCIT, code_system_version="2009-11-23",decode='Error')
 SOFTWARE_RUNTIME_ERROR:Code = Code(
     code="C92115",

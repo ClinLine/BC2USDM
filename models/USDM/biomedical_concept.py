@@ -90,7 +90,7 @@ class BiomedicalConceptBase:
         self.code = AliasCode(reference.split('/')[-1])
         self.id_ = guid() # TODO: Request guid from local storage
         self.label = title
-        self.name = f"{title.replace(" ","")}_{self.id_.int}"
+        self.name = f"{title.replace(" ","")}_{self.id_}"
         # TODO:
         #"name": "AspartateAminotransferaseMeasurement"+id_
 
@@ -139,7 +139,7 @@ class BiomedicalConcept:
         else:
             # Print error if no lable and no title were found
             print(f"{BColors.FAIL}Error: BC({self.id_}) has no label{BColors.ENDC}")
-        self.name = f"{self.label.replace(" ","")}_{self.id_.int}"
+        self.name = f"{self.label.replace(" ","")}_{self.id_}"
         
         if synonyms:
             self.synonyms = synonyms
