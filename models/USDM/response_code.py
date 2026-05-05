@@ -1,147 +1,70 @@
-from dataclasses import dataclass
-from uuid import uuid4 as guid
+from __future__ import annotations
+# from dataclasses import dataclass
+from uuid import UUID, uuid4 as guid
 
-from models.USDM.code.code import Code, Example as ExampleCode
+from models.USDM.code import Code, RESPONSE_CODE as R_CODE
+from utils.b_colors import BColors
 
-
-@dataclass
 class ResponseCode():
-    id_:guid
+    id_:UUID
     name: str
     is_enabled: bool
-    code:Code
+    code:Code = R_CODE
     label: str = None
+    INSTANCE_TYPE = __qualname__
+    __IS_ENABLED_DEFAULT_VALUE = True
 
-    def __init__(self, id_:guid=None, name:str=None, enabled:bool=False, code:Code=None, label:str=None):
-        """
-        curl -X 'GET' \
-            'https://api-evsrest.nci.nih.gov/api/v1/concept/search?terminology=ncit&term=Blood&type=contains&include=minimal&fromRecord=0&pageSize=10' \
-            -H 'accept: application/json
-        responseBody: #Code: 200
-            {
-                "total": 5512,
-                "timeTaken": 39,
-                "parameters": {
-                    "term": "Blood",
-                    "type": "contains",
-                    "include": "minimal",
-                    "fromRecord": 0,
-                    "pageSize": 10,
-                    "terminology": [
-                    "ncit"
-                    ]
-                },
-                "concepts": [
-                    {
-                    "code": "C12434",
-                    "name": "Blood",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": true,
-                    "active": true
-                    },
-                    {
-                    "code": "C22559",
-                    "name": "Mouse Blood",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": true,
-                    "active": true
-                    },
-                    {
-                    "code": "C17610",
-                    "name": "Blood Sample",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": false,
-                    "active": true
-                    },
-                    {
-                    "code": "C212554",
-                    "name": "Blood Service Type",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": true,
-                    "active": true
-                    },
-                    {
-                    "code": "C19448",
-                    "name": "Blood and Blood Products",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": false,
-                    "active": true
-                    },
-                    {
-                    "code": "C15657",
-                    "name": "Blood Treatment",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": false,
-                    "active": true
-                    },
-                    {
-                    "code": "C172593",
-                    "name": "Blood Ultrafiltration",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": true,
-                    "active": true
-                    },
-                    {
-                    "code": "C219068",
-                    "name": "Blood Unit",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": true,
-                    "active": true
-                    },
-                    {
-                    "code": "C27083",
-                    "name": "Blood Clot",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": false,
-                    "active": true
-                    },
-                    {
-                    "code": "C61009",
-                    "name": "Blood Type",
-                    "terminology": "ncit",
-                    "version": "25.10d",
-                    "conceptStatus": "DEFAULT",
-                    "leaf": true,
-                    "active": true
-                    }
-                ]
-}
-"""
-        if name is not None and (enabled is None and code is None and label is None):
-            # print("Grabbing exampleset details is not yet supported, only setting label, name and id")
-            self.label = name
-        self.id_ = guid()
+    # def __init__(self, id_:UUID=None, name:str=None, enabled:bool=False, code:Code=None, label:str=None):
+    def __init__(self, id_:UUID=None, name:str=None, is_enabled:bool=__IS_ENABLED_DEFAULT_VALUE, label:str=None, **kwargs):
+        verbose_ = False
+        if id_ is None:
+            self.id_ = guid()
+        elif isinstance(id_,str):
+            self.id_ = UUID(id)
+        elif isinstance(id_, UUID):
+            self.id_=id_
         self.label = label
-        if name is not None and self.label is None:
-            self.label = name
-        if name is not None and label is not None:
-            print(f"[ResponseCode.init]: Expected name or label to be {None}")
-            raise ValueError(f"[ResponseCode.init]: Expected name or label to be {None}")
-        self.name = f"{self.label}_{self.id_}"
-        self.is_enabled = enabled
-        if isinstance(code,str):
-            self.code = Code(code)
-        elif isinstance(code, Code):
-            self.code = Code
-        else: self.code = None
+        if name:
+            self.name = name
+        else:
+            self.name = f"{label.replace(" ","")}_{self.id_}"
+        if verbose_:
+            print(f"{BColors.WARNING}WARN|[ResponseCode].init: Retreiving Code for individual response codes is not supported by cdisc api, setting static 'responsecode' code instead{BColors.ENDC}")
+        self.code = R_CODE
+        self.is_enabled = is_enabled
+
+        for key  in iter(kwargs):
+            if key == "code":
+                self.code = kwargs["code"]
+        
+
+
     @staticmethod
-    def from_example_set(json_str:list[str]):
-        return [ResponseCode(name=string,code=ExampleCode) for string in json_str]
+    def from_example_set(example_set:str|list[str], separator=';') -> list[ResponseCode]:
+        '''
+        response codes:
+        Each value in the ExampleSet (delimited by ;) will be a new instance in the responseCode entity. No codes provided.
+        '''
+        result:list[ResponseCode] = []
+        # if example set is a singular string, split it by separator (default =;)
+        if isinstance(example_set, str):
+            labels = example_set.split(separator)
+        #else if example_set is a set of strings
+        elif isinstance(example_set, list): #TODO: check if I already split it somewhere, because I'm getting an array of strings (might be done by json lib too)
+            labels = example_set
+        else:
+            raise ValueError()
+        # result:list[ResponseCode] = []
+        for label in labels:
+            result.append(ResponseCode(label=label))
+        if result is None:
+            raise ValueError("[ResponseCode].from_example_set: result should never be None here!!")
+        return result
+    
+    # def __eq__(self, other):
+    #     if not isinstance(other, ResponseCode):
+    #         return False
+    #     if self.label != other.label: return False
+    #     # Not checking code since all response codes should have the same code
+    #     if self.is_enabled != other.is_enabled: return False
+    #     return True

@@ -2,10 +2,8 @@ from json import JSONEncoder
 import json
 from tkinter import Menu, filedialog
 from tkinter import DISABLED
-import tkinter
-
+from datetime import date
 from utils.io.FileWriter import FileWriter
-from utils.json.json_encoder import USDMEncoder
 
 
 
@@ -51,13 +49,16 @@ class ExportMenu(Menu):
         if selection is None:
             selection = f"this is a test string"
         
+        today = date.today()
+        date_str = f"{today.year}-{str(today.month).rjust(2,'0')}-{str(today.day).rjust(2,'0')}"
+
         file_location = filedialog.asksaveasfilename(
             confirmoverwrite=True,
             defaultextension="json",
             filetypes=("all {.*}", "json {.json}","text {.txt}"),
-            initialfile="New file",
+            initialfile=date_str,
             parent=self,
-            title="Export - Choose file location",
+            title="Export repository - Choose file location",
             typevariable=(file_type:="json")
         )
         

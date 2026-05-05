@@ -8,22 +8,25 @@ class Link():
     title: str
     type: str
 
-    def __init__(self, *args):
-        if isinstance(args, tuple):
-            self.href = args[0]["href"]
-            self.title = args[0]["title"]
-            self.type = args[0]["type"]
-        else:
-            self.href = dict(args)["href"]
-            self.href = dict(args)["title"]
-            self.href = dict(args)["type"]
+    def __init__(self, href:str, title:str, type:str, *args):
+        self.href = href
+        self.title = title
+        self.type = type
+        # if isinstance(args, tuple):
+        #     self.href = args[0]["href"]
+        #     self.title = args[0]["title"]
+        #     self.type = args[0]["type"]
+        # else:
+        #     self.href = dict(args)["href"]
+        #     self.href = dict(args)["title"]
+        #     self.href = dict(args)["type"]
 
     def from_json(self, json:str):
-        return Link((
-            json["href"],
-            json["title"],
-            json["type"])
-        )
+        return Link(
+            href=json["href"],
+            title=json["title"],
+            type=json["type"])
+        
 
 @dataclass
 class BiomedicalConceptLink():
@@ -41,15 +44,15 @@ class BiomedicalConceptLink():
         '''Take in a json string and converts returns a (CDISC) Biomedical Concept Category
         '''
         if "parentBiomedicalConcept" in json_string.keys():
-            parent_biomedical_concept = Link(json_string["parentBiomedicalConcept"])
+            parent_biomedical_concept = Link(*json_string["parentBiomedicalConcept"])
         else:
             parent_biomedical_concept = None
         if "parentPackage" in json_string.keys():
-            package = Link(json_string["parentPackage"])
+            package = Link(*json_string["parentPackage"])
         else:
             package = None
         if "self" in json_string.keys():
-            self_ = Link(json_string["self"])
+            self_ = Link(*json_string["self"])
         else:
             self_=None
 

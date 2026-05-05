@@ -1,2 +1,2 @@
-__name__= "views"
+# __name__= "views"
 # __module__="BC2USDM.views"
