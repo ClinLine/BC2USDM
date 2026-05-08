@@ -397,10 +397,6 @@ class App:
         return None
             
 
-    
-        
-       
-
     def set_current_bc(self, bc:USDM_BC):
         self.current_biomedical_concept = bc
 

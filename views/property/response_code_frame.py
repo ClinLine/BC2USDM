@@ -41,7 +41,7 @@ class ResponseCodeFrame(Frame):
         l_id = Label(self,text="Response code id:")
         l_id.grid(row=i, column=0, sticky="NSW")
 
-        e_id = Entry(self, textvariable=self.id_var, state=DISABLED)
+        e_id = Entry(self, textvariable=self.id_var, state="readonly")
         e_id.grid(row=(i:=i+1)-1, column=1, sticky=NSEW)
         # Code:
         l_code = Label(self, text="Code:")
