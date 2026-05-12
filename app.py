@@ -289,13 +289,15 @@ class App:
             
         
         self.current_repository.add_biomedical_concept(self.current_biomedical_concept)
-        if self.current_category not in self.current_repository.bc_categories:
-            self.current_category.members.append(self.current_biomedical_concept)
-            self.current_repository.bc_categories.append(self.current_category)
-        else:
-            for cat in self.current_repository.bc_categories:
-                if cat is self.current_category and self.current_biomedical_concept not in cat.members:
-                    cat.members.append(self.current_biomedical_concept)
+        # Note: No longer adding category to repository when adding singular bc in preperation for expanded category support
+        # Lines will be removed soon
+        # if self.current_category not in self.current_repository.bc_categories:
+        #     self.current_category.members.append(self.current_biomedical_concept)
+        #     self.current_repository.bc_categories.append(self.current_category)
+        # else:
+        #     for cat in self.current_repository.bc_categories:
+        #         if cat is self.current_category and self.current_biomedical_concept not in cat.members:
+        #             cat.members.append(self.current_biomedical_concept)
         biomedical_concepts_in_repository = self.current_repository.biomedical_concepts.values()
         return biomedical_concepts_in_repository
 

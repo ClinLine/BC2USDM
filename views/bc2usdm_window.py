@@ -113,8 +113,9 @@ class BC2USDM_Window():
         
 
 
-    def apply_to_repository(self, bc_dict:dict):
+    def apply_bc_to_repository(self, bc_dict:dict):
         biomedical_concepts_in_repository = self.main_app.apply_biomedical_concept_to_repository(bc_dict)
-        categories_in_repository = self.main_app.get_categories_in_repository()
         self.current_repository_container.update_bc_list(biomedical_concepts_in_repository)
-        self.current_repository_container.update_cat_list(categories_in_repository)
+        # Adding bcs no longer automatically adds the associated category, lines will be deleted soon
+        # categories_in_repository = self.main_app.get_categories_in_repository()
+        # self.current_repository_container.update_cat_list(categories_in_repository)
