@@ -2,7 +2,7 @@ from tkinter import Button, Entry, Frame, IntVar, Label, LabelFrame, Listbox, Sc
 from tkinter.constants import *
 from uuid import uuid4 as guid
 
-from app import BColors
+from utils.b_colors import BColors
 from models.USDM.biomedical_concept import BiomedicalConcept
 from models.USDM.biomedical_concept_category import BiomedicalConceptCategory
 from models.USDM.therapeutic_area import TherapeuticArea
