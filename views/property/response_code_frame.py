@@ -1,8 +1,10 @@
 from tkinter import Frame, Label, Entry, Checkbutton
-from tkinter import StringVar, IntVar
+from tkinter import StringVar, IntVar, BooleanVar
 from tkinter.constants import *
 
 from uuid import uuid4 as guid
+
+from models.USDM.response_code import R_CODE as DEFAULT_CODE
 
 class ResponseCodeFrame(Frame):
     rc_index:int # response code index
@@ -39,7 +41,7 @@ class ResponseCodeFrame(Frame):
         l_id = Label(self,text="Response code id:")
         l_id.grid(row=i, column=0, sticky="NSW")
 
-        e_id = Entry(self, textvariable=self.id_var, state=DISABLED)
+        e_id = Entry(self, textvariable=self.id_var, state="readonly")
         e_id.grid(row=(i:=i+1)-1, column=1, sticky=NSEW)
         # Code:
         l_code = Label(self, text="Code:")
@@ -57,8 +59,8 @@ class ResponseCodeFrame(Frame):
         self.id_var = StringVar(value="", )
         self.label_var = StringVar(value="",)
         # self.name_var = StringVar(value="") # inferred
-        self.is_enabled_var = IntVar(value=0, )
-        self.code_var = StringVar(value="", )
+        self.is_enabled_var = BooleanVar(value=True)
+        self.code_var = StringVar(value=DEFAULT_CODE.code)
 
     def populate(self, response_code=None):
         if response_code is not None:
@@ -69,6 +71,15 @@ class ResponseCodeFrame(Frame):
             self.is_enabled_var.set(response_code.is_enabled)
             if response_code.code is not None:
                 self.code_var.set(response_code.code.code)
-            # TODO Add Code support?
+            else:
+                self.code_var.set(DEFAULT_CODE.code)
         else:
             self.id_var.set(guid())
+
+    def get_response_code(self):
+        return {
+            "id_":self.id_var.get(),
+            "label":self.label_var.get(),
+            "is_enabled":self.is_enabled_var.get(),
+            "code":self.code_var.get()
+        }

@@ -8,7 +8,7 @@ class DataElementConceptDTO:
     ncit_code:str = None
     href:str = None
     data_type:str = None
-    example_set:list[str] = None
+    example_set:list[str] = []
 
     def __init__(self, conceptId:str, shortName:str, **kwargs):
         keys = kwargs.keys()

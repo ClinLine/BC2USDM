@@ -59,7 +59,7 @@ class CurrentCategoryView(LabelFrame):
 
         temp_bc = self.parent.main_app.select_bc(selection[0])
         
-        self.parent.update_current_bc(temp_bc)
+        self.parent.set_current_bc(temp_bc)
         
 
     def grab_focus(self):

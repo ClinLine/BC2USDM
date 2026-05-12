@@ -14,7 +14,7 @@ class TherapeuticArea():
     child_categories:list[BiomedicalConceptCategory]
     child_bcs:list[BiomedicalConcept]
     
-    def __init__(self, id_:guid=None, code:Code=None, **kwargs):
+    def __init__(self, id_:UUID=None, code:Code=None, **kwargs):
         
         if id_ is None:
             id_=guid()

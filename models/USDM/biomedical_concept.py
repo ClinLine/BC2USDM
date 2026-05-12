@@ -139,10 +139,10 @@ class BiomedicalConcept:
         else:
             # Print error if no lable and no title were found
             print(f"{BColors.FAIL}Error: BC({self.id_}) has no label{BColors.ENDC}")
-        self.name = '_'.join([self.label.replace(" ",""),str(self.id_)])
+        self.name = f"{self.label.replace(" ","")}_{self.id_}"
         
         if synonyms:
-            self.synonyms = synonyms,
+            self.synonyms = synonyms
 
         if reference != "" and reference is not None:
             self.reference = reference
@@ -163,14 +163,25 @@ class BiomedicalConcept:
             self.properties = []
         if properties is not None:
             if len(properties) > 0:
-                for prop_id, prop in properties.items():
-                    if isinstance(prop, BiomedicalConceptProperty):
-                        self.properties = properties
-                        break
-                    elif isinstance(prop, dict):
-                        self.properties.append(BiomedicalConceptProperty(**prop, parent_bc_id=id_))
-                    else:
-                        print(f"type is: {type(prop)}")
+                if isinstance(properties, dict):
+                    for prop_id, prop in properties.items():
+                        if isinstance(prop, BiomedicalConceptProperty):
+                            self.properties = properties
+                            break
+                        elif isinstance(prop, dict):
+                            self.properties.append(BiomedicalConceptProperty(**prop, parent_bc_id=id_))
+                        else:
+                            print(f"type is: {type(prop)}")
+                if isinstance(properties, list):
+                    for prop in properties:
+                        if isinstance(prop, BiomedicalConceptProperty):
+                            self.properties = properties
+                            break
+                        elif isinstance(prop, dict):
+                            self.properties.append(BiomedicalConceptProperty(**prop, parent_bc_id=id_))
+                        else:
+                            print(f"type is: {type(prop)}")
+
             # elif isinstance(properties, dict) and len(properties) > 0:
             # self.properties = [BiomedicalConceptProperty(prop) for prop in properties]
         else:
@@ -212,10 +223,11 @@ class BiomedicalConcept:
         """ Populates BiomedicalConcept's satelite data based on provided kwargs
         Requests data from API if no keyword-args were provided
         """
-        
+        verbose_ = False
         if len(kwargs) < 1:
             print([f"{BColors.WARNING}[Warning] {__name__}.{BiomedicalConcept.populate.__name__}populate: Populating with empty params is going to be deprecated{BColors.ENDC}"])
-        print(f"Populating following keys: {kwargs.keys()}")
+        if verbose_:
+            print(f"Populating following keys: {kwargs.keys()}")
         
         # The following are already handled at BC creation:
         # self.reference = kwargs["href"]
@@ -275,7 +287,7 @@ class BiomedicalConcept:
         
 
 
-        # shortName x 
+       
 
         # synonyms x
         if not self.synonyms:
@@ -384,7 +396,15 @@ class BiomedicalConcept:
     def set_label(self, label:str):
         self.label = label
         self._set_modified(True)
-            
+
+    def set_attribute(self, name:str, value) -> None:
+        if getattr(self,name) == value:
+            return
+        else:
+            self.id_ = guid()
+            setattr(self,name,value)
+
+    def get_attribute(self, name:str): getattr
 
     def _set_modified(self, value:bool):
         if self._modified and value:
@@ -417,43 +437,52 @@ class BiomedicalConcept:
             package=BiomedicalConceptProperty.package_from_json(json["_links"]["parentPackage"])
             )
     
-    # def __hash__(self):
-        # id_
-        # properties: list[BiomedicalConceptProperty] = None
-        # code:AliasCode
-        # _package_version:str
-        # label:str = None
-        # synonyms:list[str] = None
-        # reference:str = "" # Not nullable
-        # notes:list[CommentAnnotation] = None
-        # INSTANCE_TYPE = __qualname__
-        # categories = list[USDM_category]
-        # _links:str = None
-        # _modified:bool = False
-        # _populated = False
+    def has_same_values(self, other:BiomedicalConcept) :
+        ''' Check if the values of two BiomedicalConceptProperty instances match
+        '''
         
-        # args = (self.id_, 
-        #         self.label,
-        #         self.synonyms,
-        #         )
-        
-        
-        raise NotImplementedError()
-    
-    @staticmethod
-    def sync(origin:BiomedicalConcept, target:BiomedicalConcept) -> BiomedicalConcept:
-        #     # __name__ = "BiomedicalConcept"
-        # # DATA_TYPE = "Biomedical Concept"
-        # match = True
-        # id_ = None
-        
-        # match = hash(origin) == hash(target)
-        # label = target.label
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: id:{self.id_ == other.id_}{BColors.ENDC}")
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: reference:{self.reference == other.reference}{BColors.ENDC}")
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: label:{self.label == other.label}{BColors.ENDC}")
+        # print(f"{BColors.OKCYAN}INFO|[BC].sameValues: code:{self.code.standard_code.code == other.code.standard_code.code}{BColors.ENDC}")
+        # or self.datatype != other.datatype # Always Biomedical Concept for BCs
+        # print(f"delta cats: {set(self.categories) ^ set(other.categories)}")
         
 
-        # if match:
-        #     id_ = origin.id_
-        # else:
-        #     id_ = guid()
-        # name = "_".join((target.label.replace(" ",""),id_))
+
+        for i in range(len(self.notes)):
+            print(self.notes[i])
+            print(other.notes[i])
+            print(self.notes[i]==other.notes[i])
+
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: notes:{set(self.notes) ^ set(other.notes) == set()}{BColors.ENDC}")
+        
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: propertyes{ set(self.properties) ^ set(other.properties) == set()}{BColors.ENDC}")
+        
+        print(f"{BColors.OKCYAN}INFO|[BC].sameValues: synonyms{set(self.synonyms) ^ set(other.synonyms) == set()}{BColors.ENDC}")
+
+
+
+        if isinstance(other, BiomedicalConcept):
+            if (
+                self.id_ != other.id_
+                or self.reference != other.reference
+                or self.label != other.label
+                # or self.code != other.code
+                # or self.datatype != other.datatype # Always Biomedical Concept for BCs
+                
+                # or set(self.categories).difference(set(other.categories)) != []
+                # or self.categories.difference(other.categories) != []
+                or set(self.notes) ^ set(other.notes) != set()
+                or set(self.properties) ^ set(other.properties) != set()
+                or set(self.synonyms) ^ set(other.synonyms) != set()
+            ):
+                return False
+            return True
+        return False
+        
+    
+
+    @staticmethod
+    def sync(origin:BiomedicalConcept, new:BiomedicalConcept) -> BiomedicalConcept:
         raise NotImplementedError()

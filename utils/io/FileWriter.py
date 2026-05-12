@@ -22,27 +22,15 @@ class FileWriter():
 
     @staticmethod
     def writeJSON(o, path:str):
-        # encoder = MultipleJsonEncoders(
-        #     ResponseCodeEncoder,
-        #     BiomedicalConceptPropertyEncoder,
-        #     BiomedicalConceptEncoder,
-        #     BiomedicalConceptCategoryEncoder,
-        #     TherapeuticAreaEncoder,
-        #     RepositoryEncoder,
-        #     CommentAnnotationEncoder,
-        #     AliasCodeEncoder,
-        #     CodeEncoder,
-        #     UUIDEncoder,
-        #     IterEncoder)
         try:
             with open(file=f"{path}", mode="x+t", encoding="UTF-8") as file:
                 json.dump(obj=o, fp=file, indent=2 ,cls=USDMEncoder)
-                # json.dump(o, file,cls=encoder)
         except FileExistsError:
             # File already exists, overwriting
             with open(file=f"{path}", mode="w+t", encoding="UTF-8") as file:
                 json.dump(obj=o, fp=file, indent=2 ,cls=USDMEncoder)
         finally:
+            # Open saved file
             os.startfile(f"{path}")
             
         

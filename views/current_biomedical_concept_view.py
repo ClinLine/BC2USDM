@@ -23,14 +23,16 @@ class CurrentBiomedicalConceptView(LabelFrame):
 
         self.master_frame = Frame(self)
         self.master_frame.pack(side=TOP, fill=BOTH, expand=False)
-        print(self.master_frame.master.widgetName)
 
         i=0
         # label_label:Label         label:Textbox
-        self.bc_name_label = Label(self, text="Name: ")
-        self.bc_name_label.grid(row=i,column=0,sticky="W",in_=self.master_frame)
-        self.bc_label_value = StringVar(value="")
+        self.bc_label_label = Label(self, text="Label: ")
+        self.bc_label_label.grid(row=i,column=0,sticky="W",in_=self.master_frame)
+        self.bc_label_value = StringVar(name="bc_label_var")
         self.bc_name_entry = Entry(self, textvariable=self.bc_label_value)
+        # self.bc_label_value.trace_add("write", self.write_label)
+        # label_validate_command = (self.bc_name_entry.register(self.validate_label), self.bc_label_value.get())
+        # self.bc_name_entry["validatecommand"] = label_validate_command
         self.bc_name_entry.grid(row=(i:=i+1)-1,column=1,sticky="WE",in_=self.master_frame,padx=1)
         self.master_frame.columnconfigure(1,weight=1)
         self.master_frame.columnconfigure(0,uniform=TRUE)
@@ -104,12 +106,14 @@ class CurrentBiomedicalConceptView(LabelFrame):
         btn_frame = Frame(self)
         btn_frame.pack(side=BOTTOM, fill=BOTH, expand=FALSE, padx=(5,5), pady=(0,5))
         self.apply_txt_var = StringVar(value="Add")
-        apply_btn = Button(btn_frame, textvariable=self.apply_txt_var)
+        apply_btn = Button(btn_frame, textvariable=self.apply_txt_var, state="disabled")
         apply_btn["command"] = self.apply_changes_to_repository
         apply_btn.grid(row=0,column=1, sticky=EW)
+        self.apply_btn = apply_btn
         
-        remove_btn = Button(btn_frame, text="Remove")
+        remove_btn = Button(btn_frame, text="Remove", state="disabled")
         remove_btn.grid(row=0,column=0, sticky=EW)
+        self.remove_btn = remove_btn
         btn_frame.columnconfigure(0,weight=1)
         btn_frame.columnconfigure(1,weight=1)
 
@@ -130,7 +134,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
 
         properties = self.properties_frame.get_properties()
 
-        bc:dict = {
+        biomedical_concept_dict:dict = {
             "id_":id_, 
             "label":label, 
             "code": code,
@@ -140,13 +144,15 @@ class CurrentBiomedicalConceptView(LabelFrame):
             "properties":properties
         }
 
-        _ = self.parent.apply_to_repository(bc)
+        _ = self.parent.apply_bc_to_repository(biomedical_concept_dict)
         
 
 
     def remove_bc_from_repository(self):
         self.parent.remove_bc_from_repository(self.bc_id_value)
 
+    
+    
     def synonym_add_cmd(self, *args):
         temp_synonyms = list(self.bc_synonyms_listbox.get(0,END)) # to list is required as typles are immutable
         if len(temp_synonyms) == 0:
@@ -176,6 +182,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
         self.bc_alias_code_value.set(bc.code.standard_code.code)
         self.bc_label_value.set(bc.label)
 
+        self.notes_frame.reset()
         self.notes_frame.add_notes(bc.notes)
 
         self.bc_synonyms_value.set(bc.synonyms)
@@ -184,8 +191,15 @@ class CurrentBiomedicalConceptView(LabelFrame):
         # properties
         self.properties_frame.reset()
         self.properties_frame.add_properties(bc.properties)
+
+        # Enable apply button
+        self.apply_btn["state"] = "normal"
         
         # if bc._properties is not None:
         #     for prop in bc._properties:
         #         self.properties_frame.add_property(prop)
-            
+
+    
+
+        
+

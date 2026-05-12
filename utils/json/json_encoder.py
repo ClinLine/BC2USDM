@@ -15,9 +15,12 @@ from models.USDM.therapeutic_area import TherapeuticArea
 from utils.b_colors import BColors
 # from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 
+VERBOSE_ = False
+
 class IterEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"INFO|[IterEncoder]: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"INFO|[IterEncoder]: encoding {o.__class__.__name__}")
         # print(f"{BColors.WARNING}WARNING|[IterEncoder]: Iter encoder changed, check if this doesn't break dependant encoders{BColors.ENDC}")
         try:
             iterable = iter(o)
@@ -30,7 +33,8 @@ class IterEncoder(json.JSONEncoder):
 
 class UUIDEncoder(json.JSONEncoder):
     def default(self, o:UUID) -> str:
-        print(f"INFO|[UUIDEncoder]: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"INFO|[UUIDEncoder]: encoding {o.__class__.__name__}")
         if isinstance(o, UUID):
             return str(o)
         # Let the base class default method raise the typeError
@@ -38,7 +42,8 @@ class UUIDEncoder(json.JSONEncoder):
 
 class CodeEncoder(json.JSONEncoder):
     def default (self, o):
-        print(f"INFO|[CodeEncoder]: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"INFO|[CodeEncoder]: encoding {o.__class__.__name__}")
         # if isinstance(o, (Code, AliasCode)):
         if isinstance(o, USDM_Code):
             try:
@@ -64,7 +69,8 @@ class CodeEncoder(json.JSONEncoder):
 
 class AliasCodeEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"INFO|[AliasCodeEncoder]: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"INFO|[AliasCodeEncoder]: encoding {o.__class__.__name__}")
         if isinstance(o, AliasCode):
             try:
                 alias_code = {}
@@ -85,7 +91,8 @@ class AliasCodeEncoder(json.JSONEncoder):
 
 class CommentAnnotationEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"INFO|[CommentAnnotationEncoder]: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"INFO|[CommentAnnotationEncoder]: encoding {o.__class__.__name__}")
         
         if isinstance(o, CommentAnnotation):
             print(o.__dict__)
@@ -107,7 +114,8 @@ class CommentAnnotationEncoder(json.JSONEncoder):
 
 class RepositoryEncoder(json.JSONEncoder):
     def decode_therapeutic_area(self, therapeutic_area, child_categories, biomedical_concepts)  -> dict[str,str]:
-        print(f"{BColors.WARNING}Warning {__name__} ln:60: Currently a max of 1 Business Therapeutic Area(s) is hardcoded in this encoder.{BColors.ENDC}")
+        if VERBOSE_:
+            print(f"{BColors.WARNING}Warning {__name__} ln:60: Currently a max of 1 Business Therapeutic Area(s) is hardcoded in this encoder.{BColors.ENDC}")
         members = [*[str(category.id_) for category in child_categories],
                        *[str(bc.id_) for bc in biomedical_concepts if bc]]
         ta = super().default(therapeutic_area)
@@ -119,7 +127,8 @@ class RepositoryEncoder(json.JSONEncoder):
         return decoded_biomedical_concept_list
     
     def default(self, o) -> dict[str,str]:
-        print(f"RepositoryEncoder: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"RepositoryEncoder: encoding {o.__class__.__name__}")
         if isinstance(o, USDM_Repository):
             repo = {}
             repo["bcRepository"] = {}
@@ -140,7 +149,8 @@ class RepositoryEncoder(json.JSONEncoder):
 
 class TherapeuticAreaEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"TherapeuticAreaEncoder: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"TherapeuticAreaEncoder: encoding {o.__class__.__name__}")
         # if isinstance(o, dict) and len(o) == 2:
         #     raise NotImplementedError()
         #     bta_code:USDM_Code = o["therapeutric_area"].code
@@ -163,12 +173,14 @@ class TherapeuticAreaEncoder(json.JSONEncoder):
 
 class BiomedicalConceptCategoryEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"BiomedicalConceptCategoryEncoder: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"BiomedicalConceptCategoryEncoder: encoding {o.__class__.__name__}")
         if isinstance(o, BiomedicalConceptCategory):
             category = {}
             category["id"] = super().default(o.id_)
             category["name"] = o.name
-            if o.notes is None: category["description"] = ""
+            if o.notes is None:
+                category["description"] = ""
             else:
                 category["description"] = super().default(CommentAnnotation.find_definition(o.notes))
             category["label"] = o.label
@@ -176,11 +188,14 @@ class BiomedicalConceptCategoryEncoder(json.JSONEncoder):
             category["childIds"] = []
             # TODO: add memberIds
             # category["memberIds"] = super().default(o.children)
-            category["memberIds"] = []
+            # category["memberIds"] = []
+            if o.members is not None:
+                category["members"] = [super().default(bc.id_) for bc in o.members]
             category["instanceType"] = o.INSTANCE_TYPE
             if o.notes is not None:
                 category["notes"] = super().default(o.notes)
             else: category["notes"] = []
+            
 
             return category
         return super().default(o)
@@ -198,8 +213,9 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
         super().default(alias_code)
 
     def do_notes(self, notes:CommentAnnotation):
-        print(f"{BColors.OKCYAN}INFO | [BiomedicalConceptEncoder]: ADDING NOTES!!{BColors.ENDC}")
-        print("provided notes:")
+        if VERBOSE_:
+            print(f"{BColors.OKCYAN}INFO | [BiomedicalConceptEncoder]: ADDING NOTES!!{BColors.ENDC}")
+            print("provided notes:")
         for note in notes:
             print(note.text)#{[f"{note.text}" for note in notes]}")
         try:
@@ -216,7 +232,8 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
     
     def do_props(self, properties) -> list[dict[str,str]]:
         result = []
-        print(f"{BColors.OKGREEN}INFO|[BiomedicalConceptEncoder]: encoding Properties{BColors.ENDC}")
+        if VERBOSE_:
+            print(f"{BColors.OKGREEN}INFO|[BiomedicalConceptEncoder]: encoding Properties{BColors.ENDC}")
         try:
             result = [super().default(prop) for prop in properties]
         except Exception as err:
@@ -226,7 +243,8 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
         return result
 
     def default(self, o):
-        print(f"BiomedicalConceptEncoder: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"BiomedicalConceptEncoder: encoding {o.__class__.__name__}")
         if isinstance(o, BiomedicalConcept):
             biomedicalConcept = {}
             # Dictionaries are technically ordered in python 3.7,
@@ -259,7 +277,8 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
 
 class BiomedicalConceptPropertyEncoder(json.JSONEncoder):
     def default(self, o:BiomedicalConceptProperty):
-        print(f"INFO|[BiomedicalConceptPropertyEncoder]: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"INFO|[BiomedicalConceptPropertyEncoder]: encoding {o.__class__.__name__}")
         
         if isinstance(o, BiomedicalConceptProperty):
             try:
@@ -293,7 +312,8 @@ class BiomedicalConceptPropertyEncoder(json.JSONEncoder):
 
 class ResponseCodeEncoder(json.JSONEncoder):
     def default(self, o):
-        print(f"INFO|[ResponseCodeEncoder]: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"INFO|[ResponseCodeEncoder]: encoding {o.__class__.__name__}")
         
         if isinstance(o, ResponseCode):
             responseCode = {}
@@ -322,7 +342,8 @@ class USDMEncoder(
     IterEncoder,
     UUIDEncoder):
     def default(self, o):
-        print(f"USDMEncoder: encoding {o.__class__.__name__}")
+        if VERBOSE_:
+            print(f"USDMEncoder: encoding {o.__class__.__name__}")
         return super().default(o)
     
     # def decode_uuid(self, o:UUID) -> dict[str, str]:

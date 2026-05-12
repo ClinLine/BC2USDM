@@ -1,23 +1,26 @@
 import configparser
+from copy import deepcopy
 from uuid import UUID, uuid4 as guid
 
 # from props_testing import PropertyDisplay
-from logic.DAL.data_store import DataStore
-from models import USDM
-from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
+# from logic.DAL.data_store import DataStore
+# from models.USDM.biomedical_concept_package import BiomedicalConceptPackage
+from models.USDM.code import USER_DEFINED_RESPONSE_CODE
 from models.USDM.repository import Repository
+from models.USDM.response_code import R_CODE as DEFAULT_RESPONSE_CODE_CODE, ResponseCode
 from models.USDM.therapeutic_area import TherapeuticArea
 from utils.b_colors import BColors
 from views.bc2usdm_window import BC2USDM_Window
 from models.CDISC.BiomedicalConceptCategory import BiomedicalConceptCategory as CDISC_Category
 from models.USDM.biomedical_concept_category import BiomedicalConceptCategory as USDM_Category
 from models.USDM.biomedical_concept import BiomedicalConcept as USDM_BC, Code
+from models.USDM.comment_annotation import USER_DEFINED_NOTE_CODE, CommentAnnotation
 from utils.api_utils import get_biomedical_concepts_list, get_latest_biomedical_concept_categories
 from utils import api_utils as API
-from utils.io.FileWriter import FileWriter as fr
 # from utils.json_encoder import CustomEncoder
 
 App_Instance:'App'
+verbose_ = False
 
 # __categories_list_width: int = 120
 class App:
@@ -31,18 +34,20 @@ class App:
 
     # state:
     current_repository:Repository = None
-    persistent_cdisc_repository:Repository = Repository()
+    # persistent_cdisc_repository:Repository = Repository()
 
     current_category:USDM_Category = None
     biomedical_concepts_in_current_category:list[USDM_BC] = []
+    
     current_biomedical_concept:USDM_BC = None
+    original_biomedical_concept:USDM_BC = None
 
 
 
     def __init__(self):
         super().__init__()
-        config = App.load_configs()
-        self.data_store = DataStore("./Resources/Cache.json")
+        # config = App.load_configs()
+        # self.data_store = DataStore("./Resources/Cache.json")
 
         self._initialize_state()
 
@@ -62,7 +67,11 @@ class App:
         # calls in init after this line are ran after closing the UI
 
     def _initialize_state(self):
-        print("[Info] App.initialize_state: Initializing")
+        self.current_biomedical_concept = None
+        self.original_biomedical_concept = None
+        
+        if verbose_:
+            print("[Info] App.initialize_state: Initializing")
         self.biomedical_concepts_in_current_category = None
         print("\033[93m [Warning] App.initialize_state: No active repository found, creating new one \033[0m")
         print("\033[93m [Warning] App.initialize_state: Loading pre-existing repositories is not supported yet \033[0m")
@@ -74,7 +83,8 @@ class App:
         usdm_categories.sort(key=lambda usdm_category: usdm_category.name)
         self.set_categories(usdm_categories)
 
-        print("[Info] App.initialize_state: Done")
+        if verbose_:
+            print("[Info] App.initialize_state: Done")
 
 
     def __call__(self, *args, **kwds):
@@ -118,68 +128,199 @@ class App:
                 return bc
         raise ValueError(f"{BColors.FAIL} Request_id should be an UUID in the cache")
         
-    def apply_to_repository(self, data:dict) -> list[USDM_BC]:
-        print(f"{BColors.WARNING}WARNING, changes made in the UI are currently being discarded.{BColors.ENDC}")
-        # print(data.keys())
-        data_id:UUID = UUID(data["id_"])
+    def apply_biomedical_concept_to_repository(self, bc_dao:dict) -> list[USDM_BC]:
+        if bc_dao["label"] != self.current_biomedical_concept.label:
+            self.current_biomedical_concept.label = bc_dao["label"]
+        elif verbose_:
+            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Labels match, no change required.{BColors.ENDC}")
+    
+        if verbose_:
+            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Checking what notes are all about.{BColors.ENDC}")
+            if bc_dao["notes"]:
+                for note in bc_dao["notes"]:
+                    print(note)
+            if self.current_biomedical_concept.notes:
+                for note in self.current_biomedical_concept.notes:
+                    print(note.text)
+
+        # if len(self.current_biomedical_concept.notes) == len(bc_dao["notes"]):
+        #     # Naïvely assuming order stayed the same
+        #     for i, note in self.current_biomedical_concept:
+        #         if note.text != bc_dao["notes"][i]:
+        #             note.text = bc_dao["notes"][i]
+        #             note.code = USER_DEFINED_NOTE_CODE
         
-        # if current bc != the bc being applied
-        if self.current_bc.id_ != data_id: 
-            current_bc = self.get_if_in_repository(data_id)
-            print(self.get_if_in_repository(data_id))
-            fresh_bc = self.get_from_cdisc_repository(data_id)
-            
-            if current_bc is None:
-                print("Current bc does not exist in current repository")
-                print("adding to repository")
-                self.current_repository.add_biomedical_concept(fresh_bc)
-                if self.current_category.id_ not in [cat.id_ for cat in self.current_repository.bc_categories]:
-                    self.current_repository.bc_categories.append(self.current_category)
-                return self.current_repository.biomedical_concepts.values()
+        if len(self.current_biomedical_concept.notes) > 0 or len(bc_dao["notes"]) > 0:
+            # DO OVERLAPPING NOTES
+            start_index = -1
+            if len(self.current_biomedical_concept.notes) > 0 and len(bc_dao["notes"]) > 0:
+                start_index = len(self.current_biomedical_concept.notes)
+                for i, note in enumerate(self.current_biomedical_concept.notes):
+                    if note.text != bc_dao["notes"][i]:
+                        note.text = bc_dao["notes"][i]
+                        note.code = USER_DEFINED_NOTE_CODE
             else:
-                # Check for changes and apply them
-                print("Checking for Changes")
-                print("Applying found changes")
-                raise NotImplementedError("Editing changes isn't implemented yet")
-                # self.update_repository(current_bc, data)
-            
-            
+                start_index = 0
+                
+            # DO NEW NOTES
+            # Should only do the notes don't overlap index pre existing notes
+            if len(bc_dao["notes"]) > len(self.current_biomedical_concept.notes):
+                for i, note_text in enumerate(bc_dao["notes"][start_index:]):
+                    self.current_biomedical_concept.notes.append(
+                        CommentAnnotation(
+                            text=note_text,
+                            codes=[USER_DEFINED_NOTE_CODE]
+                        )
+                    )
+        
+        # Since synonyms is just a list of strings, compairing isn't required and we can just copy from the UI
+        if verbose_:
+            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Naïvely copying synonyms from UI, since it's just a list of strings.{BColors.ENDC}")
+        self.current_biomedical_concept.synonyms = bc_dao["synonyms"]
+        
+        for prop in self.current_biomedical_concept.properties:
+            dao_properties = bc_dao["properties"]
+            # dao_properties_vals = bc_dao["properties"].values()
+            # dao_properties_items = bc_dao["properties"].items()
+            for dao_id, dao_prop  in dao_properties.items():
+                if verbose_:
+                    print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: prop.id_ = {prop.id_}{BColors.ENDC}")
+                    print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: doa.id_ = {dao_id}{BColors.ENDC}")
+                    print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: matching =  {UUID(dao_id)==prop.id_}{BColors.ENDC}")
+                if UUID(dao_id) == prop.id_:
+                    prop.label = dao_prop["label"]
+                    prop.is_required = dao_prop["is_required"]
+                    prop.is_enabled = dao_prop["is_enabled"]
+                    prop.datatype = dao_prop["datatype"]
 
-        # if current bc is the bc being applied
-        if data_id == self.current_bc.id_ or current_bc is None:
-            # apply any possible changes to current_bc
-            print("applying changes to current bc")
-            # current_bc = USDM_BC(**data)
-            current_bc = self.current_bc # TEMP!!
-            print(f"{BColors.WARNING}WARN|[App.applyToRepo]: Currently we're not taking changes made in the UI into account{BColors.ENDC}")
-            
-            # if current_bc == self.current_bc: # <- doesn't work, since this only does a reference comp.
-            #     self.current_bc = current_bc
-            # USDM_BC.sync(self.current_bc, current_bc)
-            # else:
+                    
+                    unchanged_notes = []
+                    # Since the UI only knows of the .text element of CommentAnnotations
+                    # We have to separate out the notes that haven't been changed first
+                    if verbose_:
+                        print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: this property has {len(prop.notes)} notes on record.{BColors.ENDC}")
+                        print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: this property has {len(dao_prop["notes"])} notes in the UI.{BColors.ENDC}")
+                    for note in prop.notes:
+                        for note_string in dao_prop["notes"]:
+                            if note.text == note_string:
+                                unchanged_notes.append(note)
+                                break
+                    
+                    # Next we run through all notes again, skipping the ones that aren't in our list of unchanged_notes
+                    # Append them if they're a new note, otherwise overwrite the original if it's a change
+                    for index, note in enumerate(prop.notes):
+                        # If note is one of the unchanged_notes, skip it
+                        if note in unchanged_notes:
+                            continue
+                        # if ui contains more notes than the original property, append new note to prop.notes
+                        # The code is set to the default USER_DEFINE_CODE in the CommentAnnotation class
+                        elif index >= len(prop.notes):
+                            continue
+                            # comment_annotation = CommentAnnotation(
+                            #     text=dao_prop["notes"][index],
+                            #     codes=[CommentAnnotation.USER_DEFINED_CODE]
+                            #     )
+                            # prop.notes.append(comment_annotation)
+                        else: # -> current note is one of the changed notes
+                            # Since lists are ordered, we assume an index match means same note, so changing the changed text should be sufficient
+                            note.text = dao_prop["notes"][index]
+                    
+                    if len(prop.notes) < len (dao_prop["notes"]):
+                        # If there are more notes in the UI than on record, add them to the record
+                        if verbose_:
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: UI has {len(prop.notes) - len(dao_prop["notes"])} more notes.{BColors.ENDC}")
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first note is:{len(dao_prop["notes"][len(prop.notes):][0])}{BColors.ENDC}")
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to add extra notes{BColors.ENDC}")
+                        for note_str in dao_prop["notes"][len(prop.notes):]:
+                            comment_annotation = CommentAnnotation(
+                                text=note_str,
+                                codes=[CommentAnnotation.USER_DEFINED_CODE]
+                                )
+                            prop.notes.append(comment_annotation)
 
-                # add current_bc to current_repository
-                # print("Adding current bc to current repo")
-                # # raise NotImplementedError()
-            self.current_repository.add_biomedical_concept(current_bc)
+                    # RESPONSE CODES
+                    if verbose_:
+                            if prop.response_codes is None:
+                                print(f"{BColors.WARNING}WARN|[App].apply_to_repository: prop.response_codes should never be none, it should be [] instead{BColors.ENDC}")
+                            elif len(prop.response_codes) > 0:
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to resolve response codes{BColors.ENDC}")
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Number of Response Codes found: {len(prop.response_codes)}{BColors.ENDC}")
+                            if len(dao_prop["response_codes"]) > 0:
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first dao_rc is:{dao_prop["response_codes"][0]}{BColors.ENDC}")
+                            if len(prop.response_codes)> 0:
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: prop rc is:{prop.response_codes[0].label}{BColors.ENDC}")
+                            if len(dao_prop["response_codes"]) > len(prop.response_codes) :
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: amount of added notes is:{len(dao_prop["response_codes"][len(prop.notes):])}{BColors.ENDC}")
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first adde note is:{dao_prop["response_codes"][len(prop.response_codes):][0]}{BColors.ENDC}")
+                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to add additional {BColors.ENDC}")
+
+                    for rc in prop.response_codes:
+                        for index, rc_dict in enumerate(dao_prop["response_codes"]):
+                            if rc.id_ == UUID(rc_dict["id_"]):
+                                rc.label = rc_dict["label"]
+                                rc.is_enabled = rc_dict["is_enabled"]
+                            # If code still matches, continue to new item
+                            if rc.code.code == rc_dict["code"]:
+                                break
+                            else:
+                                rc.code = Code(
+                                    code=rc_dict["code"],
+                                    code_system=Code.CodeSystem.CUSTOM,
+                                    code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION,
+                                    decode="A user-defined symbol or combination of symbols representing the response to the question.")
+                            # Since we encountered a match and applied the changes, we are breaking out of the inner loop, to look for the next match
+                            break
+                    if len(prop.response_codes) < len(dao_prop["response_codes"]):
+                        for dao_rc in dao_prop["response_codes"][len(prop.response_codes):]:
+                            if dao_rc["code"] == DEFAULT_RESPONSE_CODE_CODE.code:
+                                code:Code = DEFAULT_RESPONSE_CODE_CODE
+                            else:
+                                code = deepcopy(USER_DEFINED_RESPONSE_CODE)
+                                code.code = dao_rc["code"]
+                                code.id_ = guid()
+                            prop.response_codes.append(ResponseCode(
+                                    id_=UUID(dao_rc["id_"]),
+                                    label=dao_rc["label"],
+                                    is_enabled=dao_rc["is_enabled"],
+                                    code=code
+                                )
+                            )
+                    break # break out of inner loop to continue to next prop in currentBC.props
             
-            # self.current_repository.update_repository(current_bc)
-            self.current_repository.add_category(self.current_category)
-            
-            # print("Updating UI (Am I though?)")
-            biomedical_concepts_in_repository = self.current_repository.biomedical_concepts.values()
-            # self.display == None!!
-            # self.display.current_repository_container.added_biomedical_concepts_container.update_added_biomedical_concepts(repo_bcs)
-            return biomedical_concepts_in_repository
-            # add current_bc's category(s) to current_repository
-        else:
-            print(f"{BColors.FAIL}App.apply_to_repo: WHAT HAPPENED?!{BColors.ENDC}")
+        
+        self.current_repository.add_biomedical_concept(self.current_biomedical_concept)
+        # Note: No longer adding category to repository when adding singular bc in preperation for expanded category support
+        # Lines will be removed soon
+        # if self.current_category not in self.current_repository.bc_categories:
+        #     self.current_category.members.append(self.current_biomedical_concept)
+        #     self.current_repository.bc_categories.append(self.current_category)
+        # else:
+        #     for cat in self.current_repository.bc_categories:
+        #         if cat is self.current_category and self.current_biomedical_concept not in cat.members:
+        #             cat.members.append(self.current_biomedical_concept)
+        biomedical_concepts_in_repository = self.current_repository.biomedical_concepts.values()
+        return biomedical_concepts_in_repository
+
+    def get_categories_in_repository(self):
+        return self.current_repository.bc_categories
+    
+    def get_nth_category_in_repository(self, number:int):
+        return self.current_repository.bc_categories[number].to_dict()
+
     #endregion
 
     #region Categories list
     def get_category_labels(self):
         categories = self.get_categories()
         return [category.label for category in categories]
+    
+    def get_category_index_by_id(self, id_:str|UUID) -> int:
+        if isinstance(id_,str):
+            id_ = UUID(id_)
+
+        for index, cat in enumerate(self.categories):
+            if cat.id_ == id_:
+                return index
     
     def get_categories(self):
         if self.categories is None or len(self.categories) == 0:
@@ -195,6 +336,8 @@ class App:
         # self.display.categories_container.set_categories([category.label for category in self.categories])
 
     #endregion
+
+
     #region Current Category
     def set_current_category_by_index(self, category_list_index:int):
         self.current_category:USDM_Category = self.categories[category_list_index]
@@ -213,8 +356,6 @@ class App:
         return self.biomedical_concepts_in_current_category
     
     def _get_bcs_in_category(self, category_code):
-        # all_codes = [cat.get_code() for cat in self.categories]
-        
         json_bcs = API.get_biomedical_concepts_list(category_code, self.categories)
         biomedical_concepts_in_category:list[USDM_BC] = []
         try:
@@ -237,39 +378,7 @@ class App:
         self.biomedical_concepts_in_current_category:list[USDM_BC] = self._get_bcs_in_category(self.current_category.get_code())
         return [bc.label for bc in self.biomedical_concepts_in_current_category]
 
-    [DeprecationWarning]
-    def get_biomedical_concept_names_in_category(self, index:int = None, id_:str = None, name:str = None):
-        ''' Set bc_selection to all biomedical concepts in provided category and returns a list of the related names
-        Raises a ValueError if no index, id or name is provided
-        Returns list[str] names
-        '''
-        current_category = None
-        if index is not None:
-            current_category = self.categories[index]
-        elif id_ is None and name is None:
-            # index, id and name are none. So can't provide a category
-            raise ValueError("Provide an index, id or name of the category in question")
-        else:
-            for category in self.categories:
-                if category.id_ == id_ or category.name == name:
-                    current_category = category
-                    break
-        self.biomedical_concepts_in_current_category: list[USDM_BC] = self._get_bcs_in_category(current_category)
-        return [bc.label for bc in self.biomedical_concepts_in_current_category]
-
-    [DeprecationWarning]
-    def select_category(self, category_list_index:int):
-        print(f"{BColors.WARNING}[WARNING]: {self.select_bc.__qualname__} is depracated. {BColors.ENDC}")
-        self.current_category:USDM_Category = self.categories[category_list_index]
-
-        temp = API.get_biomedical_concepts_list(self.current_category.code.standard_code.code, categories=[cat.code.standard_code.code for cat in self.categories])
-        available_bcs:list[USDM_BC] = [USDM_BC(row) for row in temp]
-
-        self.biomedical_concepts_in_current_category = available_bcs
-
-        return {
-            "category_name":self.current_category.label,
-            "bc_names": [bc.label for bc in available_bcs]}
+    
     #endregion
     
     
@@ -283,41 +392,7 @@ class App:
             if not selected_bc._populated:
                 code = selected_bc.reference.split('/')[-1]
 
-                '''{
-                    "_links":{
-                        "parentBiomedicalConcept":{
-                            "href":"/mdr/bc/biomedicalconcepts/C81250",
-                            "title":"Functional Assessment",
-                            "type":"Biomedical Concept" },
-                        "parentPackage":{
-                            "href":"/mdr/bc/packages/2025-11-18/biomedicalconcepts",
-                            "title":"Biomedical Concept Package Effective 2025-11-18",
-                            "type":"Biomedical Concept Package"},
-                        "self":{
-                            "href":"/mdr/bc/biomedicalconcepts/C115789",
-                            "title":"6 Minute Walk Functional Test",
-                            "type":"Biomedical Concept"}},
-                            "conceptId":"C115789",
-                            "href":"https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C115789",
-                            "categories":[
-                                "QRS",
-                                "Functional Assessment",
-                                "6 Minute Walk Functional Test",
-                                "SIX MINUTE WALK",
-                                "SIXMW1",
-                                "6MWT"],
-                            "shortName":"6 Minute Walk Functional Test",
-                            "synonyms":["6MWT","SIXMW1","SIX MINUTE WALK"],
-                            "definition":"A standardized rating scale developed by Bruno Blake in 1963, which is a performance-based evaluation of functional exercise capacity in subjects with chronic respiratory disease and heart failure, as well as other populations such as healthy older adults and people suffering from fibromyalgia and scleroderma. This functional test contains 6 items and measures the distance an individual is able to walk over a total of six minutes on a hard, flat surface.",
-                            "dataElementConcepts":[
-                                {"conceptId":"C82525","href":"https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C82525","shortName":"Test Occurrence","dataType":"string","exampleSet":["N","Y"],"ncitCode":"C82525"},
-                                {"conceptId":"C25372","href":"https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C25372","shortName":"Category","dataType":"string","exampleSet":["SIX MINUTE WALK"],"ncitCode":"C25372"},
-                                {"conceptId":"C82515","href":"https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C82515","shortName":"Collection Date Time","dataType":"datetime","ncitCode":"C82515"},
-                                {"conceptId":"C93300","href":"https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C93300","shortName":"Assistive Device","dataType":"string","exampleSet":["cane"],"ncitCode":"C93300"}],
-                            "ncitCode":"C115789"}'''
-
-
-
+                
                 json_data = API.get_latest_biomedical_concept(code)
                 selected_bc.populate(**json_data)
             # lines commented out, since this shouldn't be need to be resolved in this method.
@@ -325,17 +400,24 @@ class App:
             #     self.biomedical_concepts_in_current_category:list[USDM_BC] = []
             # self.biomedical_concepts_in_current_category.append(selected_bc)
             self.biomedical_concepts_in_current_category[index] = selected_bc
-            self.set_current_bc(selected_bc)
+            self.original_biomedical_concept = None
+            self.current_biomedical_concept = selected_bc
             return selected_bc
         return None
 
-    
+    def get_biomedical_concept_by_id(self, id_:UUID) -> USDM_BC | None:
+        for bc in self.biomedical_concepts:
+            if bc.id_ == id_:
+                return bc
+        print(f"{BColors.WARNING}WARN|[App].get_bc_by_id: No bc with id {id_} was found.{BColors.ENDC}")
+        return None
+            
 
     def set_current_bc(self, bc:USDM_BC):
-        self.current_bc = bc
+        self.current_biomedical_concept = bc
 
     def get_current_bc(self):
-        return self.current_bc
+        return self.current_biomedical_concept
     #endregion
 
     # TODO: Review this list
@@ -351,64 +433,6 @@ def main(*args):
     global App_Instance
     App_Instance = App()
     App_Instance.start()
-
-
-        
-
-# def test(categories:dict):
-#     # Print references to test for inconsistencies
-#     print(f"{BColors.OKCYAN.value}Print references to test for inconsistencies{BColors.ENDC.value}")
-#     # for i in range(0, len(categories)):
-#     count = 0
-#     total = 0
-    
-#     l = len(categories)
-#     category_codes = []
-#     print(f'{BColors.OKCYAN.value}checking Category references{BColors.ENDC.value}')
-#     for i, category in progressBar(categories, prefix='Checking Categories:',suffix='Complete', bar_length = 100):
-        
-#         category_codes.append(category['_links']['self']['href'].split('=')[-1])
-#         mdr = category['_links']['self']['href'].split('/')[1]
-#         if mdr != mdr:
-#             count +=1
-#             print(f"{BColors.FAIL.value}[{i}:]{category['_links']['self']['href']}{BColors.ENDC.value}")
-#         total +=1
-
-#         # progressBar(i+1,l,prefix='Progress:',suffix='Complete', length = 50)
-
-    
-#     print(f'{BColors.OKCYAN.value}checking BC references{BColors.ENDC.value}')
-#     # for i, category_code in progressBar(category_codes, prefix="Progress", suffix="Complete", bar_length=50):
-#     #     total +=1
-#     #     if i < l and category_code != "Merged" and category_code != "Non-Target":
-#     #         json_bcs = API.get_biomedical_concepts_list(category_code, [category_code])
-            
-#     #         # prefix = f'[{i}/{l}] {category_code.zfill(35)}'
-#     #         for j, bc in enumerate(json_bcs):
-#     #             mdr = bc['href'].split('/')[1]
-#     #             if mdr != 'mdr':
-#     #                 count +=1
-#     #                 print(f"{BColors.FAIL.value}[{j}:]{bc['href']}{BColors.ENDC.value}")
-
-#     bcs = API.get_biomedical_concepts_list('all')
-#     l = len(bcs)
-#     errors = []
-#     for j, bc in progressBar(bcs, prefix=f'Progress', suffix="bcs checked", bar_length=50):
-#         total +=1
-#         if j < l:
-#             mdr = bc['href'].split('/')[1]
-#             if mdr != 'mdr':
-#                 count +=1
-#                 errors.append(f"{BColors.FAIL.value}[{j}:]{bc['href']}{BColors.ENDC.value}")
-#                 # function.append(lambda: _ => print(f"{BColors.FAIL.value}[{j}:]{bc['href']}{BColors.ENDC.value}"))
-                
-#     print(*errors,sep="\n")
-
-#     print(f"test completed, {BColors.FAIL.value}{count}{BColors.ENDC.value}/{total} references didn't start with /mdr/")        
-
-
-
-    
 
 if __name__ == "__main__":
     __name__ = "BC2USDM"

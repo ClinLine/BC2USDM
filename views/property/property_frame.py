@@ -9,7 +9,7 @@ from views.property.response_codes_container_frame import ResponseCodesContainer
 
 
 class PropertyFrame(Frame):
-    def __init__(self, parent, property = None, *args, **kwargs):
+    def __init__(self, parent, property=None, *args, **kwargs):
         
         super().__init__(parent, name=kwargs["name"])
         row_index = 0
@@ -23,12 +23,12 @@ class PropertyFrame(Frame):
         # Property Id
         self.id_var = StringVar(value=property.id_)
         Label(self,text="Property Id:").grid(row=row_index,column=0,sticky="NWS")
-        Entry(self, state=DISABLED, textvariable=self.id_var).grid(row=(row_index:=row_index+1)-1,column=1,sticky="NESW")
+        Entry(self, state="readonly", textvariable=self.id_var).grid(row=(row_index:=row_index+1)-1,column=1,sticky="NESW")
         
         # Property Code
         self.code_var = StringVar(value=property.code.standard_code.code)
         Label(self,text="Code:").grid(row=row_index,column=0,sticky="NWS")
-        Entry(self, state=DISABLED, textvariable=self.code_var).grid(row=(row_index:=row_index+1)-1,column=1,sticky="NESW")
+        Entry(self, state="readonly", textvariable=self.code_var).grid(row=(row_index:=row_index+1)-1,column=1,sticky="NESW")
 
         # isRequired
         Label(self,text="Required").grid(row=row_index,column=0,sticky="NWS")
@@ -65,13 +65,13 @@ class PropertyFrame(Frame):
         self.columnconfigure(1,weight=1)
 
     def get_property_dict(self):
-        label = self.label_var.get()
-        id_:UUID = self.id_var.get()
-        code = self.code_var.get()
-        required = self.required_var.get()
-        enabled = self.enabled_var.get()
-        instance_type = self.type_var.get()
-        notes = self.notes_frame.get_notes()
+        label:str = self.label_var.get()
+        id_:str = self.id_var.get()
+        code:str = self.code_var.get()
+        required:bool = self.required_var.get()
+        enabled:bool = self.enabled_var.get()
+        instance_type:str = self.type_var.get()
+        notes:list[str] = self.notes_frame.get_notes()
         response_codes = self.response_code_frame.get_response_codes()
 
         prop = {

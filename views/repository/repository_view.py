@@ -2,7 +2,9 @@ from tkinter import Entry, IntVar, Label, LabelFrame, Listbox, Scrollbar, String
 from tkinter.constants import *
 from uuid import uuid4 as guid
 
+from app import BColors
 from models.USDM.biomedical_concept import BiomedicalConcept
+from models.USDM.biomedical_concept_category import BiomedicalConceptCategory
 from models.USDM.therapeutic_area import TherapeuticArea
 
 
@@ -41,6 +43,17 @@ class RepositoryView(LabelFrame):
 
     def update_bc_list(self, bcs:list[BiomedicalConcept]):
         self.added_biomedical_concepts_container.update_biomedical_concepts_list(bcs)
+
+    def update_cat_list(self, categories:list[BiomedicalConceptCategory]):
+        self.categories_container.update_category_list(categories)
+
+    def open_selected_category(self, number:int):
+        index = self.parent.get_nth_category_in_repository(number)["id_"]
+        # index:int = self.parent.get_category_index_by_id(category["id_"])
+        self.parent.open_category_by_id(index)
+
+    
+    
 
 class TherapeuticAreaView(LabelFrame):
     __TITLE_TEXT:str = "Therapeutic Area: "
@@ -122,16 +135,43 @@ class TherapeuticAreaView(LabelFrame):
 
 class RepositoryCategoryView(LabelFrame):
     __TITLE_TEXT:str = "Your categories: "
-    def __init__(self, parent, **kwargs):
-        
+    parent:RepositoryView = None
+
+    def __init__(self, parent:RepositoryView, **kwargs):
+        self.parent = parent
         if "title" in kwargs.keys():
             title = kwargs["title"]
             del kwargs["title"]
         else:
             title = RepositoryCategoryView.__TITLE_TEXT
         super().__init__(parent, text=title, **kwargs)
+        
+        self.category_names_var = Variable(value=[])
+        bc_scrollbar_y = Scrollbar(self,orient=VERTICAL)
+        bc_scrollbar_y.grid(column=1,row=0,sticky=(N,E,S))
+        self.category_list = Listbox(self, justify=LEFT, listvariable=self.category_names_var,
+                               yscrollcommand=bc_scrollbar_y.set)
+        self.category_list.bind("<ButtonRelease>", self.category_list_select)
+        self.category_list.grid(column=0, row=0, sticky=NSEW)
+        bc_scrollbar_y.config(command=self.category_list.yview)
+        self.columnconfigure(0,weight=1)
+        self.rowconfigure(0,weight=1)
+
 
         super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
+
+    def category_list_select(self, *args):
+        print(f"{BColors.WARNING}WARN|[{self.__class__.__name__}].categoryListSelect: Re-selecting categories is not implemented yet.{BColors.ENDC}")
+        selection = self.category_list.curselection()[0]
+        self.parent.open_selected_category(selection)
+        for arg in args:
+            print(f"{arg}")
+        raise NotImplementedError()
+    
+    def update_category_list (self, categories:list[BiomedicalConceptCategory]):
+        cat_strings:list[str] = [f"{category.label}" for category in categories]
+        self.category_names_var.set(cat_strings)
+
     # Add container to edit (custom) Category
     # (For now only one category)
     #   - "id": "$(guid)"                                                           -> Generated Value
@@ -169,8 +209,7 @@ class RepositoryBiomedicalConceptsContainer(LabelFrame):
         super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
 
     def update_biomedical_concepts_list (self, bcs:list[BiomedicalConcept]):
-        print(len(bcs))
-        bc_strings:list[str] = [f"{bc.label} - {bc.code.standard_code.code} " for bc in bcs]
+        bc_strings:list[str] = [f"{bc.code.standard_code.code} - {bc.label}" for bc in bcs]
         self.bcs_var.set(bc_strings)
 
 
