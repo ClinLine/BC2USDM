@@ -1,5 +1,6 @@
 # BC2USDM
-Selection of CDISC Biomedical Concepts, add data capture features and store in USDM format
+This tool shows how CDISC Biomedical Concepts obtained form CDISCs BC library can be selected and configured for the purpose of a flexible metadata repository. It will include the ability to add new properties and response values based on the rquirements from the company and therapeutic area. Note that a CDISC API is needed for the BC library which can be retrieved based on CDISC membership.
+
 
 To run the tool:
 
@@ -17,3 +18,5 @@ PRIMARY_KEY = [your primary cdisk api key]
 SECONDARY_KEY = [your secondary cdisk api key]
 
 This file should be included in .gitignore, so it will NOT be submitted to github.
+
+The application can be initiated by running: python .\app.py -__name__ __main__    

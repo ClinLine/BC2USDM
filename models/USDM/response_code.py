@@ -9,6 +9,7 @@ class ResponseCode():
     id_:UUID
     name: str
     is_enabled: bool
+    __IS_ENABLED_DEFAULT:bool = True
     code:Code = R_CODE
     label: str = None
     INSTANCE_TYPE = __qualname__
@@ -60,11 +61,3 @@ class ResponseCode():
         if result is None:
             raise ValueError("[ResponseCode].from_example_set: result should never be None here!!")
         return result
-    
-    # def __eq__(self, other):
-    #     if not isinstance(other, ResponseCode):
-    #         return False
-    #     if self.label != other.label: return False
-    #     # Not checking code since all response codes should have the same code
-    #     if self.is_enabled != other.is_enabled: return False
-    #     return True
