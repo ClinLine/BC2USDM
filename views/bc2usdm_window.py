@@ -90,7 +90,7 @@ class BC2USDM_Window():
         names = [cat.name for cat in categories]
         self.categories_container.set_categories(names)
 
-    def set_current_category(self, index:int):
+    def set_current_category_by_index(self, index:int):
         self.main_app.set_current_category_by_index(index)
         
         cat_label = self.main_app.get_current_category_label()
@@ -99,8 +99,22 @@ class BC2USDM_Window():
         # now to display the
         self.current_category_container.update_current_category(cat_label, bc_names)
 
-    def apply_to_repository(self, bc:dict):
-        biomedical_concepts_in_repository = self.main_app.apply_to_repository(bc)
+    def get_nth_category_in_repository(self, number:int) -> dict:
+        cat = self.main_app.get_nth_category_in_repository(number)
+        d = cat.to_dict()
+        return d
+    
+    def get_category_index_by_id(self, id_:str) -> int:
+        return self.main_app.get_category_index_by_id(id_)
+    
+    def open_category_by_id(self, id_:str):
+        index = self.get_category_index_by_id(id_)
+        self.categories_container.categories_overview_listbox.activate(index)
+        
+
+
+    def apply_to_repository(self, bc_dict:dict):
+        biomedical_concepts_in_repository = self.main_app.apply_biomedical_concept_to_repository(bc_dict)
         categories_in_repository = self.main_app.get_categories_in_repository()
         self.current_repository_container.update_bc_list(biomedical_concepts_in_repository)
         self.current_repository_container.update_cat_list(categories_in_repository)

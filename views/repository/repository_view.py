@@ -47,6 +47,14 @@ class RepositoryView(LabelFrame):
     def update_cat_list(self, categories:list[BiomedicalConceptCategory]):
         self.categories_container.update_category_list(categories)
 
+    def open_selected_category(self, number:int):
+        index = self.parent.get_nth_category_in_repository(number)["id_"]
+        # index:int = self.parent.get_category_index_by_id(category["id_"])
+        self.parent.open_category_by_id(index)
+
+    
+    
+
 class TherapeuticAreaView(LabelFrame):
     __TITLE_TEXT:str = "Therapeutic Area: "
     def __init__(self, parent, **kwargs):
@@ -127,9 +135,10 @@ class TherapeuticAreaView(LabelFrame):
 
 class RepositoryCategoryView(LabelFrame):
     __TITLE_TEXT:str = "Your categories: "
-    
-    def __init__(self, parent, **kwargs):
-        
+    parent:RepositoryView = None
+
+    def __init__(self, parent:RepositoryView, **kwargs):
+        self.parent = parent
         if "title" in kwargs.keys():
             title = kwargs["title"]
             del kwargs["title"]
@@ -153,6 +162,8 @@ class RepositoryCategoryView(LabelFrame):
 
     def category_list_select(self, *args):
         print(f"{BColors.WARNING}WARN|[{self.__class__.__name__}].categoryListSelect: Re-selecting categories is not implemented yet.{BColors.ENDC}")
+        selection = self.category_list.curselection()[0]
+        self.parent.open_selected_category(selection)
         for arg in args:
             print(f"{arg}")
         raise NotImplementedError()

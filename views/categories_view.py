@@ -80,6 +80,6 @@ class CategoriesView(LabelFrame):
         # return [self.parent.main_app.get_biomedical_concept_names_in_category(index) for index in selection][0]
         # return self.parent.main_app.get_biomedical_concept_names_in_category(selection[0])
         # current_cats = [self.parent.main_app.get_biomedical_concept_category_by_index(index) for index in selection]
-        self.parent.set_current_category(selection[0])
+        self.parent.set_current_category_by_index(selection[0])
         
         self.parent.current_category_container.grab_focus()

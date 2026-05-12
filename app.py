@@ -128,7 +128,7 @@ class App:
                 return bc
         raise ValueError(f"{BColors.FAIL} Request_id should be an UUID in the cache")
         
-    def apply_to_repository(self, bc_dao:dict) -> list[USDM_BC]:
+    def apply_biomedical_concept_to_repository(self, bc_dao:dict) -> list[USDM_BC]:
         if bc_dao["label"] != self.current_biomedical_concept.label:
             self.current_biomedical_concept.label = bc_dao["label"]
         elif verbose_:
@@ -301,12 +301,24 @@ class App:
 
     def get_categories_in_repository(self):
         return self.current_repository.bc_categories
+    
+    def get_nth_category_in_repository(self, number:int):
+        return self.current_repository.bc_categories[number].to_dict()
+
     #endregion
 
     #region Categories list
     def get_category_labels(self):
         categories = self.get_categories()
         return [category.label for category in categories]
+    
+    def get_category_index_by_id(self, id_:str|UUID) -> int:
+        if isinstance(id_,str):
+            id_ = UUID(id_)
+
+        for index, cat in enumerate(self.categories):
+            if cat.id_ == id_:
+                return index
     
     def get_categories(self):
         if self.categories is None or len(self.categories) == 0:
@@ -322,6 +334,8 @@ class App:
         # self.display.categories_container.set_categories([category.label for category in self.categories])
 
     #endregion
+
+
     #region Current Category
     def set_current_category_by_index(self, category_list_index:int):
         self.current_category:USDM_Category = self.categories[category_list_index]

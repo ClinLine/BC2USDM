@@ -1,5 +1,3 @@
-from json import JSONEncoder
-import json
 from tkinter import Menu, filedialog
 from tkinter import DISABLED
 from datetime import date
@@ -47,7 +45,7 @@ class ExportMenu(Menu):
     def on_json_click(self):
         selection = self.app.get_repository()
         if selection is None:
-            selection = f"this is a test string"
+            selection = f"This is a test string"
         
         today = date.today()
         date_str = f"{today.year}-{str(today.month).rjust(2,'0')}-{str(today.day).rjust(2,'0')}"
@@ -65,7 +63,7 @@ class ExportMenu(Menu):
         if file_location is None:
             pass
         elif file_location == "":
-            print("Export canceled by user")
+            print("Export cancelled by user")
         else:
             FileWriter.writeJSON(selection, file_location)
             

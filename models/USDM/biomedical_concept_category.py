@@ -17,7 +17,7 @@ class BiomedicalConceptCategory():
     description: str = None
     code:AliasCode = None
     notes:list[CommentAnnotation] = None
-    notes:list[str] = None
+    # notes:list[str] = None
     # Child categories:
     children:list[BiomedicalConceptCategory] = None
     # member concepts: -> Use dict instead?
@@ -49,6 +49,21 @@ class BiomedicalConceptCategory():
     def get_code(self):
         if self.code.standard_code.code is not None:
             return self.code.standard_code.code
+        
+    def to_dict(self) -> dict:
+        print(f"{BColors.OKBLUE}INFO|[BiomedicalConceptCategory]: printing: {self.label}{BColors.ENDC}")
+        print(f"{BColors.OKBLUE}{self.__dict__}\n\n{BColors.ENDC}")
+        print(f"{BColors.OKBLUE}printing dict:{BColors.ENDC}")
+        for key,value in self.__dict__.items():
+            
+            print(f"{BColors.OKBLUE}{key} - type:{type(value)}{BColors.ENDC}")
+            print(f"{BColors.OKBLUE}{key} - value:{value}{BColors.ENDC}")
+
+        print(f"{BColors.OKBLUE}printing annotations:{BColors.ENDC}")
+        for key,value in self.__annotations__:
+            print(f"{BColors.OKBLUE}{key}:{value}{BColors.ENDC}")
+
+        return self.__dict__
 
     @staticmethod
     def from_json(json:str):
