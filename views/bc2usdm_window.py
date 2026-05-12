@@ -6,6 +6,7 @@ from tkinter import *
 # from props_testing import Properties_Container
 # from uuid import uuid4 as guid
 
+from utils.b_colors import BColors
 from views.categories_view import CategoriesView
 from views.current_biomedical_concept_view import CurrentBiomedicalConceptView
 from views.current_category_view import CurrentCategoryView
@@ -99,22 +100,27 @@ class BC2USDM_Window():
         # now to display the
         self.current_category_container.update_current_category(cat_label, bc_names)
 
-    def get_nth_category_in_repository(self, number:int) -> dict:
-        cat = self.main_app.get_nth_category_in_repository(number)
-        d = cat.to_dict()
-        return d
+    # def get_nth_category_in_repository(self, number:int) -> dict:
+    #     cat = self.main_app.get_nth_category_in_repository(number)
+    #     d = cat.to_dict()
+    #     return d
     
-    def get_category_index_by_id(self, id_:str) -> int:
-        return self.main_app.get_category_index_by_id(id_)
+    # def get_category_index_by_id(self, id_:str) -> int:
+    #     return self.main_app.get_category_index_by_id(id_)
     
-    def open_category_by_id(self, id_:str):
-        index = self.get_category_index_by_id(id_)
-        self.categories_container.categories_overview_listbox.activate(index)
-        
+    # def open_category_by_id(self, id_:str):
+    #     index = self.get_category_index_by_id(id_)
+    #     self.categories_container.categories_overview_listbox.activate(index)
+    
+    def open_selected_category(self, selection):
+        print(f"{BColors.OKGREEN}This is a stub to implement Category Selection{BColors.ENDC}")
+        raise NotImplementedError()
 
 
     def apply_to_repository(self, bc_dict:dict):
         biomedical_concepts_in_repository = self.main_app.apply_biomedical_concept_to_repository(bc_dict)
-        categories_in_repository = self.main_app.get_categories_in_repository()
         self.current_repository_container.update_bc_list(biomedical_concepts_in_repository)
-        self.current_repository_container.update_cat_list(categories_in_repository)
+
+        # Adding bcs no longer automatically adds the associated category, lines will be deleted soon
+        # categories_in_repository = self.main_app.get_categories_in_repository()
+        # self.current_repository_container.update_cat_list(categories_in_repository)

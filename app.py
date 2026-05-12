@@ -289,6 +289,8 @@ class App:
             
         
         self.current_repository.add_biomedical_concept(self.current_biomedical_concept)
+        # Note: No longer adding category to repository when adding singular bc in preperation for expanded category support
+        # Lines will be removed soon
         if self.current_category not in self.current_repository.bc_categories:
             self.current_category.members.append(self.current_biomedical_concept)
             self.current_repository.bc_categories.append(self.current_category)
