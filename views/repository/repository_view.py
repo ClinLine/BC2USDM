@@ -209,6 +209,7 @@ class RepositoryCategoryView(LabelFrame):
 
 class RepositoryBiomedicalConceptsContainer(LabelFrame):
     __TITLE_TEXT:str = "Your Biomedical Concepts:"
+    _btn_padding:int = 5
 
     def __init__(self, parent, **kwargs):
         if "title" in kwargs.keys():
@@ -229,22 +230,28 @@ class RepositoryBiomedicalConceptsContainer(LabelFrame):
         self.rowconfigure(0,weight=1)
 
         # Add container for buttons
-        self._add_buttons()
-
+        btn_container = self._add_buttons()
+        btn_container.config(bg="GREEN")
+        btn_container.grid(column=0, row=1, columnspan=2, sticky=(W,S,E) ,padx=self._btn_padding)
+        # self.rowconfigure(1,weight=0)
+        
 
         
         super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
 
-    def _add_buttons(self, button_padding:int=5):
+    def _add_buttons(self):
         btn_box = Frame(self)
-        btn_box.grid(column=1, row=0, rowspan=2, padx=button_padding)
-        self.rowconfigure(1,weight=0)
-
-        remove_button = Button(self, text="Remove")
-        remove_button.pack(side=LEFT, anchor="se", expand=True, fill=X)
-        open_button = Button(self, text="Open")
         
 
+        remove_button = Button(btn_box, text="Remove")
+        remove_button.pack(side=LEFT, anchor="sw", expand=True, fill=X)
+        open_button = Button(btn_box, text="Open")
+        open_button.pack(side=RIGHT, anchor="se", expand=True, fill=X)
+
+        return btn_box
+        
+
+    
     def update_biomedical_concepts_list (self, bcs:list[BiomedicalConcept]):
         bc_strings:list[str] = [f"{bc.code.standard_code.code} - {bc.label}" for bc in bcs]
         self.bcs_var.set(bc_strings)
