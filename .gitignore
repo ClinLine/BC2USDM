@@ -1,3 +1,5 @@
 .env.dev
 *.7z
 .vscode/*
+*/__pycache__/
+*.pyc
