@@ -25,7 +25,7 @@ class BiomedicalConceptCategory():
     # categories:list[object] = None
 
 
-    def __init__(self, id_, name:str=None, label:str = None, description:str=None, code=None, notes=None, children=None):
+    def __init__(self, id_, name:str=None, label:str = None, description:str=None, code=None, notes=[], children=[]):
         # Default populated params are: label, description & code, where description title
         self.id_ = guid()
         if label is None or label != "":
@@ -41,7 +41,10 @@ class BiomedicalConceptCategory():
                 self.code = code
             else:
                 print(f"Code differed from expected type ({AliasCode.__qualname__}), type = {type(code)}")
-        self.notes = notes
+        if notes is None:
+            self.notes = []
+        else:
+            self.notes = notes
         self.categories = children
         self.code.decode = label
         self.members:list["BiomedicalConcept"] = []
@@ -50,18 +53,7 @@ class BiomedicalConceptCategory():
         if self.code.standard_code.code is not None:
             return self.code.standard_code.code
         
-    def to_dict(self) -> dict:
-        print(f"{BColors.OKBLUE}INFO|[BiomedicalConceptCategory]: printing: {self.label}{BColors.ENDC}")
-        print(f"{BColors.OKBLUE}{self.__dict__}\n\n{BColors.ENDC}")
-        print(f"{BColors.OKBLUE}printing dict:{BColors.ENDC}")
-        for key,value in self.__dict__.items():
-            
-            print(f"{BColors.OKBLUE}{key} - type:{type(value)}{BColors.ENDC}")
-            print(f"{BColors.OKBLUE}{key} - value:{value}{BColors.ENDC}")
-
-        print(f"{BColors.OKBLUE}printing annotations:{BColors.ENDC}")
-        for key,value in self.__annotations__:
-            print(f"{BColors.OKBLUE}{key}:{value}{BColors.ENDC}")
+    
 
         return self.__dict__
 

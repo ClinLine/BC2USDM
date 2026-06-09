@@ -134,7 +134,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
 
         properties = self.properties_frame.get_properties()
 
-        bc:dict = {
+        biomedical_concept_dict:dict = {
             "id_":id_, 
             "label":label, 
             "code": code,
@@ -144,7 +144,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
             "properties":properties
         }
 
-        _ = self.parent.apply_to_repository(bc)
+        _ = self.parent.apply_bc_to_repository(biomedical_concept_dict)
         
 
 

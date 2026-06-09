@@ -1,7 +1,7 @@
 # @dataclass
 from dataclasses import dataclass
 from dataclasses import field
-from uuid import uuid4 as guid
+from uuid import UUID, uuid4 as guid
 from utils.b_colors import BColors
 from models.USDM.code import Code
 
@@ -13,7 +13,7 @@ from models.USDM.code import Code
 class AliasCode():
     # usdm_id (guid)
     # id_ should not be relevent for the model side, only for id based lookups
-    id_:guid
+    id_:UUID
     # ncit Code
     standard_code:Code
     # list of codes for all aliases
@@ -53,7 +53,6 @@ class AliasCode():
     Sample Codes
 
 Following are sample codes you can use with each terminology for testing.
-
     ncit - C3224 - Melanoma
     ncim - C0025202 - Melanoma
     canmed - HCPCS_HPV_VACCINE - HPV Vaccine
@@ -95,7 +94,9 @@ Following are sample codes you can use with each terminology for testing.
             print(f"[AliasCode.assess_code_system:] code recognition other than ncit is not yet supported")
             return "other"
     
-    def __init__(self, standard_code, id_=None, aliases: list[Code] = None, check_code:bool=False):
+    def __init__(self, standard_code, id_=None, aliases: list[Code] = [], check_code:bool=False):
+        
+        # Assign id_
         if(isinstance(id_, str)):
             print(f"[AliasCode.init]String id_ found: {id_}")
         if id_ is None or id_ == "":
@@ -103,6 +104,7 @@ Following are sample codes you can use with each terminology for testing.
             self.id_ = guid()
         else: self.id_ = id_
         
+        # Assign standard_code
         if isinstance(standard_code, str) and check_code:
             print(f"{BColors.WARNING} AliasCode.init: Avoid creating AliasCode by string, provide a Code object instead. {BColors.ENDC}")
             code_system = AliasCode.assess_code_system(standard_code)
@@ -115,7 +117,11 @@ Following are sample codes you can use with each terminology for testing.
                 code=standard_code,
                 code_system=code_system,
                 code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION)
-        self.standard_code_aliases = aliases
+        # Assign Aliases
+        if aliases is None:
+            self.standard_code_aliases:list[Code] = []
+        else:
+            self.standard_code_aliases = aliases
 
     def add_alias(self, alias:Code):
         '''Append provided alias to alias codes list'''
@@ -124,20 +130,14 @@ Following are sample codes you can use with each terminology for testing.
         else:
             self.standard_code_aliases.append(alias)
 
-    # def __eq__(self, value):
-    #     if self.id_ != value.id_:
-    #         print(f"AliasCode.eq: id inequality is currently being disregarded, since it can't be changed by the user.")
-    #     if self.decode != value.decode: return False
-    #     if self.standard_code != value.standard_code: return False
-    #     return True
-    
-    def __contains__(self, item):
-        if not isinstance(item, Code):
-            raise TypeError(f"{BColors.FAIL} AliasCode.contains can only be used to check for code aliases")
+   
+    # def __contains__(self, item):
+    #     if not isinstance(item, Code):
+    #         raise TypeError(f"{BColors.FAIL} AliasCode.contains can only be used to check for code aliases")
         
-        if item in self.standard_code_aliases:
-            return True
-        return False
+    #     if item in self.standard_code_aliases:
+    #         return True
+    #     return False
     
     # def __str__(self):
     #     result = "{"

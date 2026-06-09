@@ -35,7 +35,7 @@ class CommentAnnotation:
             for code in ca.codes:
                 if code.code == code.DEFINITION.code:
                     return ca
-        print(f"{BColors.WARNING}[Warning]: Didn't find a Defninition in notes{BColors.ENDC}")
+        print(f"{BColors.WARNING}[Warning]: Didn't find a Defininition in notes{BColors.ENDC}")
         return None
     
     # def __eq__(self, value):
