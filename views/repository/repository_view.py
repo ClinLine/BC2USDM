@@ -1,8 +1,8 @@
-from tkinter import Entry, IntVar, Label, LabelFrame, Listbox, Scrollbar, StringVar, Variable
+from tkinter import Button, Entry, Frame, IntVar, Label, LabelFrame, Listbox, Scrollbar, StringVar, Variable
 from tkinter.constants import *
 from uuid import uuid4 as guid
 
-from app import BColors
+from utils.b_colors import BColors
 from models.USDM.biomedical_concept import BiomedicalConcept
 from models.USDM.biomedical_concept_category import BiomedicalConceptCategory
 from models.USDM.therapeutic_area import TherapeuticArea
@@ -47,10 +47,8 @@ class RepositoryView(LabelFrame):
     def update_cat_list(self, categories:list[BiomedicalConceptCategory]):
         self.categories_container.update_category_list(categories)
 
-    def open_selected_category(self, number:int):
-        index = self.parent.get_nth_category_in_repository(number)["id_"]
-        # index:int = self.parent.get_category_index_by_id(category["id_"])
-        self.parent.open_category_by_id(index)
+    def open_selected_category(self, selection):
+        self.parent.open_selected_category(selection)
 
     
     
@@ -147,23 +145,48 @@ class RepositoryCategoryView(LabelFrame):
         super().__init__(parent, text=title, **kwargs)
         
         self.category_names_var = Variable(value=[])
-        bc_scrollbar_y = Scrollbar(self,orient=VERTICAL)
-        bc_scrollbar_y.grid(column=1,row=0,sticky=(N,E,S))
-        self.category_list = Listbox(self, justify=LEFT, listvariable=self.category_names_var,
-                               yscrollcommand=bc_scrollbar_y.set)
+        category_scrollbar_y = Scrollbar(self,orient=VERTICAL)
+        category_scrollbar_y.grid(column=1,row=0,sticky=(N,E,S))
+        self.category_list = Listbox(
+            self,
+            justify=LEFT,
+            listvariable=self.category_names_var,
+            yscrollcommand=category_scrollbar_y.set,
+            state="disabled" # Disabling listbox since category editing isn't supported yet
+            )
         self.category_list.bind("<ButtonRelease>", self.category_list_select)
         self.category_list.grid(column=0, row=0, sticky=NSEW)
-        bc_scrollbar_y.config(command=self.category_list.yview)
+        category_scrollbar_y.config(command=self.category_list.yview)
         self.columnconfigure(0,weight=1)
         self.rowconfigure(0,weight=1)
 
+        # # Add buttons to manage categories later:
+        # btns_frame = Frame(self)
+        # # Stick buttons to the bottom of this container
+        # btns_frame.grid(column=0, row=1, columnspan=2, sticky=(S,E,W))
+        # remove_btn = Button(btns_frame, text="Remove")
+        # open_btn = Button(btns_frame, text="Open")
 
-        super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
+        # remove_btn.pack(anchor="sw", fill=X, side=LEFT, expand=TRUE)
+        # open_btn.pack(anchor="se", fill=X, side=RIGHT, expand=TRUE)
+
+        # TODO: Re anable packinging when supporting category customization again
+        # super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
 
     def category_list_select(self, *args):
+        # TODO: Do we still need this, might be better handeled with btns
         print(f"{BColors.WARNING}WARN|[{self.__class__.__name__}].categoryListSelect: Re-selecting categories is not implemented yet.{BColors.ENDC}")
-        selection = self.category_list.curselection()[0]
-        self.parent.open_selected_category(selection)
+        cur_selection = self.category_list.curselection()
+        print(cur_selection)
+        try:
+            selection = self.category_list.curselection()[0]
+        except IndexError as err:
+            # TODO add optional verbose/dev logging
+            # Assuming listbox is empty when getting an index out of range error
+            # So returning
+            return
+        else:
+            self.parent.open_selected_category(selection)
         for arg in args:
             print(f"{arg}")
         raise NotImplementedError()
@@ -182,10 +205,11 @@ class RepositoryCategoryView(LabelFrame):
     #   - "childIds":[]                                                             -> const (empty Array)
     #   - "memberIds": [$(BimodecidalConcept1), $(BiomedicalConcept2)],             -> Derived value
     #   - "instanceType": "BiomedicalConceptCategory",                              -> Const Value
-    #   - "notes": []                                                               -> const (empty Array)
+    #   - "notes": []
 
 class RepositoryBiomedicalConceptsContainer(LabelFrame):
     __TITLE_TEXT:str = "Your Biomedical Concepts:"
+    _btn_padding:int = 5
 
     def __init__(self, parent, **kwargs):
         if "title" in kwargs.keys():
@@ -205,9 +229,29 @@ class RepositoryBiomedicalConceptsContainer(LabelFrame):
         self.columnconfigure(0,weight=1)
         self.rowconfigure(0,weight=1)
 
+        # Add container for buttons
+        btn_container = self._add_buttons()
+        btn_container.config(bg="GREEN")
+        btn_container.grid(column=0, row=1, columnspan=2, sticky=(W,S,E) ,padx=self._btn_padding)
+        # self.rowconfigure(1,weight=0)
+        
+
         
         super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
 
+    def _add_buttons(self):
+        btn_box = Frame(self)
+        
+
+        remove_button = Button(btn_box, text="Remove")
+        remove_button.pack(side=LEFT, anchor="sw", expand=True, fill=X)
+        open_button = Button(btn_box, text="Open")
+        open_button.pack(side=RIGHT, anchor="se", expand=True, fill=X)
+
+        return btn_box
+        
+
+    
     def update_biomedical_concepts_list (self, bcs:list[BiomedicalConcept]):
         bc_strings:list[str] = [f"{bc.code.standard_code.code} - {bc.label}" for bc in bcs]
         self.bcs_var.set(bc_strings)
