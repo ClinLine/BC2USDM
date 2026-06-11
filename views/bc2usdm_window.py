@@ -79,10 +79,10 @@ class BC2USDM_Window():
         self.current_repository_container = RepositoryView(self, width=self.__data_column_width[3], x=self.__default_width-self.__data_column_width[3])
         self.root.mainloop()
 
-    def set_current_bc(self, bc):
+    def set_current_bc(self, bc, already_in_repository:bool=False):
         # Set current bc in main app
-        self.main_app.set_current_bc(bc)
-        self.current_bc_container.update_view(bc)
+        # self.main_app.set_current_bc(bc)
+        self.current_bc_container.update_view(bc, already_in_repository)
 
     # def update_current_bc(self, attr_name, value):
     #     self.main_app.update_current_bc(attr_name, value)
@@ -115,7 +115,14 @@ class BC2USDM_Window():
     def open_selected_category(self, selection):
         print(f"{BColors.OKGREEN}This is a stub to implement Category Selection{BColors.ENDC}")
         raise NotImplementedError()
+    
+    def open_selected_biomedical_concept(self, selection:int):
+    
+        bc = self.main_app.select_bc_from_repository(selection)
+        self.current_bc_container.update_view(bc, True)
 
+    def remove_nth_bc_from_repository(self, selection:int) -> None:
+        self.main_app.remove_nth_bc_from_repository(selection)
 
     def apply_bc_to_repository(self, bc_dict:dict):
         biomedical_concepts_in_repository = self.main_app.apply_biomedical_concept_to_repository(bc_dict)
@@ -123,3 +130,6 @@ class BC2USDM_Window():
         # Adding bcs no longer automatically adds the associated category, lines will be deleted soon
         # categories_in_repository = self.main_app.get_categories_in_repository()
         # self.current_repository_container.update_cat_list(categories_in_repository)
+
+    def set_editor_apply_btn_text(self, value:str="Add"):
+        self.current_bc_container.set_apply_bc_button_text(value)

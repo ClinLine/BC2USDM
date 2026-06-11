@@ -68,7 +68,7 @@ class App:
 
     def _initialize_state(self):
         self.current_biomedical_concept = None
-        self.original_biomedical_concept = None
+        # self.original_biomedical_concept = None
         
         if verbose_:
             print("[Info] App.initialize_state: Initializing")
@@ -76,7 +76,7 @@ class App:
         print("\033[93m [Warning] App.initialize_state: No active repository found, creating new one \033[0m")
         print("\033[93m [Warning] App.initialize_state: Loading pre-existing repositories is not supported yet \033[0m")
         self.current_repository = Repository()
-        self.persistent_cdisc_repository = Repository()
+        # self.persistent_cdisc_repository = Repository()
         # self.persistent_cdisc_repository.business_therapeutic_areas = [TherapeuticArea(Code(code="USDM_PD01", code_system=Code.CodeSystem.CDISC,code_system_version="latest").decode("Latest retrieved repository items"))]
         json_categories = API.get_latest_biomedical_concept_categories()
         usdm_categories:list[USDM_Category] = list(map(USDM_Category.from_json, json_categories))
@@ -113,20 +113,29 @@ class App:
             return self.current_repository.business_therapeutic_areas
         
     def get_bcs_in_repository(self) -> list[USDM_BC]:
-        return self.current_repository.biomedical_concepts.values()
+        return list(self.current_repository.biomedical_concepts.values())
     
     def get_if_in_repository(self, id_:UUID)-> USDM_BC | None:
-        for temp_bc in self.get_bcs_in_repository():
-            # print(temp_bc)
-            if id_ == temp_bc.id_:
-                return temp_bc
+        
+        if self.exists_in_repository(id_):
+            return self.get_biomedical_concept_by_id(id_)
         return None
     
-    def get_from_cdisc_repository(self, request_id:UUID) -> USDM_BC:
-        for uuid, bc in self.persistent_cdisc_repository.biomedical_concepts.items():
-            if uuid == request_id:
-                return bc
-        raise ValueError(f"{BColors.FAIL} Request_id should be an UUID in the cache")
+    def exists_in_repository(self, id_:UUID) -> bool:
+        '''
+        Returns <code>True</code> if repository contains a BiomedicalConcept with the provided id,
+        otherwise returns <code>False</code>'''
+        return self.current_repository.contains_biomedical_concept(id_=id_)
+    
+    def remove_nth_bc_from_repository(self, selection:int) -> None:
+        self.current_repository.remove_nth_biomedical_concept(selection)
+
+
+    # def get_from_cdisc_repository(self, request_id:UUID) -> USDM_BC:
+    #     for uuid, bc in self.persistent_cdisc_repository.biomedical_concepts.items():
+    #         if uuid == request_id:
+    #             return bc
+    #     raise ValueError(f"{BColors.FAIL} Request_id should be an UUID in the cache")
         
     def apply_biomedical_concept_to_repository(self, bc_dao:dict) -> list[USDM_BC]:
         if bc_dao["label"] != self.current_biomedical_concept.label:
@@ -240,19 +249,19 @@ class App:
 
                     # RESPONSE CODES
                     if verbose_:
-                            if prop.response_codes is None:
-                                print(f"{BColors.WARNING}WARN|[App].apply_to_repository: prop.response_codes should never be none, it should be [] instead{BColors.ENDC}")
-                            elif len(prop.response_codes) > 0:
-                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to resolve response codes{BColors.ENDC}")
-                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Number of Response Codes found: {len(prop.response_codes)}{BColors.ENDC}")
-                            if len(dao_prop["response_codes"]) > 0:
-                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first dao_rc is:{dao_prop["response_codes"][0]}{BColors.ENDC}")
-                            if len(prop.response_codes)> 0:
-                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: prop rc is:{prop.response_codes[0].label}{BColors.ENDC}")
-                            if len(dao_prop["response_codes"]) > len(prop.response_codes) :
-                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: amount of added notes is:{len(dao_prop["response_codes"][len(prop.notes):])}{BColors.ENDC}")
-                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first adde note is:{dao_prop["response_codes"][len(prop.response_codes):][0]}{BColors.ENDC}")
-                                print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to add additional {BColors.ENDC}")
+                        if prop.response_codes is None:
+                            print(f"{BColors.WARNING}WARN|[App].apply_to_repository: prop.response_codes should never be none, it should be [] instead{BColors.ENDC}")
+                        elif len(prop.response_codes) > 0:
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to resolve response codes{BColors.ENDC}")
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Number of Response Codes found: {len(prop.response_codes)}{BColors.ENDC}")
+                        if len(dao_prop["response_codes"]) > 0:
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first dao_rc is:{dao_prop["response_codes"][0]}{BColors.ENDC}")
+                        if len(prop.response_codes)> 0:
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: prop rc is:{prop.response_codes[0].label}{BColors.ENDC}")
+                        if len(dao_prop["response_codes"]) > len(prop.response_codes) :
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: amount of added notes is:{len(dao_prop["response_codes"][len(prop.notes):])}{BColors.ENDC}")
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: first adde note is:{dao_prop["response_codes"][len(prop.response_codes):][0]}{BColors.ENDC}")
+                            print(f"{BColors.OKBLUE}INFO|[App].apply_to_repository: Attempting to add additional {BColors.ENDC}")
 
                     for rc in prop.response_codes:
                         for index, rc_dict in enumerate(dao_prop["response_codes"]):
@@ -332,7 +341,7 @@ class App:
 
     def set_categories(self, categories:list[USDM_Category]):
         self.categories = categories
-        self.persistent_cdisc_repository.bc_categories = categories
+        # self.persistent_cdisc_repository.bc_categories = categories
         # self.display.categories_container.set_categories([category.label for category in self.categories])
 
     #endregion
@@ -366,9 +375,9 @@ class App:
             biomedical_concepts_in_category = _bcs_in_category
         
         
-        for bc in biomedical_concepts_in_category:
-            if bc.id_ not in self.persistent_cdisc_repository.biomedical_concepts:
-                self.persistent_cdisc_repository.add_biomedical_concept(bc)
+        # for bc in biomedical_concepts_in_category:
+            # if bc.id_ not in self.persistent_cdisc_repository.biomedical_concepts:
+            #     self.persistent_cdisc_repository.add_biomedical_concept(bc)
         # self.persistent_cdisc_repository.biomedical_concepts.extend(self.biomedical_concepts_in_current_category)
        
         # self.biomedical_concepts_in_category = [USDM_BC(bc) for bc in API.get_biomedical_concepts_list(category.get_code(), all_codes)]
@@ -384,7 +393,7 @@ class App:
     
 
     #region Current Biomedical Concept
-    def select_bc(self, index:int):
+    def select_bc(self, index:int) -> None:
         if len(self.biomedical_concepts_in_current_category) > 0:
             selected_bc = self.biomedical_concepts_in_current_category[index]
             
@@ -404,6 +413,10 @@ class App:
             self.current_biomedical_concept = selected_bc
             return selected_bc
         return None
+    
+    def select_bc_from_repository(self, index:int) -> USDM_BC:
+        self.current_biomedical_concept = self.get_bcs_in_repository()[index]
+        return self.current_biomedical_concept
 
     def get_biomedical_concept_by_id(self, id_:UUID) -> USDM_BC | None:
         for bc in self.biomedical_concepts:

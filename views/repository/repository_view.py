@@ -1,6 +1,10 @@
-from tkinter import Button, Entry, Frame, IntVar, Label, LabelFrame, Listbox, Scrollbar, StringVar, Variable
-from tkinter.constants import *
-from uuid import uuid4 as guid
+from tkinter import Button, Entry, Frame, Label, LabelFrame, Listbox, Scrollbar, StringVar, Variable
+# from tkinter.constants import *
+from tkinter.constants import N, E, S, W # cardinals, sticky
+from tkinter.constants import NW, SE, SW # Anchors
+from tkinter.constants import VERTICAL # Allignment
+from tkinter.constants import X, BOTH # X/Y & Expand
+from tkinter.constants import TOP, LEFT, RIGHT # Side
 
 from utils.b_colors import BColors
 from models.USDM.biomedical_concept import BiomedicalConcept
@@ -18,8 +22,8 @@ class RepositoryView(LabelFrame):
 
     def __init__(self, parent, **kwargs):
         self.parent = parent
-        x = kwargs["x"]
-        del kwargs["x"]
+        x = kwargs[X]
+        del kwargs[X]
 
         if "title" in kwargs.keys():
             title = kwargs["title"]
@@ -33,10 +37,10 @@ class RepositoryView(LabelFrame):
         self.get_therapeutic_area = lambda index=0 : self.parent.main_app.get_therapeutic_areas(index)
         self.therapeutic_area_container = TherapeuticAreaView(self)
         
-        self.categories_container = RepositoryCategoryView(self)
+        # self.categories_container = RepositoryCategoryView(self)
         self.added_biomedical_concepts_container = RepositoryBiomedicalConceptsContainer(self)
         
-        super().place(anchor="nw",width=kwargs["width"], x=x, relheight=1)
+        super().place(anchor=NW,width=kwargs["width"], x=x, relheight=1)
 
         self.set_document_version = parent.main_app.set_document_version
         self.set_therapeutic_area_decode = parent.main_app.set_therapeutic_area_decode
@@ -44,12 +48,20 @@ class RepositoryView(LabelFrame):
     def update_bc_list(self, bcs:list[BiomedicalConcept]):
         self.added_biomedical_concepts_container.update_biomedical_concepts_list(bcs)
 
-    def update_cat_list(self, categories:list[BiomedicalConceptCategory]):
-        self.categories_container.update_category_list(categories)
+    # def update_cat_list(self, categories:list[BiomedicalConceptCategory]):
+    #     self.categories_container.update_category_list(categories)
 
     def open_selected_category(self, selection):
         self.parent.open_selected_category(selection)
 
+    def open_selected_biomedical_concept(self, selection):
+        self.parent.open_selected_biomedical_concept(selection)
+
+    def remove_bc_from_repository(self, selection:int) -> None:
+        self.parent.remove_nth_bc_from_repository(selection)
+
+    def set_editor_apply_btn_text(self, value:str="Add"):
+        self.parent.set_editor_apply_btn_text(value)
     
     
 
@@ -80,7 +92,7 @@ class TherapeuticAreaView(LabelFrame):
         Label(self, text="Code:").grid(row=_row, column=0, sticky=W)
         self.code_var = StringVar(value=this_ta.code.code)
         code_entry = Entry(self, justify=LEFT, textvariable=self.code_var, state="readonly")
-        code_entry.grid(row=(_row:=_row+1)-1, column=1, sticky=NSEW)
+        code_entry.grid(row=(_row:=_row+1)-1, column=1, sticky=(N,W,S,E))
 
         # Skipping UI element since this is a constant value
         #   - "codeSystem": "CUSTOM"                                                    -> Const Value
@@ -93,7 +105,7 @@ class TherapeuticAreaView(LabelFrame):
         Label(self, text="Version:").grid(row=_row, column=0, sticky=W)
         self.document_version_var = StringVar(value=this_ta.code.code_system_version)
         document_version_entry = Entry(self, justify=LEFT, textvariable=self.document_version_var)
-        document_version_entry.grid(column=1, row=(_row:=_row+1)-1, sticky=NSEW)
+        document_version_entry.grid(column=1, row=(_row:=_row+1)-1, sticky=(N,W,S,E))
         document_version_entry.bind("<FocusOut>",self.on_version_entry_focus_out)
         
         # Skipping ui element since this a contant value
@@ -107,7 +119,7 @@ class TherapeuticAreaView(LabelFrame):
         Label(self, text="Description").grid(row=_row, column=0, sticky=W)
         self.decode_var = StringVar(value=this_ta.code.decode)
         decode_entry = Entry(self, justify=LEFT, textvariable=self.decode_var)
-        decode_entry.grid(column=1, row=(_row:=_row+1)-1, sticky=NSEW)
+        decode_entry.grid(column=1, row=(_row:=_row+1)-1, sticky=(N,W,S,E))
         decode_entry.bind("<FocusOut>", self.on_decode_entry_focus_out)
         
         self.columnconfigure(index=1, weight=1)
@@ -155,7 +167,7 @@ class RepositoryCategoryView(LabelFrame):
             state="disabled" # Disabling listbox since category editing isn't supported yet
             )
         self.category_list.bind("<ButtonRelease>", self.category_list_select)
-        self.category_list.grid(column=0, row=0, sticky=NSEW)
+        self.category_list.grid(column=0, row=0, sticky=(N,W,S,E))
         category_scrollbar_y.config(command=self.category_list.yview)
         self.columnconfigure(0,weight=1)
         self.rowconfigure(0,weight=1)
@@ -212,6 +224,7 @@ class RepositoryBiomedicalConceptsContainer(LabelFrame):
     _btn_padding:int = 5
 
     def __init__(self, parent, **kwargs):
+        self.parent = parent
         if "title" in kwargs.keys():
             title = kwargs["title"]
             del kwargs["title"]
@@ -222,34 +235,63 @@ class RepositoryBiomedicalConceptsContainer(LabelFrame):
         bc_scrollbar_y = Scrollbar(self,orient=VERTICAL)
         bc_scrollbar_y.grid(column=1,row=0,sticky=(N,E,S))
         self.bc_list = Listbox(self, justify=LEFT, listvariable=self.bcs_var,
-                               yscrollcommand=bc_scrollbar_y.set)
-        self.bc_list.bind()
-        self.bc_list.grid(column=0, row=0, sticky=NSEW)
+                               yscrollcommand=bc_scrollbar_y.set, selectmode="single")
+        # self.bc_list.bind() # Using button to open instead
+        self.bc_list.grid(column=0, row=0, sticky=(N,W,S,E))
         bc_scrollbar_y.config(command=self.bc_list.yview)
         self.columnconfigure(0,weight=1)
         self.rowconfigure(0,weight=1)
 
         # Add container for buttons
         btn_container = self._add_buttons()
-        btn_container.config(bg="GREEN")
         btn_container.grid(column=0, row=1, columnspan=2, sticky=(W,S,E) ,padx=self._btn_padding)
         # self.rowconfigure(1,weight=0)
         
-
-        
-        super().pack(anchor=N, expand=TRUE, fill=BOTH, side=TOP)
+        super().pack(anchor=N, expand=True, fill=BOTH, side=TOP)
 
     def _add_buttons(self):
         btn_box = Frame(self)
         
-
         remove_button = Button(btn_box, text="Remove")
-        remove_button.pack(side=LEFT, anchor="sw", expand=True, fill=X)
+        remove_button.pack(side=LEFT, anchor=SW, expand=True, fill=X)
         open_button = Button(btn_box, text="Open")
-        open_button.pack(side=RIGHT, anchor="se", expand=True, fill=X)
-
-        return btn_box
+        open_button.pack(side=RIGHT, anchor=SE, expand=True, fill=X)
+        open_button.bind("<ButtonRelease-1>", self._open_btn_handler)
+        remove_button.bind("<ButtonRelease-1>", self._remove_btn_handler)
         
+        return btn_box
+    
+    
+    def _open_btn_handler(self, event):
+        if not len(self.bcs_var.get()) > 0:
+            return
+        
+        # print(self.bc_list.curselection())
+        if len(self.bc_list.curselection()):
+            selection:int = self.bc_list.curselection()[0]
+        else:
+            selection:int = 0
+        self.parent.open_selected_biomedical_concept(selection)
+
+    def _remove_btn_handler(self, event):
+        if not len(self.bcs_var.get()) > 0 or not self.bc_list.curselection():
+            print(f"{BColors.OKGREEN}No bcs to select or no bc selected, exiting.{BColors.ENDC}")
+            
+            return
+        
+        # print(self.bc_list.curselection())
+        if len(self.bc_list.curselection()):
+            selection:int = self.bc_list.curselection()[0]
+        else:
+            selection:int = 0
+        
+        print(f"{BColors.OKGREEN}index: {selection}{BColors.ENDC}")
+        self.parent.set_editor_apply_btn_text("Add")
+        self.parent.remove_bc_from_repository(selection)
+        temp_var =list(self.bcs_var.get()) #cast to list, since tuples are immutable
+        temp_var.pop(selection)
+        self.bcs_var.set(temp_var)
+
 
     
     def update_biomedical_concepts_list (self, bcs:list[BiomedicalConcept]):

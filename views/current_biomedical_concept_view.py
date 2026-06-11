@@ -8,6 +8,9 @@ from views.property.properties_view import PropertiesView
 # and the UI code is a mess
 class CurrentBiomedicalConceptView(LabelFrame):
     DEFAULT_TITLE = "Current Biomedical Concept"
+    APPLY_TEXT = "Apply Changes"
+    ADD_TEXT = "Add"
+
     def __init__(self, parent,  width, x, **kwargs):
         self.parent = parent
         if "title" in kwargs.keys():
@@ -94,7 +97,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
         bc_synonyms_entry.bind("<Return>", lambda event: self.synonym_add_cmd(bc_synonyms_entry.get()))
         # self.bc_synonyms_entry.bind("<Return>", self.synonym_add_cmd)
         
-        self.notes_frame = NotesFrame(self, notes="")
+        self.notes_frame = NotesFrame(self, notes=[])
         # self.notes_frame.pack(side=TOP, fill=BOTH, expand=FALSE)
         self.notes_frame.grid(row=(i:=i+1)-1, column=0, columnspan=2, sticky=NSEW, in_=self.master_frame)
         
@@ -105,7 +108,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
         # Add add and remove btn
         btn_frame = Frame(self)
         btn_frame.pack(side=BOTTOM, fill=BOTH, expand=FALSE, padx=(5,5), pady=(0,5))
-        self.apply_txt_var = StringVar(value="Add")
+        self.apply_txt_var = StringVar(value=CurrentBiomedicalConceptView.ADD_TEXT)
         apply_btn = Button(btn_frame, textvariable=self.apply_txt_var, state="disabled")
         apply_btn["command"] = self.apply_changes_to_repository
         apply_btn.grid(row=0,column=1, sticky=EW)
@@ -145,6 +148,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
         }
 
         _ = self.parent.apply_bc_to_repository(biomedical_concept_dict)
+        self.apply_txt_var.set(CurrentBiomedicalConceptView.APPLY_TEXT)
         
 
 
@@ -173,7 +177,7 @@ class CurrentBiomedicalConceptView(LabelFrame):
         self.bc_synonyms_listbox.config(height=label_height)
         self.bc_synonyms_entry_value.set("")
 
-    def update_view(self, bc, **kwargs):
+    def update_view(self, bc, already_in_repository:bool=False, **kwargs):
         # for kw, arg in kwargs:
         #     print(f"{kw}:{arg}")
 
@@ -194,12 +198,17 @@ class CurrentBiomedicalConceptView(LabelFrame):
 
         # Enable apply button
         self.apply_btn["state"] = "normal"
-        
+        if already_in_repository:
+            self.set_apply_bc_button_text(CurrentBiomedicalConceptView.APPLY_TEXT)
+        else:
+            self.set_apply_bc_button_text(CurrentBiomedicalConceptView.ADD_TEXT)
+        # self.set_editor_apply_btn_text("Add BC")
         # if bc._properties is not None:
         #     for prop in bc._properties:
         #         self.properties_frame.add_property(prop)
 
     
-
+    def set_apply_bc_button_text(self, value:str=APPLY_TEXT):
+        self.apply_txt_var.set(value)
         
 
