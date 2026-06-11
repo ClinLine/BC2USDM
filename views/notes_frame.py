@@ -1,13 +1,14 @@
 from tkinter import LabelFrame, PanedWindow, StringVar, Text
 from tkinter.constants import *
 
+from models.USDM.comment_annotation import CommentAnnotation
 from utils.b_colors import BColors
 from views.scroll_frame import ScrollFrame
 
 
 class NotesFrame(LabelFrame):
     _line_height = 16 #pixels
-    def __init__(self, parent, lines=4, notes:list[str]=[""], min_textboxes=1, max_textboxes=3, *args, **kwargs):
+    def __init__(self, parent, lines=4, notes:list[CommentAnnotation]=[""], min_textboxes=1, max_textboxes=3, *args, **kwargs):
         self.lines=lines
         self.min_textboxes=min_textboxes
         self.max_textboxes=max_textboxes
@@ -25,7 +26,7 @@ class NotesFrame(LabelFrame):
         # Create a Textbox for each Note
         if notes is not None:
             for note_index, note in enumerate(notes):
-                self._add_text_box(note,4)
+                self._add_text_box(note.text,4)
 
         # when placing in the scrollframe, we pack scrollFrame itself (NOT the viewPort)
         self.scroll_frame.pack(side=TOP, fill=BOTH, expand=TRUE)

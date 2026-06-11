@@ -52,6 +52,14 @@ class Repository:
     def set_biomedical_concept(self, bc_id:UUID, biomedical_concept:BiomedicalConcept):
         self.biomedical_concepts.update((bc_id, biomedical_concept))
 
+    def remove_nth_biomedical_concept(self, n:int) -> None:
+        # del self.biomedical_concepts[n]
+        for index, uuid in enumerate(self.biomedical_concepts):
+            if n == index:
+                self.biomedical_concepts.pop(uuid)
+                return
+        # self.biomedical_concepts.pop(key)
+
     def update_biomedical_concept(self, data:dict[UUID, dict[str,any]], id_:UUID):
         dirty = False
         
@@ -105,9 +113,11 @@ class Repository:
                                 code_system="CUSTOM",
                                 code_system_version=self.business_therapeutic_areas[0].code.code_system_version)]))
 
-        # old_bc.properties
-        # for new_prop in data[id_]["properties"]:
-        #     for old_prop in old_bc.properties:
-        #         # if new_prop
-        # compair property
-        # set property
+    def contains_biomedical_concept(self, id_:UUID=None, **kwargs) -> bool:
+        if id_ is not None:
+            for temp_bc in self.biomedical_concepts.values():
+                if id_ == temp_bc.id_:
+                    return True
+            return False
+        if len(kwargs) != 0 and id_ is not None:
+            raise NotImplementedError(f"Parameter with name {kwargs.keys()[0]} is not supported")

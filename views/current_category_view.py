@@ -58,8 +58,8 @@ class CurrentCategoryView(LabelFrame):
             return
 
         temp_bc = self.parent.main_app.select_bc(selection[0])
-        
-        self.parent.set_current_bc(temp_bc)
+        already_in_repo:bool = self.parent.main_app.exists_in_repository(temp_bc.id_)
+        self.parent.set_current_bc(temp_bc, already_in_repo)
         
 
     def grab_focus(self):
