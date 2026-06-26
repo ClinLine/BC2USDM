@@ -25,7 +25,8 @@ class IterEncoder(json.JSONEncoder):
         try:
             iterable = iter(o)
         except TypeError as err:
-            print(f"{BColors.OKCYAN}INFO|[IterEncoder]: {err}, exiting IterEncoder{BColors.ENDC}")
+            if VERBOSE_:
+                print(f"{BColors.OKCYAN}INFO|[IterEncoder]: {err}, exiting IterEncoder{BColors.ENDC}")
         else:
             return list(iterable)
         # Let the base class default method raise the TypeError
@@ -95,7 +96,7 @@ class CommentAnnotationEncoder(json.JSONEncoder):
             print(f"INFO|[CommentAnnotationEncoder]: encoding {o.__class__.__name__}")
         
         if isinstance(o, CommentAnnotation):
-            print(o.__dict__)
+            if VERBOSE_: print(o.__dict__)
             comment_annotation = {}
             try:
                 if o.codes is not None:
@@ -216,8 +217,8 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
         if VERBOSE_:
             print(f"{BColors.OKCYAN}INFO | [BiomedicalConceptEncoder]: ADDING NOTES!!{BColors.ENDC}")
             print("provided notes:")
-        for note in notes:
-            print(note.text)#{[f"{note.text}" for note in notes]}")
+            for note in notes:
+                print(note.text)#{[f"{note.text}" for note in notes]}")
         try:
             # Observation: calling super().default(notes) does never reach IterEncoder sibling class
             # Moved IterEncoder down in hierchy in attempt to fix this.
@@ -262,10 +263,10 @@ class BiomedicalConceptEncoder(json.JSONEncoder):
             biomedicalConcept["reference"] = o.reference
             # if o.category is not None and o.category != "":
             #     biomedicalConcept["category"] = o.category
-            print(f"{BColors.WARNING} BC ENCODER: NOT ADDING propeties yet!!{BColors.ENDC}")
             if hasattr(o, "properties") and o.properties is not None and len(o.properties) > 0:
-                print("properties found")
-            biomedicalConcept["properties"] = self.do_props(o.properties)
+                if VERBOSE_:
+                    print("properties found")
+                biomedicalConcept["properties"] = self.do_props(o.properties)
             
            
             biomedicalConcept["code"] = self.do_code(o.code)

@@ -268,17 +268,17 @@ class App:
                             if rc.id_ == UUID(rc_dict["id_"]):
                                 rc.label = rc_dict["label"]
                                 rc.is_enabled = rc_dict["is_enabled"]
-                            # If code still matches, continue to new item
-                            if rc.code.code == rc_dict["code"]:
+                                # If code still matches, continue to new Responsecode 'rc' in outer loop
+                                if rc.code.code == rc_dict["code"]:
+                                    break
+                                else:
+                                    rc.code = Code(
+                                        code=rc_dict["code"],
+                                        code_system=Code.CodeSystem.CUSTOM,
+                                        code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION,
+                                        decode="A user-defined symbol or combination of symbols representing the response to the question.")
+                                # Since we encountered a match and applied the changes, we are breaking out of the inner loop, to look for the next match
                                 break
-                            else:
-                                rc.code = Code(
-                                    code=rc_dict["code"],
-                                    code_system=Code.CodeSystem.CUSTOM,
-                                    code_system_version=Code.DEFAULT_CODE_SYSTEM_VERSION,
-                                    decode="A user-defined symbol or combination of symbols representing the response to the question.")
-                            # Since we encountered a match and applied the changes, we are breaking out of the inner loop, to look for the next match
-                            break
                     if len(prop.response_codes) < len(dao_prop["response_codes"]):
                         for dao_rc in dao_prop["response_codes"][len(prop.response_codes):]:
                             if dao_rc["code"] == DEFAULT_RESPONSE_CODE_CODE.code:
