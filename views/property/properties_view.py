@@ -8,6 +8,8 @@ from views.scroll_frame import ScrollFrame
 
 
 class PropertiesView(ttk.LabelFrame):
+    VERBOSE_ = False
+    
     new_prop_btn:ttk.Button = None
     new_prop_btn_name:str = ".!currentbiomedicalconceptview.!propertiescontainer.!scrollframe.!canvas.!viewport.add_btn"
     
@@ -75,7 +77,8 @@ class PropertiesView(ttk.LabelFrame):
 
     def create_new_property_frame(self, event, *args):
         # TODO method doesn't do anything yet
-        print("Attempting to add new property")
+        if PropertiesView.VERBOSE_:
+            print("Attempting to add new property")
         ...
         # raise NotImplementedError("Adding new properties is not yet implemented")
         

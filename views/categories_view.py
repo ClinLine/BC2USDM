@@ -5,6 +5,7 @@ from tkinter.constants import *
 CATEGORY_LISTBOX_NAME = "category-listbox"
 
 class CategoriesView(LabelFrame):
+    VERBOSE_=False
     category_names:StringVar
     categories_overview_frame:LabelFrame
     TITLE_TEXT:str = "Biomedical Categories:"
@@ -72,7 +73,8 @@ class CategoriesView(LabelFrame):
     def _listbox_onclick(self, event, **kwargs):
         selection = event.widget.curselection() # default = () (Empty tuple)
         if isinstance(selection, tuple) and len(selection) == 0:
-            print(f"[CategoriesView._listbox_onclick:] no index found in selection")
+            if CategoriesView.VERBOSE_:
+                print(f"[CategoriesView]_listbox_onclick: no index found in selection")
             selection = (0,)
             return
         
