@@ -1,8 +1,12 @@
 # BC2USDM
 This tool shows how CDISC Biomedical Concepts obtained form CDISCs BC library can be selected and configured for the purpose of a flexible metadata repository. It will include the ability to add new properties and response values based on the rquirements from the company and therapeutic area. Note that a CDISC API is needed for the BC library which can be retrieved based on CDISC membership.
 
+## Develoment and questions
+This tool is co-developped by ClinLine (design & knowledge) and Breen Services (development). For more information, utilization, and support, feel free to contact us. More information can be found via the websites of ClinLine (www.clinline.org) and Breen Services (https://breenservices.nl/)
 
-To run the tool:
+This tool will be further developped with new features and show cases. 
+
+## To run the tool:
 
 Make sure you set up a virtual environement and all packages are installed using:
 ```
